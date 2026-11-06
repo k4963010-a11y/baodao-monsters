@@ -12,6 +12,15 @@
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
+    },
+    "inbox": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && !newData.exists()",
+        "$msg": {
+          ".write": "auth != null && ((newData.exists() && newData.child('from').val() === auth.uid) || (!newData.exists() && auth.uid === $uid))"
+        }
+      }
     }
   }
 }

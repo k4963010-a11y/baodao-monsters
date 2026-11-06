@@ -167,8 +167,8 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-175705';
+import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import CONFIG from './firebase-config.js?v=20261106-180320';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -201,7 +201,10 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
   onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
-  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+  const dcb=[];const inbox=ref(rdb,'inbox/'+uid);remove(inbox).catch(()=>{});
+  onChildAdded(inbox,s=>{const v=s.val();remove(s.ref).catch(()=>{});if(v&&typeof v==='object')dcb.forEach(f=>{try{f(v)}catch(e){console.error(e)}})},()=>{});
+  const duel={send:(to,msg)=>rpush(ref(rdb,'inbox/'+to),{...msg,from:uid,t:serverTimestamp()}).catch(e=>console.warn('duel',e)),on:f=>{dcb.push(f)}};
+  return {duel,presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
 function guardSession(user){const rdb=getDatabase(app);const sid=Math.random().toString(36).slice(2)+Date.now().toString(36);const R=ref(rdb,'session/'+user.uid);
   set(R,{sid,t:serverTimestamp()}).then(()=>{onValue(R,async s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){try{sessionStorage.setItem('baodao_kicked','1')}catch(e){}try{await signOut(auth)}catch(e){}location.reload()}},()=>{})}).catch(()=>{})}
@@ -298,7 +301,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-175705";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-180320";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -857,13 +860,14 @@ function spawn(e){const o={...e,map:M.id,temp:true};temps.push(o);ents.push(o);r
 function despawn(id){temps=temps.filter(e=>e.id!==id);ents=ents.filter(e=>e.id!==id)}
 let nameTimer=0;const boardsEl=$('boards');let boardEls=[];
 const ghosts={},tags={};
-function otherPlayers(now){if(!room||!M)return [];let ps=[];try{ps=room.peers()}catch(e){return []}const out=[],seen=new Set();
+let lastPeers=[];
+function otherPlayers(now){if(!room||!M)return (lastPeers=[]);let ps=[];try{ps=room.peers()}catch(e){return []}const out=[],seen=new Set();
   for(const p of ps){const q=p.presence||{};if(typeof q.uid!=='string'||q.uid===uid||q.map!==M.id)continue;const x=+q.x,y=+q.y;if(!Number.isFinite(x)||!Number.isFinite(y))continue;
     let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
     seen.add(q.uid);out.push({id:q.uid,lead:SP[q.lead|0]?q.lead|0:0,fight:q.fight===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
-  for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return out}
+  for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return (lastPeers=out)}
 function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
   const label=o.name+(o.fight?'・對戰中':'');if(t.d.textContent!==label)t.d.textContent=label;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
 function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+Math.sin(now/120+i)*2;const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.55;
@@ -933,7 +937,8 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
 
 /* ================= interactions ================= */
 const TILE_TEXT={Y:'掛滿了五顏六色的衣服，還有好幾件亮晶晶的演出服。',K:'玻璃櫃裡擺滿了蛋糕。草莓、巧克力、芋泥……看起來好好吃！',H:'大鍋子裡的豆漿正在滾，香噴噴的！',k:'書架上排滿了怪獸的書。',l:'研究用的機器，嗶嗶作響。',O:'熱騰騰的溫泉，冒著白煙。',Q:'熱騰騰的溫泉池，冒著白煙。',P:'綠油油的盆栽。',t:'',C:''};
-async function interact(x,y){let e=entAt(x,y);const ch=tileAt(x,y);
+async function interact(x,y){const pe=lastPeers.find(o=>Math.round(o.x)===x&&Math.round(o.y)===y);if(pe&&!entAt(x,y)){await peerTalk(pe);return}
+  let e=entAt(x,y);const ch=tileAt(x,y);
   if(!e&&(ch==='C'||ch==='t')){const [dx,dy]=DIRS[player.dir];const e2=entAt(x+dx,y+dy);if(e2&&!e2.ball&&e2.kind!=='item')e=e2}
   if(e){await talkTo(e);return}
   const key=x+','+y;
@@ -1206,6 +1211,92 @@ async function battle(enemies,trainer){
   if(result==='lose'&&!(trainer&&trainer.noLose)){healAll();loadMap(G.lastHeal.map);placePlayer(G.lastHeal);await say(G.lastHeal.map==='center'?'護理師：你的怪獸都恢復健康了。別太勉強喔！':G.lastHeal.map==='lab'?'小陳：你回來啦！怪獸都治好了。':'媽媽：你回來啦，好好休息吧。怪獸們都恢復精神了！')}
   scheduleSave(200);return result}
 
+
+/* ================= 真人對戰 (PvP) ================= */
+const DUEL=()=>room&&room.duel;let PV=null;const mailbox=[];let mbWait=null;let duelInit=false;
+function initDuel(){if(duelInit||!DUEL())return;duelInit=true;DUEL().on(m=>{
+  if(!m||typeof m!=='object'||typeof m.from!=='string')return;
+  if(m.type==='invite'){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>gotInvite(m));return}
+  mailbox.push(m);if(mbWait)mbWait()})}
+function waitMsg(pred,ms){return new Promise(res=>{const t0=Date.now();const chk=()=>{const i=mailbox.findIndex(pred);if(i>=0){const m=mailbox.splice(i,1)[0];mbWait=null;clearInterval(iv);res(m);return}if(Date.now()-t0>ms){mbWait=null;clearInterval(iv);res(null)}};mbWait=chk;const iv=setInterval(chk,500);chk()})}
+const snapTeam=()=>G.party.slice(0,6).map(m=>({sp:m.sp,lv:m.lv,moves:m.moves.slice(0,4),id:m.id}));
+const teamOf=arr=>(Array.isArray(arr)?arr:[]).slice(0,6).map(sanMon).filter(Boolean).map(m=>{m.hp=maxhp(m);return m});
+async function peerTalk(pe){
+  if(!DUEL()){await say(`${pe.name}：嗨！（真人對戰請到網站版玩喔）`);return}
+  if(pe.fight){await say(`${pe.name} 正在對戰中，等一下再來吧！`);return}
+  if(!G.party.some(m=>m.hp>0)){await say('你的怪獸都沒有力氣了，先去休息吧！');return}
+  if(!(await yesNo(`要邀請 ${pe.name} 對戰嗎？`)))return;
+  const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
+  DUEL().send(pe.id,{type:'invite',id,name:G.name,team:snapTeam()});showText(`等待 ${pe.name} 回應……`);
+  const r=await waitMsg(m=>m.id===id&&m.from===pe.id&&['accept','decline','busy'].includes(m.type),30000);hideText();
+  if(!r){await say(`${pe.name} 沒有回應。`);return}
+  if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return}
+  if(r.type==='decline'){await say(`${pe.name}：下次再跟你打！`);return}
+  const opp=teamOf(r.team);if(!opp.length){await say('對方沒有可以戰鬥的怪獸。');return}
+  await pvpBattle(true,pe.id,pe.name,opp,id)}
+async function gotInvite(m){const nm2=String(m.name||'訓練家').slice(0,8);
+  if(!G.party.some(x=>x.hp>0)){DUEL().send(m.from,{type:'decline',id:m.id});await say(`${nm2} 想跟你對戰，可是你的怪獸都沒有力氣了。`);return}
+  sfx('badge');const ok=await yesNo(`${nm2} 想跟你對戰！\n要接受嗎？`);
+  if(!ok){DUEL().send(m.from,{type:'decline',id:m.id});return}
+  const opp=teamOf(m.team);if(!opp.length){DUEL().send(m.from,{type:'decline',id:m.id});return}
+  mailbox.length=0;DUEL().send(m.from,{type:'accept',id:m.id,team:snapTeam()});await pvpBattle(false,m.from,nm2,opp,m.id)}
+
+// 主機端(邀請的人)負責算結果，雙方照同一份事件播放
+function pvpResolve(S,aH,aG){const ev=[];const other=s=>s==='h'?'g':'h';const team=s=>S.t[s];const act=s=>S.t[s][S.a[s]];
+  if(aH.q){ev.push({k:'quit',side:'h'},{k:'end',win:'g'});return ev}if(aG.q){ev.push({k:'quit',side:'g'},{k:'end',win:'h'});return ev}
+  for(const [side,a] of [['h',aH],['g',aG]])if(a.s!=null&&team(side)[a.s]&&team(side)[a.s].hp>0&&a.s!==S.a[side]){S.a[side]=a.s;S.st[side]={a:0,d:0};ev.push({k:'send',side,i:a.s})}
+  const movers=[['h',aH],['g',aG]].filter(([,a])=>a.m!=null);
+  movers.sort((x,y)=>{const sx=st(act(x[0]),3),sy=st(act(y[0]),3);return sy-sx||(Math.random()<.5?-1:1)});
+  const startMon={h:act('h'),g:act('g')};
+  for(const [side,a] of movers){const atk=act(side);if(atk!==startMon[side]||atk.hp<=0)continue;const tg=other(side),def=act(tg);
+    const mvName=atk.moves[a.m]||atk.moves[0];const mv=MOVES[mvName];ev.push({k:'use',side,mv:mvName});
+    if(Math.random()>0.95){ev.push({k:'miss'});continue}
+    if(mv.fx==='atkdown'){if(S.st[tg].a<=-6)ev.push({k:'noeff'});else{S.st[tg].a--;ev.push({k:'stat',side:tg,w:'攻擊力下降了'})}continue}
+    if(mv.fx==='defup'){if(S.st[side].d>=6)ev.push({k:'noeff'});else{S.st[side].d++;ev.push({k:'stat',side,w:'防禦力提高了'})}continue}
+    const eff=TYPES_EFF[mv.t]?.[SP[def.sp].t]??1;const stab=mv.t===SP[atk.sp].t?1.5:1;const crit=Math.random()<1/16;
+    const A=st(atk,1)*stageMul(S.st[side].a),D=st(def,2)*stageMul(S.st[tg].d);
+    let dmg=Math.floor(Math.floor((2*atk.lv/5+2)*mv.p*A/D)/50)+2;dmg=Math.max(1,Math.floor(dmg*stab*eff*(crit?1.5:1)*(0.85+Math.random()*.15)));
+    def.hp=Math.max(0,def.hp-dmg);ev.push({k:'dmg',side:tg,hp:def.hp,crit,eff});
+    if(def.hp<=0){ev.push({k:'faint',side:tg});const nx=team(tg).findIndex(m=>m.hp>0);if(nx<0){ev.push({k:'end',win:side});return ev}S.a[tg]=nx;S.st[tg]={a:0,d:0};ev.push({k:'send',side:tg,i:nx})}}
+  return ev}
+async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){
+  const myTeam=G.party.slice(0,6).map(m=>{const c=sanMon(JSON.parse(JSON.stringify(m)));c.hp=maxhp(c);return c});
+  const me=isHost?'h':'g',op=isHost?'g':'h';const S={t:{[me]:myTeam,[op]:oppTeam},a:{h:0,g:0},st:{h:{a:0,d:0},g:{a:0,d:0}}};
+  const vis=s=>s===me?'p':'e';const cur=s=>S.t[s][S.a[s]];
+  PV={id,opp:oppUid};await transition();mode='battle';updatePresence();music('boss');$('mapName').hidden=true;
+  B={enemy:cur(op),me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer:{name:oppName}};updHud();
+  await say(`和 ${oppName} 的真人對戰開始！`);await say(`${oppName} 派出了 ${nm(cur(op))}！`);B.me=cur(me);B.mehidden=false;updHud();await say(`去吧！${nm(cur(me))}！`);
+  let turn=0,result=null;
+  const play=async ev=>{for(const e of ev){
+    if(e.k==='send'){S.a[e.side]=e.i;const m=cur(e.side);if(vis(e.side)==='p'){B.me=m;B.mehidden=false;B.stage.p={a:0,d:0};updHud();await say(`去吧！${nm(m)}！`)}else{B.enemy=m;B.ehidden=false;B.stage.e={a:0,d:0};updHud();await say(`${oppName} 派出了 ${nm(m)}！`)}}
+    else if(e.k==='use'){const m=cur(e.side);await say(`${e.side===me?'':'對手的 '}${nm(m)} 使出了 ${e.mv}！`);B.pmv=e.mv;B.pside=vis(e.side)}
+    else if(e.k==='miss')await say('可是沒有打中！');
+    else if(e.k==='noeff')await say('沒有效果……');
+    else if(e.k==='stat'){if(B.pmv)await playFx(B.pmv,B.pside);await say(`${e.side===me?'':'對手的 '}${nm(cur(e.side))} 的${e.w}！`)}
+    else if(e.k==='dmg'){if(B.pmv)await playFx(B.pmv,B.pside);sfx('hit');const v=vis(e.side);B.shake[v]=performance.now()+420;await wait(420);cur(e.side).hp=e.hp;updHud();await wait(400);if(e.crit)await say('擊中要害！');if(e.eff>1)await say('效果絕佳！');else if(e.eff<1)await say('效果不太好……')}
+    else if(e.k==='faint'){if(vis(e.side)==='p')B.mehidden=true;else B.ehidden=true;updHud();await say(`${e.side===me?'':'對手的 '}${nm(cur(e.side))} 倒下了！`)}
+    else if(e.k==='quit')await say(e.side===me?`${G.name} 投降了……`:`${oppName} 投降了！`);
+    else if(e.k==='end'){result=e.win===me?'win':'lose'}}};
+  while(!result){turn++;let act=null;
+    for(;;){showText(`${nm(cur(me))}\n要做什麼？`);const a=await choose(['戰鬥','怪獸','投降'],{pos:'battle',cols:2,cancel:false});
+      if(a===0){showText('');const k=await choose(cur(me).moves,{pos:'moves',cols:2});if(k<0)continue;act={m:k};break}
+      if(a===1){showText('要換哪一隻上場？');const i=await choose(myTeam.map(m=>`${nm(m)} Lv${m.lv}　${m.hp}/${maxhp(m)}`),{pos:'list'});if(i<0)continue;if(i===S.a[me]||myTeam[i].hp<=0){await say('不能選這一隻。');continue}act={s:i};break}
+      if(await yesNo('真的要投降嗎？')){act={q:1};break}}
+    showText(`等待 ${oppName} 選擇……`);let ev;
+    if(isHost){const g=await waitMsg(m=>m.id===id&&m.from===oppUid&&m.type==='act'&&m.turn===turn,120000);
+      if(!g){hideText();await say(`${oppName} 離線了……這場算你贏！`);result='win';break}
+      const aG=g.act||{};const ok=x=>x&&((x.m!=null&&x.m>=0&&x.m<4)||(x.s!=null&&x.s>=0&&x.s<6)||x.q);const S2=JSON.parse(JSON.stringify(S));ev=pvpResolve(S2,act,ok(aG)?aG:{m:0});S.st=S2.st;
+      DUEL().send(oppUid,{type:'res',id,turn,ev})}
+    else{DUEL().send(oppUid,{type:'act',id,turn,act});const r=await waitMsg(m=>m.id===id&&m.from===oppUid&&m.type==='res'&&m.turn===turn,120000);
+      if(!r||!Array.isArray(r.ev)){hideText();await say(`${oppName} 離線了……這場算你贏！`);result='win';break}ev=r.ev}
+    hideText();
+    // guest re-syncs state from host's events (active index / hp)
+    if(!isHost){for(const e of ev)if(e.k==='stat'){}}
+    await play(ev);B.pmv=null}
+  if(result==='win'){music('victory');sfx('badge');await say(`打贏了 ${oppName}！`)}else await say(`輸給 ${oppName} 了……下次再加油！`);
+  hideText();eInfo.hidden=pInfo.hidden=true;await transition();B=null;PV=null;mode='map';mapMusic();updatePresence();
+  G.flags.pvp_w=(G.flags.pvp_w|0)+(result==='win'?1:0);G.flags.pvp_l=(G.flags.pvp_l|0)+(result==='lose'?1:0);scheduleSave(300)}
+
 /* ================= swap box ================= */
 async function swapBox(){if(!db){await say('要登入帳號才能用交換箱喔。');return}
   for(;;){const labels=SLOTS.map((id,i)=>{const m=slotMon(id);return m?`箱子${i+1}：${nm(m)} Lv${m.lv}`:`箱子${i+1}：空的`});labels.push('離開');
@@ -1250,7 +1341,7 @@ async function getSaved(){let saved=null,oldVer=false;
   if(!saved)saved=loadLocal();return {saved,oldVer}}
 async function boot(){requestAnimationFrame(frame);music('town');
   await initCloud();
-  if(db){subscribeCloud();$('cloudStatus').textContent='已連上雲端。朋友打開這一頁並開始冒險後，就會出現在這裡。';$('titleStatus').textContent='已連上雲端・進度會自動存檔'}
+  if(db){subscribeCloud();initDuel();$('cloudStatus').textContent='已連上雲端。朋友打開這一頁並開始冒險後，就會出現在這裡。';$('titleStatus').textContent='已連上雲端・進度會自動存檔'}
   else{$('cloudStatus').textContent='單機模式：登入帳號後，才能看到朋友和使用交換箱。';$('titleStatus').textContent='單機模式・進度只存在這台裝置';renderRoster()}
   renderSwap();titleFlow()}
 function decodeCode(t){try{t=String(t||'').trim().replace(/\s+/g,'');if(!t.startsWith('BD1:'))return null;const b=atob(t.slice(4));const u=new Uint8Array([...b].map(c=>c.charCodeAt(0)));return sanG(JSON.parse(new TextDecoder().decode(u)))}catch(e){return null}}

@@ -34,7 +34,7 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
 const $=id=>document.getElementById(id);
@@ -68,7 +68,10 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
   onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
-  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+  const dcb=[];const inbox=ref(rdb,'inbox/'+uid);remove(inbox).catch(()=>{});
+  onChildAdded(inbox,s=>{const v=s.val();remove(s.ref).catch(()=>{});if(v&&typeof v==='object')dcb.forEach(f=>{try{f(v)}catch(e){console.error(e)}})},()=>{});
+  const duel={send:(to,msg)=>rpush(ref(rdb,'inbox/'+to),{...msg,from:uid,t:serverTimestamp()}).catch(e=>console.warn('duel',e)),on:f=>{dcb.push(f)}};
+  return {duel,presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
 function guardSession(user){const rdb=getDatabase(app);const sid=Math.random().toString(36).slice(2)+Date.now().toString(36);const R=ref(rdb,'session/'+user.uid);
   set(R,{sid,t:serverTimestamp()}).then(()=>{onValue(R,async s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){try{sessionStorage.setItem('baodao_kicked','1')}catch(e){}try{await signOut(auth)}catch(e){}location.reload()}},()=>{})}).catch(()=>{})}
