@@ -171,7 +171,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-211451';
+import CONFIG from './firebase-config.js?v=20261106-212033';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -300,7 +300,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-211451";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-212033";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -952,11 +952,11 @@ function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
-let saveTimer=0,saving=false,again=false;
+let saveTimer=0,saving=false,again=false,cloudRev=0,staleStop=false;
 function snapshotPos(){if(G&&M)G.pos={map:M.id,x:player.x,y:player.y,dir:player.dir}}
 function scheduleSave(ms=1200){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,ms)}
 async function saveNow(){if(!G)return;if(mode==='map')snapshotPos();saveLocal();if(!db)return;if(saving){again=true;return}saving=true;
-  try{const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();await db.doc('players/'+uid).set(doc)}catch(e){console.warn('save failed',e)}
+  try{if(staleStop)throw 0;const ref=db.doc('players/'+uid);const cur=await ref.get();const cr=cur.exists?((cur.data()||{}).rev|0):0;if(cr>cloudRev){staleStop=true;saving=false;await staleReload();return}const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();doc.rev=cloudRev+1;await ref.set(doc);cloudRev=doc.rev}catch(e){if(e!==0)console.warn('save failed',e)}
   saving=false;if(again){again=false;saveNow()}}
 let rosterDocs=[],swapSlots={};
 function subscribeCloud(){
@@ -1705,9 +1705,12 @@ function drawTitle(now){const g=tbg,t=now/1000;
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
 function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map'}
-async function getSaved(){let saved=null,oldVer=false;
-  if(db){try{const s=await db.doc('players/'+uid).get();if(s.exists){const d=s.data();saved=sanG(d);if(!saved&&d&&d.ver===1)oldVer=true}}catch(e){}}
-  if(!saved)saved=loadLocal();return {saved,oldVer}}
+async function staleReload(){try{mode='blank';await say('這個帳號在別的地方玩過了，雲端有比較新的進度。\n馬上幫你載入最新進度！')}catch(e){}location.reload()}
+const sumG=g=>`最高Lv${Math.max(0,...g.party.map(m=>m.lv))}・${g.steps|0}步`;
+async function getSaved(){let saved=null,oldVer=false,localNewer=null;
+  if(db){try{const s=await db.doc('players/'+uid).get();if(s.exists){const d=s.data();cloudRev=d.rev|0;saved=sanG(d);if(!saved&&d&&d.ver===1)oldVer=true}}catch(e){}}
+  const loc=loadLocal();if(db&&saved&&loc&&loc.name===saved.name&&(loc.steps|0)>(saved.steps|0))localNewer=loc;
+  if(!saved)saved=loc;return {saved,oldVer,localNewer}}
 async function boot(){requestAnimationFrame(frame);music('town');
   await initCloud();
   if(db){subscribeCloud();initDuel();$('cloudStatus').textContent='已連上雲端。朋友打開這一頁並開始冒險後，就會出現在這裡。';$('titleStatus').textContent='已連上雲端・進度會自動存檔'}
@@ -1717,11 +1720,13 @@ function decodeCode(t){try{t=String(t||'').trim().replace(/\s+/g,'');if(!t.start
 async function importCode(hasSave){let t=null;try{t=window.prompt('貼上搬家碼（BD1: 開頭的那一串）')}catch(e){}
   if(!t){await event(()=>say('沒有輸入搬家碼。'));return null}const g=decodeCode(t);if(!g){await event(()=>say('這個搬家碼看不懂，確認有沒有複製完整喔。'));return null}
   if(hasSave){let ok=false;await event(async()=>{ok=await yesNo(`要用「${g.name}」的進度，蓋掉現在的存檔嗎？`)});if(!ok)return null}return g}
-async function titleFlow(){const ep=EPOCH;const {saved,oldVer}=await getSaved();if(ep!==EPOCH)return;if(oldVer)$('titleStatus').textContent='彩色版是新冒險，舊的簡易版存檔不能延用';
+async function titleFlow(){const ep=EPOCH;const {saved,oldVer,localNewer}=await getSaved();if(ep!==EPOCH)return;if(oldVer)$('titleStatus').textContent='彩色版是新冒險，舊的簡易版存檔不能延用';
   const opts=saved?[`繼續冒險（${saved.name}）`,'新的冒險']:['新的冒險'];
   let pick=await choose(opts,{pos:'title',cancel:false});
   if(opts[pick]==='輸入搬家碼'){const g=await importCode(!!saved);if(ep!==EPOCH)return;if(g){G=g;enterWorld();await saveNow();await event(()=>say(`搬家成功！歡迎回來，${G.name}！`));return}titleFlow();return}
   if(saved&&pick===1){showText('新的冒險會覆蓋原本的進度，確定嗎？');const c=await choose(['確定重新開始','不要'],{pos:'list',cancel:false});hideText();if(c!==0)pick=0}
+  if(saved&&pick===0&&localNewer){$('titleStatus').textContent='這台裝置上有比較新的進度！要用哪一個？';const c=await choose([`這台（${sumG(localNewer)}）較新`,`雲端（${sumG(saved)}）`],{pos:'list',cancel:false});if(ep!==EPOCH)return;
+    G=c===0?localNewer:saved;enterWorld();if(c===0)await saveNow();else saveLocal();return}
   if(saved&&pick===0){G=saved;enterWorld();scheduleSave(500);return}
   const name=await askName();const look=await chooseLook();newGame(name,look);
   titleEl.hidden=true;mode='blank';
