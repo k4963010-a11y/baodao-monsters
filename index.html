@@ -185,7 +185,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-011158';
+import CONFIG from './firebase-config.js?v=20261107-011749';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -319,7 +319,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-011158";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-011749";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1271,8 +1271,9 @@ async function doWarp(w){const [, ,to,tx,ty,dir,cond,deny]=w;if(!cond||cond())sf
   await fade(1);loadMap(to);placePlayer({x:tx,y:ty,dir});await fade(0);scheduleSave(400)}
 function spotter(){for(const e of ents){if(!e.trainer||!e.sight||G.flags['t_'+e.id])continue;const [dx,dy]=DIRS[e.dir];
   for(let i=1;i<=e.sight;i++){const x=e.x+dx*i,y=e.y+dy*i;if(x===player.x&&y===player.y)return e;if(!WALK.has(tileAt(x,y))||entAt(x,y))break}}return null}
-async function spotted(e){e.alert=true;await wait(650);e.alert=false;const [dx,dy]=DIRS[e.dir];
-  while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e)}
+async function spotted(e){e.alert=true;await wait(650);e.alert=false;const sx=e.x,sy=e.y,sd=e.dir,mid=M.id;
+  while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e);
+  if(M.id===mid&&ents.includes(e)&&(e.x!==sx||e.y!==sy)){const bd=BACK[sd];let n=0;while((e.x!==sx||e.y!==sy)&&n++<12)await stepEnt(e,bd);e.dir=sd}}
 function onStep(){G.steps++;updatePresence();if(G.steps%25===0)scheduleSave(300);
   const w=warpAt(player.x,player.y);if(w){event(()=>doWarp(w));return}
   const tr=(M.triggers||[]).find(t=>t.at.some(([x,y])=>x===player.x&&y===player.y)&&t.cond());if(tr){event(tr.run);return}
