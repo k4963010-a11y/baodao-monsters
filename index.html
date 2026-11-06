@@ -170,7 +170,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-191134';
+import CONFIG from './firebase-config.js?v=20261106-191309';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -298,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-191134";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-191309";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1509,10 +1509,10 @@ const titleEl=$('title'),nameForm=$('nameForm');
 setSound(AU.on);
 $('sndBtn').addEventListener('click',()=>{auInit();setSound(!AU.on);screenEl.focus()});
 let updReady=false;
-$('resetBtn').addEventListener('click',async()=>{auInit();if(updReady){try{if(G&&mode==='map'&&!busy)await saveNow();else saveLocal()}catch(e){}location.reload();return}softReset();screenEl.focus()});
+$('resetBtn').addEventListener('click',async()=>{auInit();if(updReady){try{if(G&&mode==='map'&&!busy)await saveNow();else saveLocal()}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(updReady));return}softReset();screenEl.focus()});
 if(window.BD_BUILD){const chk=async()=>{if(updReady)return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();
-  if(j&&j.build&&j.build!==window.BD_BUILD){updReady=true;$('resetWrap').classList.add('upd');$('resetLbl').textContent='有更新！';$('resetBtn').setAttribute('aria-label','有新版本，按這裡更新')}}catch(e){}};
-  setTimeout(chk,8000);setInterval(chk,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}
+  if(j&&j.build&&j.build!==window.BD_BUILD){updReady=j.build;if(mode==='title'&&!G){location.replace(location.pathname+'?v='+encodeURIComponent(j.build));return}$('resetWrap').classList.add('upd');$('resetLbl').textContent='有更新！';$('resetBtn').setAttribute('aria-label','有新版本，按這裡更新')}}catch(e){}};
+  setTimeout(chk,1500);setInterval(chk,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}
 async function softReset(){if(mode==='title'&&!G)return;try{if(G&&mode==='map'&&!busy)await saveNow();else saveLocal()}catch(e){}
   EPOCH++;clearTimeout(saveTimer);uiStack.length=0;busy=false;B=null;M=null;G=null;ents=[];temps=[];mode='title';player.scripted=null;player.moving=false;fadeA=0;flash=false;
   for(const k in held)held[k]=0;[dlg,menuEl,sheetEl,eInfo,pInfo,$('mapName'),nameForm].forEach(e=>e.hidden=true);titleEl.hidden=false;music('town');titleFlow()}
