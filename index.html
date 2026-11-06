@@ -185,7 +185,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-012648';
+import CONFIG from './firebase-config.js?v=20261107-013600';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -319,7 +319,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-012648";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-013600";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1254,7 +1254,7 @@ function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+
   if(Math.floor(now/150)%2){ctx.fillStyle='#ffe040';ctx.fillRect(Math.round(x)-1,Math.round(y)-16,2,2);ctx.fillRect(Math.round(x)+5,Math.round(y)-13,2,2)}}
 function sweepTags(){for(const k in tags){if(tags[k].live)tags[k].live=false;else{tags[k].d.remove();delete tags[k]}}}
 function buildBoards(){boardsEl.replaceChildren();for(const k in tags)delete tags[k];boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
-function loadMap(id){if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
+function loadMap(id){FISH=null;if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
 function placePlayer(p){setTimeout(updatePresence,0);player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
   if(walkable(bx,by)){follower.x=follower.tx=bx;follower.y=follower.ty=by}else{follower.x=follower.tx=p.x;follower.y=follower.ty=p.y}}
 async function event(fn){busy=true;try{await fn()}catch(e){console.error(e)}finally{busy=false;hideText();menuEl.hidden=true;for(const k in held)held[k]=0}}
@@ -1318,6 +1318,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
   list.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
   if(G&&G.flags.swim&&tileAt(player.x,player.y)==='~'&&!player.moving){const X=Math.round(px-cx),Y=Math.round(py-cy);ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(X+1,Y+12,4,1);ctx.fillRect(X+11,Y+12,4,1);ctx.fillRect(X+5,Y+13,6,1)}
+  drawFishing(Math.round(px-cx),Math.round(py-cy)-3,now);
   if(M.dark){const gx=px-cx+8,gy=py-cy+6,g=ctx.createRadialGradient(gx,gy,22,gx,gy,90);g.addColorStop(0,'rgba(4,4,12,0)');g.addColorStop(1,'rgba(4,4,12,.72)');ctx.fillStyle=g;ctx.fillRect(0,0,160,144)}
   sweepTags();
   for(const b of boardEls){const X=b.x*16-cx,Y=b.y*16-cy,k=X+','+Y;if(k!==b.k){b.k=k;b.d.style.left=`calc(var(--u)*${X})`;b.d.style.top=`calc(var(--u)*${Y})`}}}
@@ -1371,12 +1372,22 @@ async function busTalk(here){
 /* ---- 釣魚（釣竿）/ 搖樹（園丁伯伯教的） ---- */
 const FISH_T=[[13,45],[7,30],[23,15],[24,.362],[52,.0905]],TREE_T=[[36,50],[37,40],[6,10],[21,.402],[53,.1006]];
 const fieldLv=()=>{const b=G.badges|0;return [4+b*6,8+b*6]};
+let FISH=null;
+function drawFishing(X,Y,now){if(!FISH)return;const d=FISH.dir,c=ctx;
+  const hand={down:[12,10],up:[12,4],left:[2,8],right:[14,8]}[d],tip={down:[15,20],up:[14,-8],left:[-8,1],right:[24,1]}[d],tgt={down:[8,26],up:[8,-10],left:[-9,9],right:[25,9]}[d];
+  const hx=X+hand[0],hy=Y+hand[1],tx=X+tip[0],ty=Y+tip[1];c.strokeStyle='#5a3418';c.lineWidth=2;c.beginPath();c.moveTo(hx,hy);c.lineTo(tx,ty);c.stroke();c.strokeStyle='#c8945a';c.lineWidth=1;c.beginPath();c.moveTo(hx,hy);c.lineTo(tx,ty);c.stroke();
+  let k=Math.min(1,(now-FISH.t0)/450);let bx=tx+(X+tgt[0]-tx)*k,by=ty+(Y+tgt[1]-ty)*k-Math.sin(k*Math.PI)*10;
+  if(FISH.ph!=='cast'){by+=Math.sin(now/220)*1;if(FISH.ph==='bite'){by+=2+Math.sin(now/40)*1.5;const r=((now-FISH.tb)/12)%10+2;c.strokeStyle='rgba(255,255,255,.9)';c.beginPath();c.ellipse(bx,by+2,r,r*.45,0,0,7);c.stroke()}}
+  c.strokeStyle='rgba(240,240,240,.9)';c.lineWidth=1;c.beginPath();c.moveTo(tx,ty);c.quadraticCurveTo((tx+bx)/2,Math.max(ty,by)+4,bx,by);c.stroke();
+  if(k>=1&&FISH.ph!=='bite'){c.strokeStyle='rgba(255,255,255,.6)';c.beginPath();c.ellipse(bx,by+2,4,1.6,0,0,7);c.stroke()}
+  c.fillStyle='#181820';c.beginPath();c.arc(bx,by,2.6,0,7);c.fill();c.fillStyle='#e83838';c.beginPath();c.arc(bx,by,2,Math.PI,0);c.fill();c.fillStyle='#f8f8f8';c.beginPath();c.arc(bx,by,2,0,Math.PI);c.fill();
+  if(FISH.ph==='bite'){const ex=X+5,ey=Y-14;c.fillStyle='#181820';c.fillRect(ex,ey,7,10);c.fillStyle='#fff';c.fillRect(ex+1,ey+1,5,8);c.fillStyle='#e03030';c.fillRect(ex+3,ey+2,1,4);c.fillRect(ex+3,ey+7,1,1)}}
 async function fishHere(){if(!G.flags.rod){await say('清澈的水，好像有東西在游。\n有釣竿的話就能釣魚了。');return}
   if(!G.party.some(m=>m.hp>0)){await say('怪獸們都沒有力氣了，先去休息吧！');return}
-  if(!(await yesNo('要在這裡釣魚嗎？')))return;
-  showText(`${G.name} 甩出了釣竿……`);await wait(600);showText('……');await wait(700+Math.random()*1500);
-  if(Math.random()<.35){await say('……什麼都沒釣到。');return}
-  sfx('badge');await say('！有東西上鉤了！');ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T};await wildEncounter('fish')}
+  if(!(await yesNo('要在這裡釣魚嗎？')))return;hideText();
+  FISH={dir:player.dir,t0:performance.now(),ph:'cast'};sfx('ball');await wait(650);FISH.ph='wait';await wait(1200+Math.random()*1800);
+  if(Math.random()<.35){FISH.ph='miss';await wait(500);FISH=null;await say('……什麼都沒釣到。');return}
+  FISH.ph='bite';FISH.tb=performance.now();sfx('badge');await wait(900);FISH=null;await say('！有東西上鉤了！');ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T};await wildEncounter('fish')}
 async function shakeTree(){if(!G.flags.shake){await say('一棵大樹。\n樹葉裡好像有什麼東西在動……');return}
   if(!G.party.some(m=>m.hp>0)){await say('怪獸們都沒有力氣了，先去休息吧！');return}
   if(!(await yesNo('要搖這棵樹嗎？')))return;
