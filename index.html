@@ -289,7 +289,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-155912";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-160211";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -627,9 +627,9 @@ const MAPS={
   triggers:[{at:[[4,7],[5,7],[3,7],[6,7]],cond:()=>!G.flags.prof1,run:async()=>{const p=ents.find(e=>e.id==='prof');if(p)p.dir='down';await say('「喔！你來啦！到這邊來。」');await profTalk()}}],
   npcs:[{id:'prof',x:7,y:3,dir:'left',look:'prof',talk:profTalk},
    {id:'aide',x:8,y:7,dir:'left',look:'aide',talk:aideTalk},
-   {id:'b5',x:4,y:3,ball:5,cond:()=>G.flags.starter!==5&&G.flags.rivalsp!==5,talk:pickStarter},
-   {id:'b6',x:5,y:3,ball:6,cond:()=>G.flags.starter!==6&&G.flags.rivalsp!==6,talk:pickStarter},
-   {id:'b7',x:6,y:3,ball:7,cond:()=>G.flags.starter!==7&&G.flags.rivalsp!==7,talk:pickStarter}]},
+   {id:'b5',x:4,y:3,ball:5,talk:pickStarter},
+   {id:'b6',x:5,y:3,ball:6,talk:pickStarter},
+   {id:'b7',x:6,y:3,ball:7,talk:pickStarter}]},
  center:{name:'北投寶貝中心',out:' ',rows:['WWWNWWNWWW','PffffffPcf','CCCCCCffff','ffffffffff','ffffffffff','jjffffffjj','tffffffffP','ffffmmffff'],
   warps:[[4,7,'beitou',4,15,'down'],[5,7,'beitou',4,15,'down']],inspect:{'8,1':()=>pcMenu(true)},
   npcs:[{id:'nurse',x:2,y:1,dir:'down',look:'nurse',talk:nurseTalk},{id:'doctor',x:7,y:4,dir:'left',look:'doctor',talk:doctorTalk}]},
@@ -938,7 +938,8 @@ async function aideTalk(){if(!G.flags.starter){await say('小陳：教授在桌�
   await say('小陳：研究所的治療機可以幫怪獸恢復喔！');flash=true;await wait(220);flash=false;healAll();G.lastHeal={map:'lab',x:7,y:7,dir:'right'};await say('怪獸們都恢復精神了！');scheduleSave(200)}
 async function pickStarter(b){
   if(!G.flags.prof1){await say('捉捉球裡好像有怪獸……（先跟教授打聲招呼吧。）');return}
-  if(G.flags.starter){await say('這是阿翔挑剩的捉捉球。');return}
+  if(G.flags.starter){await say(`這是給新訓練家的捉捉球，裡面是 ${SP[b.ball].n}。
+你已經選過夥伴了，每個人只能選一次喔！`);return}
   const sp=b.ball;await sheet(s=>{const top=el('div',null,'top');const im=el('img');im.src=iconURL(sp);im.alt=SP[sp].n;const info=el('div');const h=el('h3',SP[sp].n);info.append(h,typeTag(SP[sp].t));top.append(im,info);s.append(top,el('p',SP[sp].d))});
   if(!(await yesNo(`要選 ${SP[sp].n}（${SP[sp].t}系）當夥伴嗎？`)))return;
   G.flags.starter=sp;markSeen(sp);const m=makeMon(sp,5,G.name);addMon(m);refreshEnts();
