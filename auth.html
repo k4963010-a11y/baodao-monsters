@@ -70,7 +70,9 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   setInterval(()=>cbs.forEach(f=>f()),20000);
   return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
-function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
+function guardSession(user){const rdb=getDatabase(app);const sid=Math.random().toString(36).slice(2)+Date.now().toString(36);const R=ref(rdb,'session/'+user.uid);
+  set(R,{sid,t:serverTimestamp()}).then(()=>{onValue(R,async s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){try{sessionStorage.setItem('baodao_kicked','1')}catch(e){}try{await signOut(auth)}catch(e){}location.reload()}},()=>{})}).catch(()=>{})}
+function enter(user,name){guardSession(user);$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
   try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}
   finish({db:makeDb(),uid:user.uid,room:makeRoom(user.uid)})}
 $('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){}location.reload()});
@@ -79,7 +81,7 @@ if(auth){
   let first=true;
   onAuthStateChanged(auth,u=>{if(!first)return;first=false;
     if(u){let nm='';try{nm=localStorage.getItem('baodao_acct_'+u.uid)||''}catch(e){}enter(u,nm)}
-    else{authEl.hidden=false;setTimeout(()=>$('au').focus(),50)}});
+    else{authEl.hidden=false;try{if(sessionStorage.getItem('baodao_kicked')){sessionStorage.removeItem('baodao_kicked');$('amsg').textContent='你的帳號已在另一台裝置登入，這裡先登出了。'}}catch(e){}setTimeout(()=>$('au').focus(),50)}});
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
     if(!u){msg.textContent='請輸入帳號。';return}if(p.length<6){msg.textContent='密碼至少要 6 個字。';return}
     if(mode==='reg'&&p!==$('ap2').value){msg.textContent='兩次密碼不一樣喔。';return}

@@ -17,7 +17,9 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--page);color:var(--ink);font-family:var(--f-game);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px;-webkit-tap-highlight-color:transparent}
+body{background:var(--page);color:var(--ink);font-family:var(--f-game);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+button{touch-action:manipulation}
 .wrap{display:grid;grid-template-columns:minmax(0,500px) minmax(0,340px);gap:28px;justify-content:center;align-items:start}
 @media (max-width:880px){.wrap{grid-template-columns:minmax(0,500px)}}
 .device{background:linear-gradient(160deg,var(--shell-hi),var(--shell) 30%,var(--shell-dk));border-radius:18px 18px 64px 18px;padding:18px 18px 26px;box-shadow:0 10px 0 #165e56,0 18px 30px rgba(0,0,0,.45);user-select:none;-webkit-user-select:none;min-width:0}
@@ -166,7 +168,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-161500';
+import CONFIG from './firebase-config.js?v=20261106-175705';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -201,7 +203,9 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   setInterval(()=>cbs.forEach(f=>f()),20000);
   return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
-function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
+function guardSession(user){const rdb=getDatabase(app);const sid=Math.random().toString(36).slice(2)+Date.now().toString(36);const R=ref(rdb,'session/'+user.uid);
+  set(R,{sid,t:serverTimestamp()}).then(()=>{onValue(R,async s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){try{sessionStorage.setItem('baodao_kicked','1')}catch(e){}try{await signOut(auth)}catch(e){}location.reload()}},()=>{})}).catch(()=>{})}
+function enter(user,name){guardSession(user);$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
   try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}
   finish({db:makeDb(),uid:user.uid,room:makeRoom(user.uid)})}
 $('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){}location.reload()});
@@ -210,7 +214,7 @@ if(auth){
   let first=true;
   onAuthStateChanged(auth,u=>{if(!first)return;first=false;
     if(u){let nm='';try{nm=localStorage.getItem('baodao_acct_'+u.uid)||''}catch(e){}enter(u,nm)}
-    else{authEl.hidden=false;setTimeout(()=>$('au').focus(),50)}});
+    else{authEl.hidden=false;try{if(sessionStorage.getItem('baodao_kicked')){sessionStorage.removeItem('baodao_kicked');$('amsg').textContent='你的帳號已在另一台裝置登入，這裡先登出了。'}}catch(e){}setTimeout(()=>$('au').focus(),50)}});
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
     if(!u){msg.textContent='請輸入帳號。';return}if(p.length<6){msg.textContent='密碼至少要 6 個字。';return}
     if(mode==='reg'&&p!==$('ap2').value){msg.textContent='兩次密碼不一樣喔。';return}
@@ -294,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-161500";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-175705";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -430,6 +434,7 @@ const LOOK={
  youth:{c:'#e0e0e0',h:'#3a2818',s:'#e8b890',a:'#e85030',b:'#3a3a48'},
  apprentice:{c:'#f8f8f8',h:'#202020',s:'#f0c098',a:'#3aa898',b:'#2a5a5a'},
  woman:{c:'#5a3020',h:'#5a3020',s:'#f8c8a0',a:'#58a8e0',b:'#e8e8f0'},
+ stylist:{c:'#e060a0',h:'#e060a0',s:'#f8d0b0',a:'#f0d040',b:'#3060c0'},
  baker:{c:'#f8f8f8',h:'#6a3a20',s:'#f8c8a0',a:'#f8f8f8',b:'#f088b0'},
  soyboss:{c:'#e04040',h:'#303030',s:'#e8b890',a:'#f0f0e8',b:'#3a4a6a'},
  foodie:{c:'#f0a030',h:'#202020',s:'#f0c098',a:'#e84848',b:'#384858'}};
@@ -559,12 +564,13 @@ function makeTile(ch,f){const c=mk(16,16),g=c.getContext('2d');
    case 'Q':r(0,0,16,16,'#8a8070');r(1,1,14,14,'#68c8c0');r(f?3:8,f?4:9,4,1,'#e8fff8');r(f?9:3,f?11:5,3,1,'#b0f0e8');circ(f?11:5,f?7:12,1,'#f4fffc');break;
    case 's':tilef();r(3,11,10,5,'#787880');r(4,12,8,3,'#a0a0a8');circ(8,6,4.5,'#606068');circ(8,6,3.5,'#b8b8c0');r(6,4,2,2,'#e8e8f0');break;
    case 'l':floor();r(1,0,14,14,'#606878');r(2,1,12,12,'#9098a8');r(3,3,4,3,'#203040');r(4,4,2,1,f?'#58e888':'#e85858');r(9,3,3,1,'#f8d040');r(9,6,3,1,'#58b0f8');r(3,9,10,2,'#707888');break;
+   case 'Y':floor();r(1,2,14,2,'#7a5030');r(2,0,1,14,'#7a5030');r(13,0,1,14,'#7a5030');[['#e84860',2],['#48a8e8',5],['#f0c030',8],['#58c058',11]].forEach(([k,x])=>{r(x,4,3,8,k);r(x,4,3,1,'#ffffff')});break;
    case 'K':floor();r(0,2,16,14,'#8a5a30');r(1,3,14,9,'#d8f0f8');r(1,3,14,1,'#ffffff');r(2,8,5,3,'#f8f0e0');r(2,7,5,1,'#f088b0');r(4,6,1,1,'#e03040');r(9,8,5,3,'#7a4a28');r(9,7,5,1,'#b07848');r(11,6,1,1,'#f8f8f8');r(1,12,14,1,'#5a3418');break;
    case 'H':floor();r(1,7,14,9,'#505058');r(2,8,12,2,'#e86030');circ(8,7,6,'#202028');circ(8,7,5,'#b8bcc8');r(4,5,8,3,'#f8f4e0');r(f?4:9,f?1:0,2,3,'#ffffff');r(f?10:5,f?0:2,2,2,'#ffffff');break;
    case ' ':r(0,0,16,16,'#000');break;
    default:r(0,0,16,16,'#f0f');
   }return c}
-const TILES={};'.,T=~OMFS#_Rrbgoywnf DqWNmUteEvckCPjQslphKH'.split('').forEach(ch=>{TILES[ch]=[makeTile(ch,0),makeTile(ch,1)]});
+const TILES={};'.,T=~OMFS#_Rrbgoywnf DqWNmUteEvckCPjQslphKHY'.split('').forEach(ch=>{TILES[ch]=[makeTile(ch,0),makeTile(ch,1)]});
 TILES['D']=[makeTile('D',0),makeTile('D',1)];
 const WALK=new Set('.,=F_DfqmjU'.split(''));
 const BALLIMG=(()=>{const c=mk(16,16),g=c.getContext('2d');const ci=(x,y,r,k,a0=0,a1=7)=>{g.fillStyle=k;g.beginPath();g.arc(x,y,r,a0,a1);g.fill()};ci(8,10,5,'#181820');ci(8,10,4,'#e84040',Math.PI,0);ci(8,10,4,'#f8f8f8',0,Math.PI);g.fillStyle='#181820';g.fillRect(4,9.5,8,1);ci(8,10,1.6,'#181820');ci(8,10,1,'#f8f8f8');g.fillStyle='#ffffff';g.fillRect(6,7,2,1);return c})();
@@ -573,12 +579,12 @@ const BALLIMG=(()=>{const c=mk(16,16),g=c.getContext('2d');const ci=(x,y,r,k,a0=
 const MAPS={
  tamsui:{name:'淡水鎮',out:'T',rows:[
   'TTTTTTTTT==TTTTTTTTT','TFF......==......FFT','T.rrrr...==...gggg.T','T.rrrr...==...gggg.T','T.wnDw..S==...wDnw.T',
-  'T...=....==....=...T','T...============...T','T........==........T','T.bbbbbb.==........T','T.bbbbbb.==..FF.S..T',
-  'T.wnnDnw.==..FF....T','T....=..S==........T','T....=======.......T','T..F.........F.....T','T#####__######___##T',
+  'T...=....==....=...T','T...============...T','T........==........T','T.bbbbbb.==..pppp..T','T.bbbbbb.==..pppp.ST',
+  'T.wnnDnw.==..wDnw..T','T....=..S==...=....T','T....=======.......T','T..F.........F.....T','T#####__######___##T',
   '~~~~~~~~~~~~~~~~~~~~','~~~~~~~~~~~~~~~~~~~~','~~~~~~~~~~~~~~~~~~~~'],
-  warps:[[9,0,'route2',7,28,'up'],[10,0,'route2',8,28,'up'],[4,4,'home1',3,6,'up'],[15,4,'nbr',3,5,'up'],[5,10,'lab',4,8,'up']],
-  boards:[[4,3.5,'我的家','wood'],[16,3.5,'鄰居家','wood'],[5,9.5,'林教授研究所','blue']],
-  signs:{'8,4':'淡水鎮\n「夕陽與河港的小鎮」','8,11':'林教授 怪獸研究所','16,9':'淡水河畔\n「傍晚的夕陽，全台灣最美。」'},
+  warps:[[9,0,'route2',7,28,'up'],[10,0,'route2',8,28,'up'],[4,4,'home1',3,6,'up'],[15,4,'nbr',3,5,'up'],[14,10,'boutique',3,5,'up'],[5,10,'lab',4,8,'up']],
+  boards:[[4,3.5,'我的家','wood'],[16,3.5,'鄰居家','wood'],[5,9.5,'林教授研究所','blue'],[15,9.5,'彩衣服飾','pink']],
+  signs:{'8,4':'淡水鎮\n「夕陽與河港的小鎮」','8,11':'林教授 怪獸研究所','18,9':'淡水河畔\n「傍晚的夕陽，全台灣最美。」'},
   npcs:[
    {id:'girl',x:12,y:7,dir:'down',look:'girl',lines:['林教授研究的是台灣原生的怪獸喔！','像石虎、台灣藍鵲、穿山甲……都是牠們的原型。']},
    {id:'fisher',x:15,y:14,dir:'down',look:'fisher',lines:['淡水河的夕陽，是全台灣最美的！','北邊紅樹林的泥灘上，常常有招潮仔揮著大鉗子走來走去。']},
@@ -649,6 +655,11 @@ const MAPS={
  oldhouse:{name:'阿公的家',out:' ',rows:['WWNWWNWW','kkfffPkk','ffffffff','ffttffff','ffttffff','ffffffff','fffmmfff'],
   warps:[[3,6,'beitou',18,21,'down'],[4,6,'beitou',18,21,'down']],
   npcs:[{id:'gramps',x:5,y:3,dir:'left',look:'oldman',talk:grampsTalk}]},
+ boutique:{name:'彩衣服飾',out:' ',rows:['WWNWWNWW','YYffffYY','ffffffff','CCCfffff','ffffffff','ffffffff','fffmmfff'],
+  warps:[[3,6,'tamsui',14,11,'down'],[4,6,'tamsui',14,11,'down']],
+  npcs:[{id:'stylist',x:1,y:2,dir:'down',look:'stylist',talk:async()=>{if(!G.flags.boutique){await sayAll(['老闆娘：歡迎光臨彩衣服飾！','要出門冒險啊？衣服會弄髒，身體也容易受傷。','這些傷藥送你，路上小心喔！']);G.items.potion=(G.items.potion|0)+3;G.flags.boutique=true;sfx('catch');await say(`${G.name} 得到了 傷藥×3！`);scheduleSave(200)}else await sayAll(['老闆娘：想換件衣服嗎？','打開選單、點自己的名字，就可以換造型喔！'])}},
+   {id:'singer',x:5,y:3,dir:'left',look:'lass',lines:['來唱歌阿～！','啦啦啦～淡水的夕陽好美～']},
+   {id:'poker',x:6,y:5,dir:'up',look:'youth',lines:['今晚要來梭哈嗎？','……開玩笑的啦！小朋友去打怪獸比較好玩。']}]},
  cake:{name:'蛋願蛋糕',out:' ',rows:['WWNWWNWW','ffffffPf','KKKCKKff','ffffffff','fttfftff','ffffffff','fffmmfff'],
   warps:[[3,6,'beitou',27,8,'down'],[4,6,'beitou',27,8,'down']],
   npcs:[{id:'baker',x:3,y:1,dir:'down',look:'baker',talk:cakeTalk},{id:'cakecust',x:4,y:4,dir:'left',look:'girl',lines:['這裡的芋泥蛋糕最好吃了！','聽說老闆娘一直在照顧一顆神秘的蛋……']}]},
@@ -747,13 +758,14 @@ function sfx(k){const c=AU.ctx;if(!c||!AU.on)return;const t=c.currentTime+.01,d=
     case 'zap':seq([96,84,96,84,96,84],'square',.035,.25);break;
     case 'water':seq([72,79,74,81,76],'triangle',.06,.6);break;
     case 'sparkle':seq([88,91,96,100,96],'square',.05,.2);break;
-    case 'bump':blip(d,'square',43,t,.07,.35);break}}
+    case 'bump':blip(d,'square',43,t,.07,.35);break;
+    case 'evo':duck(3.6);for(let i=0;i<16;i++)blip(d,'square',60+i*2+(i%2?7:0),t+i*.16,.15,.22);seq([],'square');break}}
 function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0')}catch(e){}if(AU.out)AU.out.gain.value=on?1:0;$('sndLbl').textContent=on?'音樂 開':'音樂 關'}
 
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0}).catch(()=>{})}
+function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,fight:mode==='battle'}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
@@ -850,13 +862,16 @@ function otherPlayers(now){if(!room||!M)return [];let ps=[];try{ps=room.peers()}
     let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
-    seen.add(q.uid);out.push({id:q.uid,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+    seen.add(q.uid);out.push({id:q.uid,lead:SP[q.lead|0]?q.lead|0:0,fight:q.fight===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
   for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return out}
 function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
-  if(t.d.textContent!==o.name)t.d.textContent=o.name;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+  const label=o.name+(o.fight?'・對戰中':'');if(t.d.textContent!==label)t.d.textContent=label;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+Math.sin(now/120+i)*2;const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.55;
+  ctx.fillStyle=i%2?'rgba(255,255,255,.9)':'rgba(200,210,225,.9)';ctx.beginPath();ctx.arc(px,py,2.6,0,7);ctx.fill()}
+  if(Math.floor(now/150)%2){ctx.fillStyle='#ffe040';ctx.fillRect(Math.round(x)-1,Math.round(y)-16,2,2);ctx.fillRect(Math.round(x)+5,Math.round(y)-13,2,2)}}
 function sweepTags(){for(const k in tags){if(tags[k].live)tags[k].live=false;else{tags[k].d.remove();delete tags[k]}}}
 function buildBoards(){boardsEl.replaceChildren();for(const k in tags)delete tags[k];boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
-function loadMap(id){M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy)/)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
+function loadMap(id){M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique)/)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
 function placePlayer(p){setTimeout(updatePresence,0);player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
   if(walkable(bx,by)){follower.x=follower.tx=bx;follower.y=follower.ty=by}else{follower.x=follower.tx=p.x;follower.y=follower.ty=p.y}}
 async function event(fn){busy=true;try{await fn()}catch(e){console.error(e)}finally{busy=false;hideText();menuEl.hidden=true;for(const k in held)held[k]=0}}
@@ -907,7 +922,9 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
     list.push({y:ey,d:()=>{drawPerson(e.look,e.dir,Math.round(ex-cx),Math.round(ey-cy)-3,wk,e.par);
       if(e.alert){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17;ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#fff';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#e03030';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}}})}
   const lead=G&&G.party[0];if(lead&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w)}})}
-  for(const o of otherPlayers(now)){list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4)}
+  for(const o of otherPlayers(now)){
+    if(o.lead){const [bx,by]=DIRS[o.dir];const fx2=(o.x-bx)*16-cx,fy2=(o.y-by)*16-cy;const im=SPRM[o.lead]||SPR16[o.lead];if(im)list.push({y:(o.y-by)*16,d:()=>{const hop=(Math.floor(now/250)%2)?1:0;if(o.dir==='right'){ctx.save();ctx.translate(Math.round(fx2)+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Math.round(fy2)-hop-1,16,16);ctx.restore()}else ctx.drawImage(im,Math.round(fx2),Math.round(fy2)-hop-1,16,16)}})}
+    list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.fight?6:0))}
   list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;drawPerson(heroLook(),player.dir,Math.round(px-cx),Math.round(py-cy)-3,wk,player.par);
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
   list.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
@@ -915,7 +932,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   for(const b of boardEls){const X=b.x*16-cx,Y=b.y*16-cy,k=X+','+Y;if(k!==b.k){b.k=k;b.d.style.left=`calc(var(--u)*${X})`;b.d.style.top=`calc(var(--u)*${Y})`}}}
 
 /* ================= interactions ================= */
-const TILE_TEXT={K:'玻璃櫃裡擺滿了蛋糕。草莓、巧克力、芋泥……看起來好好吃！',H:'大鍋子裡的豆漿正在滾，香噴噴的！',k:'書架上排滿了怪獸的書。',l:'研究用的機器，嗶嗶作響。',O:'熱騰騰的溫泉，冒著白煙。',Q:'熱騰騰的溫泉池，冒著白煙。',P:'綠油油的盆栽。',t:'',C:''};
+const TILE_TEXT={Y:'掛滿了五顏六色的衣服，還有好幾件亮晶晶的演出服。',K:'玻璃櫃裡擺滿了蛋糕。草莓、巧克力、芋泥……看起來好好吃！',H:'大鍋子裡的豆漿正在滾，香噴噴的！',k:'書架上排滿了怪獸的書。',l:'研究用的機器，嗶嗶作響。',O:'熱騰騰的溫泉，冒著白煙。',Q:'熱騰騰的溫泉池，冒著白煙。',P:'綠油油的盆栽。',t:'',C:''};
 async function interact(x,y){let e=entAt(x,y);const ch=tileAt(x,y);
   if(!e&&(ch==='C'||ch==='t')){const [dx,dy]=DIRS[player.dir];const e2=entAt(x+dx,y+dy);if(e2&&!e2.ball&&e2.kind!=='item')e=e2}
   if(e){await talkTo(e);return}
@@ -1081,7 +1098,18 @@ function drawBattle(now){const g=ctx.createLinearGradient(0,0,0,144);g.addColorS
   if(B.enemy&&!B.ehidden&&!blink('e'))ctx.drawImage(SPR[B.enemy.sp],92+sh('e')+lg('e')[0],4+lg('e')[1],64,64);
   if(B.me&&!B.mehidden&&!blink('p')&&SPRB[B.me.sp])ctx.drawImage(SPRB[B.me.sp],10+sh('p')+lg('p')[0],38+lg('p')[1],64,64);
   else if(B.me&&!B.mehidden&&!blink('p')){ctx.save();ctx.translate(74+sh('p')+lg('p')[0],lg('p')[1]);ctx.scale(-1,1);ctx.drawImage(SPR[B.me.sp],0,38,64,64);ctx.restore()}
-  if(B.ball){const {x,y,rot}=B.ball;ctx.save();ctx.translate(x-8,y-10);ctx.translate(8,10);ctx.rotate(rot||0);ctx.translate(-8,-10);ctx.drawImage(BALLIMG,0,0);ctx.restore()}drawFx(now)}
+  if(B.ball){const {x,y,rot}=B.ball;ctx.save();ctx.translate(x-8,y-10);ctx.translate(8,10);ctx.rotate(rot||0);ctx.translate(-8,-10);ctx.drawImage(BALLIMG,0,0);ctx.restore()}drawFx(now);if(B.evo)drawEvo(now)}
+const SIL={};function silhouette(sp){if(SIL[sp]&&SIL[sp].src===SPR[sp])return SIL[sp].c;const c=mk(SPR[sp].width,SPR[sp].height),g=c.getContext('2d');g.drawImage(SPR[sp],0,0);g.globalCompositeOperation='source-in';g.fillStyle='#ffffff';g.fillRect(0,0,c.width,c.height);SIL[sp]={src:SPR[sp],c};return c}
+function drawEvo(now){const E=B.evo;const cx=80,cy=58;ctx.fillStyle='rgba(16,20,40,.55)';ctx.fillRect(0,0,160,144);
+  if(!E.t0){ctx.drawImage(SPR[E.a],cx-32,cy-32,64,64);return}
+  const t=(now-E.t0)/1000;
+  // light rays behind
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(t*1.5);for(let i=0;i<12;i++){ctx.rotate(Math.PI/6);ctx.fillStyle=i%2?'rgba(255,240,150,.25)':'rgba(140,220,255,.25)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(90,-8);ctx.lineTo(90,8);ctx.fill()}ctx.restore();
+  if(t<2.6){const spd=4+t*t*6,ang=t*spd;const sx=Math.cos(ang);const useB=t>1.4&&Math.cos(ang*0.5+t*9)>0;const sp=useB?E.b:E.a;
+    const glow=Math.min(1,t/1.2);ctx.save();ctx.translate(cx,cy);ctx.scale(Math.abs(sx)<.08?.08:sx,1);ctx.globalAlpha=1;ctx.drawImage(SPR[sp],-32,-32,64,64);ctx.globalAlpha=glow;ctx.drawImage(silhouette(sp),-32,-32,64,64);ctx.restore();ctx.globalAlpha=1;
+    for(let i=0;i<10;i++){const a=i*0.628+t*3,r=40-((t*30+i*7)%36);ctx.fillStyle=i%2?'#fff8b0':'#a8e8ff';ctx.fillRect(Math.round(cx+Math.cos(a)*r),Math.round(cy+Math.sin(a)*r),2,2)}}
+  else if(t<3.1){const k=(t-2.6)/.5;ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);ctx.fillStyle=`rgba(255,255,255,${1-k})`;ctx.fillRect(0,0,160,144)}
+  else{ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*2,r=36+Math.sin(t*4+i)*4;const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;ctx.fillStyle='#fff6a0';ctx.fillRect(Math.round(x)-1,Math.round(y)-3,2,6);ctx.fillRect(Math.round(x)-3,Math.round(y)-1,6,2)}}}
 const FXOF={'衝撞':'ram','猛力壓':'ram','岩盾撞':'ram','俯衝':'dive','亂抓':'claw','雷爪':'tclaw','鉗夾':'pinch','齜牙':'glare','變硬':'shine','靜電彈':'bolt','羽毛刺':'feather','茶葉鏢':'leaf','藤鞭甩':'whip','螢火':'fire','烈焰衝':'blaze','泡泡噴':'bubble','浪花擊':'wave','碎石丟':'rock','太陽球':'sun','愛心飛飛':'heart','日光爆發':'burst','撒嬌':'heart','蛋殼滾':'ram','許願星':'sun','葉刃斬':'leaf','炎螢衝':'blaze','激流衝':'wave'};
 const FXSND={ram:'bump',dive:'bump',claw:'slash',tclaw:'zap',pinch:'slash',glare:'bump',shine:'sparkle',bolt:'zap',feather:'slash',leaf:'slash',whip:'slash',fire:'fire',blaze:'fire',bubble:'water',wave:'water',rock:'bump',sun:'sparkle',heart:'sparkle',burst:'sparkle'};
 async function playFx(mv,side){const k=FXOF[mv]||'ram';const now=performance.now();const dur={ram:420,dive:480,blaze:900,burst:950,bolt:700}[k]||750;
@@ -1148,7 +1176,7 @@ async function throwBall(foe){G.items.ball--;sfx('ball');await say(`${G.name} �
   B.ball=null;B.ehidden=false;await say(['哎呀！跑出來了！','差一點點就抓到了！','可惡！只差一點！'][Math.min(2,shakes)]);return false}
 async function transition(){for(let i=0;i<3;i++){fadeA=1;await wait(80);fadeA=0;await wait(80)}}
 async function battle(enemies,trainer){
-  await transition();mode='battle';music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer};
+  await transition();mode='battle';updatePresence();music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer};
   markSeen(B.enemy.sp);let ei=0,mi=G.party.findIndex(m=>m.hp>0);let me=G.party[mi],foe=B.enemy;B.me=me;updHud();
   if(trainer){await say(`${trainer.name} 想要對戰！`);await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else await say(`野生的 ${nm(foe)} 跳出來了！`);
   B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`);let result=null;
@@ -1164,14 +1192,17 @@ async function battle(enemies,trainer){
     else{const first=st(me,3)>st(foe,3)||(st(me,3)===st(foe,3)&&Math.random()<.5);
       if(first){await doMove(me,foe,act.m,'p');if(foe.hp>0)await doMove(foe,me,em,'e')}else{await doMove(foe,me,em,'e');if(me.hp>0)await doMove(me,foe,act.m,'p')}}
     if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);if(me.hp>0)await gainExp(me,foe,!!trainer);
-      if(trainer&&ei<enemies.length-1){ei++;foe=enemies[ei];B.enemy=foe;B.stage.e={a:0,d:0};markSeen(foe.sp);B.ehidden=false;updHud();await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else result='win'}
+      if(trainer&&ei<enemies.length-1){const nx=enemies[ei+1];
+        if(me.hp>0&&G.party.some((x,j)=>j!==mi&&x.hp>0)&&await yesNo(`${trainer.name} 準備派出 ${nm(nx)}。\n要換怪獸嗎？`)){const sw=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);
+          if(sw>=0){await say(`${nm(me)}，回來！`);B.mehidden=true;updHud();mi=sw;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};await wait(250);B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}}
+        ei++;foe=enemies[ei];B.enemy=foe;B.stage.e={a:0,d:0};markSeen(foe.sp);B.ehidden=false;updHud();await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else result='win'}
     if(me.hp<=0){B.mehidden=true;updHud();await say(`${nm(me)} 倒下了！`);
       if(result!=='win'){if(G.party.some(m=>m.hp>0)){const s=await partyPick('要派出哪一隻？',i=>G.party[i].hp>0,false);mi=s;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}else result='lose'}}}
   if(result==='win'){music('victory');if(trainer){if(trainer.win)await sayAll(trainer.win);if(trainer.reward){G.money+=trainer.reward;await say(`打贏了 ${trainer.name}！得到 ${trainer.reward} 元。`)}}else{const c=foe.lv*10;G.money+=c;await say(`撿到了 ${c} 元！`)}}
   if(result==='lose'){if(trainer&&trainer.noLose){if(trainer.lose)await sayAll(trainer.lose)}else{await sayAll([`${G.name} 的怪獸都沒有力氣了……`,'眼前一片漆黑……']);G.money=Math.floor(G.money/2)}}
-  for(const m of G.party){if(m.evo){delete m.evo;const ev=SP[m.sp].evo;if(!ev)continue;B.me=m;B.mehidden=false;B.ehidden=true;B.eGone=true;updHud();await say(`咦？${nm(m)} 的樣子……`);
-    for(let i=0;i<6;i++){B.shake.p=performance.now()+200;await wait(220)}const old=nm(m);const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);updHud();sfx('badge');await say(`恭喜！${old} 進化成 ${nm(m)} 了！`);for(const [l,mv] of SP[m.sp].l){if(l<=m.lv&&!m.moves.includes(mv)&&m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`)}}}}
-  hideText();eInfo.hidden=pInfo.hidden=true;await transition();B=null;mode='map';mapMusic();
+  for(const m of G.party){if(m.evo){delete m.evo;const ev=SP[m.sp].evo;if(!ev)continue;B.me=m;B.mehidden=true;B.ehidden=true;B.eGone=true;updHud();B.evo={a:m.sp,b:ev[1],t0:0};await say(`咦？${nm(m)} 的樣子……`);hideText();
+    B.evo.t0=performance.now();sfx('evo');await wait(3300);const old=nm(m);const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);updHud();pInfo.hidden=true;sfx('badge');await say(`恭喜！${old} 進化成 ${nm(m)} 了！`);for(const [l,mv] of SP[m.sp].l){if(l<=m.lv&&!m.moves.includes(mv)&&m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`)}}B.evo=null}}
+  hideText();eInfo.hidden=pInfo.hidden=true;await transition();B=null;mode='map';mapMusic();updatePresence();
   if(result==='lose'&&!(trainer&&trainer.noLose)){healAll();loadMap(G.lastHeal.map);placePlayer(G.lastHeal);await say(G.lastHeal.map==='center'?'護理師：你的怪獸都恢復健康了。別太勉強喔！':G.lastHeal.map==='lab'?'小陳：你回來啦！怪獸都治好了。':'媽媽：你回來啦，好好休息吧。怪獸們都恢復精神了！')}
   scheduleSave(200);return result}
 
