@@ -65,13 +65,17 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #menu.title{left:calc(var(--u)*30);right:calc(var(--u)*30);bottom:calc(var(--u)*8)}
 .binfo{position:absolute;font-size:calc(var(--u)*7.5);line-height:1.2;z-index:1;color:var(--c3)}
 #eInfo{left:calc(var(--u)*4);top:calc(var(--u)*6);width:calc(var(--u)*80)}
-#pInfo{right:calc(var(--u)*4);top:calc(var(--u)*70);width:calc(var(--u)*76);text-align:right}
+#pInfo{right:calc(var(--u)*4);top:calc(var(--u)*58);width:calc(var(--u)*76);text-align:right}
 .binfo .row{display:flex;justify-content:space-between;gap:calc(var(--u)*3)}
 .hp{display:flex;align-items:center;gap:calc(var(--u)*2);margin-top:calc(var(--u)*1.5);font-size:.8em;color:#d08020}
 .bar{flex:1;height:calc(var(--u)*3.4);box-shadow:0 0 0 calc(var(--u)*.8) var(--c3);background:#404858;position:relative;border-radius:calc(var(--u)*1)}
 .bar i{position:absolute;inset:0 auto 0 0;background:#48c858;border-radius:inherit;transition:width .5s steps(12)}
+.xp{display:flex;align-items:center;gap:calc(var(--u)*2);margin-top:calc(var(--u)*1.2);font-size:.7em;color:#2878c8}
+.xbar{height:calc(var(--u)*2.4)}
+.xbar i{background:#40a8f0!important;transition:width .7s linear}
+.xbar i.now{transition:none}
 .bar i.mid{background:#f0c030}.bar i.low{background:#e84830}
-.hpt{margin-top:calc(var(--u)*1)}
+.hpt{color:var(--c3);font-size:1.15em;white-space:nowrap}
 #sheet{inset:0;padding:calc(var(--u)*8);z-index:4;overflow:hidden;font-size:calc(var(--u)*7.4)}
 #sheet .top{display:flex;gap:calc(var(--u)*6);align-items:flex-start}
 #sheet img{width:calc(var(--u)*48);height:calc(var(--u)*48);image-rendering:pixelated;flex:none;background:#e8f0f8;box-shadow:0 0 0 calc(var(--u)*1) var(--c3)}
@@ -220,7 +224,7 @@ if(auth){
         <div id="boards"></div>
         <div id="mapName" class="box" hidden></div>
         <div id="eInfo" class="binfo" hidden><div class="row"><span id="eName"></span><span id="eLv"></span></div><div class="hp">HP<div class="bar"><i id="eHp"></i></div></div></div>
-        <div id="pInfo" class="binfo" hidden><div class="row"><span id="pName"></span><span id="pLv"></span></div><div class="hp">HP<div class="bar"><i id="pHp"></i></div></div><div class="hpt" id="pHpT"></div></div>
+        <div id="pInfo" class="binfo" hidden><div class="row"><span id="pName"></span><span id="pLv"></span></div><div class="hp">HP<div class="bar"><i id="pHp"></i></div><span class="hpt" id="pHpT"></span></div><div class="xp">EXP<div class="bar xbar"><i id="pXp"></i></div></div></div>
         <div id="dlg" class="box" hidden><p id="dlgText"></p><span id="dlgArrow" hidden>▼</span></div>
         <div id="menu" class="box" hidden></div>
         <div id="sheet" class="box" hidden></div>
@@ -285,7 +289,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-151558";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-152052";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1035,8 +1039,10 @@ let B=null;const eInfo=$('eInfo'),pInfo=$('pInfo');
 function setBar(elm,r){elm.style.width=(r*100)+'%';elm.className=r<.2?'low':r<.5?'mid':''}
 function updHud(){if(!B)return;const e=B.enemy,m=B.me;
   if(e){$('eName').textContent=nm(e);$('eLv').textContent='Lv'+e.lv;setBar($('eHp'),e.hp/maxhp(e))}
-  if(m){$('pName').textContent=nm(m);$('pLv').textContent='Lv'+m.lv;setBar($('pHp'),m.hp/maxhp(m));$('pHpT').textContent=`${m.hp} / ${maxhp(m)}`}
+  if(m){$('pName').textContent=nm(m);$('pLv').textContent='Lv'+m.lv;setBar($('pHp'),m.hp/maxhp(m));$('pHpT').textContent=`${m.hp} / ${maxhp(m)}`;if(B.xpLock!==m){B.xpLock=m;setXp(xpRatio(m),true)}}
   eInfo.hidden=!e||B.eGone;pInfo.hidden=!m||B.mehidden}
+function xpRatio(m){if(m.lv>=100)return 1;const a=lvExp(m.lv),b=lvExp(m.lv+1);return clamp((m.exp-a)/(b-a),0,1)}
+function setXp(r,instant){const x=$('pXp');x.classList.toggle('now',!!instant);x.style.width=(r*100)+'%';if(instant){void x.offsetWidth;x.classList.remove('now')}}
 const stageMul=s=>s>=0?(2+s)/2:2/(2-s);
 function drawBattle(now){const g=ctx.createLinearGradient(0,0,0,144);g.addColorStop(0,'#f8f8f0');g.addColorStop(1,'#e8f0e0');ctx.fillStyle=g;ctx.fillRect(0,0,160,144);
   const plat=(x,y,rx,ry,a,b)=>{ctx.fillStyle=b;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,7);ctx.fill();ctx.fillStyle=a;ctx.beginPath();ctx.ellipse(x,y-1,rx-2,ry-1.5,0,0,7);ctx.fill()};
@@ -1097,10 +1103,11 @@ async function doMove(att,def,mvName,side){const mv=MOVES[mvName];const tgt=side
   sfx('hit');B.shake[tgt]=performance.now()+420;await wait(420);def.hp=Math.max(0,def.hp-dmg);updHud();await wait(450);
   if(crit)await say('擊中要害！');if(eff>1)await say('效果絕佳！');else if(eff<1)await say('效果不太好……')}
 function enemyMove(e){const ms=e.moves;const atk=ms.filter(m=>MOVES[m].p>0);if(atk.length&&(Math.random()<.78||atk.length===ms.length))return atk[rnd(0,atk.length-1)];return ms[rnd(0,ms.length-1)]}
-async function gainExp(me,foe,trainer){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;
-  while(me.lv<100&&me.exp>=lvExp(me.lv+1)){const old=maxhp(me);me.lv++;me.hp+=maxhp(me)-old;updHud();sfx('lvl');await say(`${nm(me)} 升到了 Lv${me.lv}！`);
+async function gainExp(me,foe,trainer){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;const show=B.me===me;
+  while(me.lv<100&&me.exp>=lvExp(me.lv+1)){if(show){setXp(1);await wait(750)}const old=maxhp(me);me.lv++;if(show)setXp(0,true);me.hp+=maxhp(me)-old;updHud();sfx('lvl');await say(`${nm(me)} 升到了 Lv${me.lv}！`);
     for(const [l,mv] of SP[me.sp].l){if(l===me.lv&&!me.moves.includes(mv)){if(me.moves.length<4){me.moves.push(mv);await say(`${nm(me)} 學會了 ${mv}！`)}else{const f=me.moves.shift();me.moves.push(mv);await say(`${nm(me)} 忘記了 ${f}，學會了 ${mv}！`)}}}
-    const ev=SP[me.sp].evo;if(ev&&me.lv>=ev[0])me.evo=true}}
+    const ev=SP[me.sp].evo;if(ev&&me.lv>=ev[0])me.evo=true}
+  if(show){setXp(xpRatio(me));await wait(750)}}
 async function throwBall(foe){G.items.ball--;sfx('ball');await say(`${G.name} 丟出了捉捉球！`);
   for(let i=0;i<=14;i++){const t=i/14;B.ball={x:20+(124-20)*t,y:110-(110-40)*t-Math.sin(t*Math.PI)*40,rot:t*8};await wait(28)}
   B.ehidden=true;B.ball={x:124,y:58,rot:0};await wait(400);
