@@ -170,7 +170,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-190443';
+import CONFIG from './firebase-config.js?v=20261106-191036';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -298,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-190443";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-191036";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -811,7 +811,10 @@ const TRK={};
 function defTrack(name,o){const v=o.v.map(([w,l,vol])=>{const map=new Map();let at=0;parseLine(l).forEach(n=>{if(n.m!==null)map.set(at,{m:n.m,len:n.len});at+=n.len});return {w,map,vol,n:at}});TRK[name]={bpm:o.bpm,loop:o.loop!==false,tr:o.tr||0,v}}
 const TRACKS={"town": {"bpm": 112, "v": [["square", "E5 - G5 - C6 - B5 A5 G5 - E5 - D5 - - - F5 - A5 - D6 - C6 B5 C6 - - - . . . . E5 - G5 - C6 - D6 E6 D6 - C6 - A5 - G5 - F5 E5 D5 - G5 - B4 - C5 - - - . . . .", 0.3], ["triangle", "C3 . G3 . E3 . G3 . G2 . D3 . B2 . D3 . F2 . C3 . A2 . C3 . C3 . G3 . E3 . G3 . C3 . G3 . E3 . G3 . F2 . C3 . A2 . C3 . F2 . A2 . G2 . B2 . C3 . G2 . C3 . . .", 0.6], ["d", "k . . . s . . . k . . . s . . . k . . . s . . . k . . . s . . . k . . . s . . . k . . . s . . . k . . . s . . . k . . . s . . .", 1]]}, "route": {"bpm": 144, "v": [["square", "G5 - D5 G5 B5 - A5 G5 A5 - E5 - F#5 - D5 - G5 - D5 G5 B5 - C6 D6 E6 - D6 - B5 - - - C6 - B5 A5 B5 - A5 G5 A5 - G5 F#5 E5 - D5 - E5 F#5 G5 A5 B5 - A5 - G5 - - - . . . .", 0.28], ["triangle", "G2 . D3 . G2 . D3 . D3 . A2 . D3 . A2 . G2 . D3 . G2 . D3 . E2 . B2 . E2 . B2 . C3 . G2 . C3 . G2 . D3 . A2 . D3 . A2 . C3 . G2 . D3 . A2 . G2 . D3 . G2 . . .", 0.6], ["d", "k . h . s . h k k . h . s . h k k . h . s . h k k . h . s . h k k . h . s . h k k . h . s . h k k . h . s . h k k . h . s . h k", 1]]}, "beitou": {"bpm": 104, "v": [["square", "A5 - B5 A5 F#5 - E5 - D5 - E5 F#5 A5 - - - B5 - D6 - B5 A5 F#5 - E5 - - - . . . . F#5 - A5 - B5 - A5 F#5 E5 - D5 - E5 - F#5 - A5 - F#5 E5 D5 - E5 - D5 - - - . . . .", 0.28], ["triangle", "D3 . A2 . D3 . A2 . D3 . A2 . F#3 . A2 . G2 . D3 . G2 . D3 . A2 . E3 . A2 . E3 . D3 . A2 . G2 . D3 . A2 . E3 . A2 . E3 . G2 . D3 . A2 . E3 . D3 . A2 . D3 . . .", 0.6], ["d", "k . . h s . . h k . . h s . . h k . . h s . . h k . . h s . . h k . . h s . . h k . . h s . . h k . . h s . . h k . . h s . . h", 1]]}, "center": {"bpm": 100, "v": [["square", "C5 - F5 - A5 - G5 F5 G5 - - - C5 - - - D5 - G5 - Bb5 - A5 G5 A5 - - - . . . . F5 - A5 - C6 - Bb5 A5 G5 - E5 - C5 - D5 E5 F5 - G5 - E5 - C5 - F5 - - - . . . .", 0.26], ["triangle", "F2 . C3 . F2 . C3 . C3 . G2 . C3 . G2 . G2 . D3 . G2 . D3 . F2 . C3 . F2 . C3 . F2 . C3 . F2 . C3 . C3 . G2 . C3 . G2 . Bb2 . F3 . C3 . G2 . F2 . C3 . F2 . . .", 0.6]]}, "battle": {"bpm": 168, "v": [["square", "A5 . A5 G5 A5 . C6 . B5 . G5 . E5 . G5 . A5 . A5 G5 A5 . E6 . D6 C6 B5 G5 A5 - - - F5 . F5 E5 F5 . A5 . G5 . E5 . C5 . E5 . D5 E5 F5 G5 A5 B5 C6 D6 E6 - - - G#5 - B5 -", 0.26], ["triangle", "A2 A3 A2 A3 A2 A3 A2 A3 E2 E3 E2 E3 E2 E3 E2 E3 A2 A3 A2 A3 A2 A3 A2 A3 G2 G3 G2 G3 G2 G3 G2 G3 F2 F3 F2 F3 F2 F3 F2 F3 C3 C4 C3 C4 C3 C4 C3 C4 D3 D4 D3 D4 E3 E4 E3 E4 E2 E3 E2 E3 E2 E3 E2 E3", 0.65], ["d", "k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h", 1]]}, "victory": {"bpm": 140, "loop": false, "v": [["square", "G5 G5 G5 - E5 - G5 - C6 - - - - - . . A5 - B5 - C6 - D6 - E6 - - - - - - -", 0.3], ["triangle", "C3 . C3 . C3 . C3 . F2 . F2 . F2 . F2 . G2 . G2 . G2 . G2 . C3 - - - - - - -", 0.6]]}};
 for(const k in TRACKS)defTrack(k,TRACKS[k]);
-TRK.home={...TRK.center,bpm:92,tr:-5};TRK.gym={...TRK.route,bpm:156,tr:5};TRK.boss={...TRK.battle,bpm:182,tr:2};
+defTrack('battle',{bpm:176,v:[['square','E5 . E5 . G5 . A5 B5 B5 - A5 G5 F#5 . E5 . D5 . D5 . F#5 . G5 A5 A5 - G5 F#5 E5 - - - C6 . B5 . A5 . G5 . A5 . G5 . F#5 . E5 . F#5 G5 A5 B5 C6 B5 A5 F#5 B5 - - - D#6 - B5 -',.26],['square','E4 G4 B4 E5 B4 G4 B4 E5 E4 G4 B4 E5 B4 G4 B4 E5 D4 F#4 A4 D5 A4 F#4 A4 D5 D4 F#4 A4 D5 A4 F#4 A4 D5 C4 E4 G4 C5 G4 E4 G4 C5 A3 C4 E4 A4 E4 C4 E4 A4 B3 D#4 F#4 B4 F#4 D#4 F#4 B4 B3 D#4 F#4 B4 F#4 D#4 F#4 B4',.1],['triangle','E2 E3 E2 E3 E2 E3 E2 E3 E2 E3 E2 E3 E2 E3 E2 E3 D2 D3 D2 D3 D2 D3 D2 D3 D2 D3 D2 D3 D2 D3 D2 D3 C2 C3 C2 C3 C2 C3 C2 C3 A1 A2 A1 A2 A1 A2 A1 A2 B1 B2 B1 B2 B1 B2 B1 B2 B1 B2 B1 B2 B1 B2 B1 B2',.7],['d','k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k h s h k k s h k k s s k s s s',1]]});
+defTrack('evo',{bpm:220,loop:false,v:[['square','C5 E5 G5 C6 D5 F5 A5 D6 E5 G5 B5 E6 F5 A5 C6 F6 G5 B5 D6 G6 G6 - - -',.28],['triangle','C3 C3 C3 C3 D3 D3 D3 D3 E3 E3 E3 E3 F3 F3 F3 F3 G3 G3 G3 G3 G2 - - -',.7],['d','s s s s s s s s s s s s s s s s s s s s k - - -',1]]});
+defTrack('evofan',{bpm:150,loop:false,v:[['square','C6 - G5 C6 E6 - - - D6 C6 D6 E6 G6 - - - E6 - - - C6 - - -',.3],['square','E5 - E5 E5 G5 - - - F5 E5 F5 G5 B5 - - - G5 - - - E5 - - -',.14],['triangle','C3 . C3 . C3 . C3 . G2 . G2 . G2 . G2 . C3 - - - C2 - - -',.7],['d','k . s . k . s . k . s . k k s s k - - - k - - -',1]]});
+TRK.home={...TRK.center,bpm:92,tr:-5};TRK.gym={...TRK.route,bpm:156,tr:5};TRK.boss={...TRK.battle,bpm:192,tr:3};
 TRK.cave={...TRK.center,bpm:72,tr:-9};TRK.city={...TRK.town,bpm:128,tr:2};
 const MUS={tamsui:'town',route2:'route',beitou:'beitou',center:'center',gym:'gym',route3:'route',cave1:'cave',cave2:'cave',taipei:'city',center2:'center',gym2:'gym'};
 function mapMusic(){if(M)music(MUS[M.id]||'home')}
@@ -1359,9 +1362,9 @@ async function battle(enemies,trainer){
     if(me.hp<=0){B.mehidden=true;updHud();await say(`${nm(me)} 倒下了！`);
       if(result!=='win'){if(G.party.some(m=>m.hp>0)){const s=await partyPick('要派出哪一隻？',i=>G.party[i].hp>0,false);mi=s;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}else result='lose'}}}
   if(result==='win'){music('victory');if(trainer){if(trainer.win)await sayAll(trainer.win);if(trainer.reward){G.money+=trainer.reward;await say(`打贏了 ${trainer.name}！得到 ${trainer.reward} 元。`)}}else{const c=foe.lv*10;G.money+=c;await say(`撿到了 ${c} 元！`)}}
-  if(result==='lose'){if(trainer&&trainer.noLose){if(trainer.lose)await sayAll(trainer.lose)}else{await sayAll([`${G.name} 的怪獸都沒有力氣了……`,'眼前一片漆黑……']);G.money=Math.floor(G.money/2)}}
+  if(result==='lose'){if(trainer&&trainer.noLose){if(trainer.lose)await sayAll(trainer.lose)}else{await sayAll([`${G.name} 的怪獸都沒有力氣了……`,'眼前一片漆黑……']);const lost=Math.floor(G.money/4);G.money-=lost;if(lost>0)await say(`慌慌張張地跑回去，路上掉了 ${lost} 元……`)}}
   for(const m of G.party){if(m.evo){delete m.evo;const ev=SP[m.sp].evo;if(!ev)continue;B.me=m;B.mehidden=true;B.ehidden=true;B.eGone=true;updHud();B.evo={a:m.sp,b:ev[1],t0:0};await say(`咦？${nm(m)} 的樣子……`);hideText();
-    B.evo.t0=performance.now();sfx('evo');await wait(3300);const old=nm(m);const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);updHud();pInfo.hidden=true;sfx('badge');await say(`恭喜！${old} 進化成 ${nm(m)} 了！`);for(const [l,mv] of SP[m.sp].l){if(l<=m.lv&&!m.moves.includes(mv)&&m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`)}}B.evo=null}}
+    B.evo.t0=performance.now();music('evo');await wait(3300);const old=nm(m);const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);updHud();pInfo.hidden=true;music('evofan');await say(`恭喜！${old} 進化成 ${nm(m)} 了！`);for(const [l,mv] of SP[m.sp].l){if(l<=m.lv&&!m.moves.includes(mv)&&m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`)}}B.evo=null}}
   hideText();eInfo.hidden=pInfo.hidden=true;await transition();B=null;mode='map';mapMusic();updatePresence();
   if(result==='lose'&&!(trainer&&trainer.noLose)){healAll();loadMap(G.lastHeal.map);placePlayer(G.lastHeal);await say(/^center/.test(G.lastHeal.map)?'護理師：你的怪獸都恢復健康了。別太勉強喔！':G.lastHeal.map==='lab'?'小陳：你回來啦！怪獸都治好了。':'媽媽：你回來啦，好好休息吧。怪獸們都恢復精神了！')}
   scheduleSave(200);return result}
@@ -1526,14 +1529,16 @@ function drawSkyDragon(g,t){
   const N=44,SP=3.3;const pts=[];for(let i=0;i<=N;i++){const x=hx+12+i*SP;pts.push([x,yAt(x)])}
   const rad=i=>i<5?6:i>N-8?Math.max(1.2,6*(N-i)/8):6-(i/N)*2.4;
   const tube=(col,extra,yoff=0,scale=1)=>{g.strokeStyle=col;g.lineCap='round';for(let i=N;i>0;i--){const [x1,y1]=pts[i],[x2,y2]=pts[i-1];g.lineWidth=(rad(i)*scale+extra)*2;g.beginPath();g.moveTo(x1,y1+yoff);g.lineTo(x2,y2+yoff);g.stroke()}};
-  // 一隻腳：上臂→前臂→三根金色爪子，會像划水一樣動
-  const leg=(i,front,ph)=>{const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*4+ph);
-    const kx=x+(front?-3:2)+sw*2,ky=y+r+5,fx=kx+(front?-5:-3)+sw*2.5,fy=ky+4+Math.cos(t*4+ph)*1.5;
-    g.lineCap='round';g.strokeStyle='#0c2a2a';g.lineWidth=5;g.beginPath();g.moveTo(x,y+r-1);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
-    g.strokeStyle=front?'#26b08a':'#1e9a7a';g.lineWidth=3;g.beginPath();g.moveTo(x,y+r-1);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
-    g.fillStyle='#f0c040';g.fillRect(Math.round(kx)-1,Math.round(ky)-1,2,2);
-    g.strokeStyle='#0c2a2a';g.lineWidth=2.4;for(let k=-1;k<=1;k++){g.beginPath();g.moveTo(fx,fy);g.lineTo(fx-3+k*2.2,fy+3+Math.abs(k)*-.6);g.stroke()}
-    g.strokeStyle='#ffe070';g.lineWidth=1.2;for(let k=-1;k<=1;k++){g.beginPath();g.moveTo(fx,fy);g.lineTo(fx-3+k*2.2,fy+3+Math.abs(k)*-.6);g.stroke()}};
+  // 龍爪：短而粗的腿向後收、手肘有白色毛、末端是彎鉤狀的金色利爪（像老鷹抓東西）
+  const leg=(i,front,ph)=>{const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*3+ph)*1.2;
+    const kx=x+4+sw,ky=y+r+3,fx=kx-2+sw,fy=ky+3;
+    g.lineCap='round';g.strokeStyle='#0c2a2a';g.lineWidth=6;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    g.strokeStyle=front?'#26b08a':'#1e9a7a';g.lineWidth=4;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    // 手肘的白毛（往後飄）
+    g.fillStyle='#f4f8ff';g.beginPath();g.moveTo(kx,ky-1);g.lineTo(kx+7+Math.sin(t*6+ph)*1.5,ky+1);g.lineTo(kx+1,ky+2);g.fill();
+    // 彎鉤爪：三根往前、一根往後
+    const claw=(ax,ay,cx,cy,bx,by)=>{for(const [w,col] of [[2.6,'#3a2a08'],[1.3,'#ffd84a']]){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(ax,ay);g.quadraticCurveTo(cx,cy,bx,by);g.stroke()}};
+    claw(fx,fy,fx-4,fy+1,fx-4,fy+4);claw(fx,fy,fx-2,fy+3,fx-1,fy+6);claw(fx,fy,fx+1,fy+3,fx+2,fy+5);claw(fx,fy,fx+3,fy,fx+4,fy+2)};
   // 遠處的兩隻腳先畫（在身體後面）
   leg(8,true,1.6);leg(29,false,4.2);
   tube('#0c2a2a',1.2);tube('#1e9a7a',0);tube('#3ccaa0',0,-1.8,.45);
