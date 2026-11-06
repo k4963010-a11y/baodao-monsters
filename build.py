@@ -27,6 +27,7 @@ page = ('<!doctype html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\
 import time, json
 build = time.strftime('%Y%m%d-%H%M%S')
 page = page.replace('<script>\n(()=>{', '<script>window.BD_BUILD="' + build + '";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>\n<script>\n(()=>{', 1)
+page = page.replace("from './firebase-config.js'", "from './firebase-config.js?v=" + build + "'")
 open(os.path.join(here, 'index.html'), 'w', encoding='utf-8').write(page)
 json.dump({'build': build}, open(os.path.join(here, 'version.json'), 'w'))
 print('OK -> index.html')

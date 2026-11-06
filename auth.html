@@ -34,7 +34,7 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
 const $=id=>document.getElementById(id);
@@ -49,7 +49,8 @@ document.querySelectorAll('.auth-tabs button').forEach(b=>b.addEventListener('cl
 $('aoff').addEventListener('click',()=>finish(null));
 
 let app,auth,fs;
-try{if(!CONFIG||!CONFIG.apiKey)throw new Error('no config');app=initializeApp(CONFIG);auth=getAuth(app);fs=getFirestore(app)}
+const CFG=CONFIG&&{...CONFIG,databaseURL:'https://baodao-monsters-default-rtdb.asia-southeast1.firebasedatabase.app'};
+try{if(!CFG||!CFG.apiKey)throw new Error('no config');app=initializeApp(CFG);auth=getAuth(app);fs=getFirestore(app)}
 catch(e){$('amsg').textContent='線上功能還沒設定好，目前只能單機玩。';$('ago').disabled=true}
 
 function makeDb(){return {
@@ -59,14 +60,15 @@ function makeDb(){return {
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
   collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
-function makeRoom(uid){let mine={},all={};const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
+function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
+  onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
   onDisconnect(me).remove().catch(()=>{});
-  const push=()=>set(me,{...mine,uid,t:Date.now()}).catch(()=>{});
+  const push=()=>set(me,{...mine,uid,t:serverTimestamp()}).catch(e=>console.warn('pos',e));
   setInterval(()=>{if(mine.name)push()},30000);
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
   onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
-  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()+off-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
 function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
   try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}
