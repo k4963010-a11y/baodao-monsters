@@ -170,7 +170,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-185846';
+import CONFIG from './firebase-config.js?v=20261106-190124';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -298,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-185846";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-190124";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1513,20 +1513,53 @@ if(window.BD_BUILD){const chk=async()=>{if(updReady)return;try{const r=await fet
 async function softReset(){if(mode==='title'&&!G)return;try{if(G&&mode==='map'&&!busy)await saveNow();else saveLocal()}catch(e){}
   EPOCH++;clearTimeout(saveTimer);uiStack.length=0;busy=false;B=null;M=null;G=null;ents=[];temps=[];mode='title';player.scripted=null;player.moving=false;fadeA=0;flash=false;
   for(const k in held)held[k]=0;[dlg,menuEl,sheetEl,eInfo,pInfo,$('mapName'),nameForm].forEach(e=>e.hidden=true);titleEl.hidden=false;music('town');titleFlow()}
-const TITLE_DRAGON=new Image();TITLE_DRAGON.src='data:image/png;base64,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';
 const tbg=$('titleBg').getContext('2d');tbg.imageSmoothingEnabled=false;
 const TSTARS=Array.from({length:34},(_,i)=>[(i*53)%160,(i*37)%60,(i*7)%5]);
 const TCLOUDS=[[20,40,1,.18],[110,28,0,.12],[70,64,1,.25],[150,52,0,.2],[0,74,1,.3]];
 function tcloud(g,x,y,w,a){g.fillStyle=`rgba(255,236,230,${a})`;g.fillRect(x+4,y,w-8,4);g.fillRect(x,y+3,w,5);g.fillRect(x+6,y-3,w*.4,4);g.fillStyle=`rgba(200,170,210,${a})`;g.fillRect(x+2,y+7,w-4,2)}
+
+// 首頁：一條長長的東方龍，身體像波浪一樣扭動，橫著飛過天空
+function pdisk(g,x,y,r,col){g.fillStyle=col;x=Math.round(x);y=Math.round(y);const R=Math.round(r);for(let dy=-R;dy<=R;dy++){const w=Math.floor(Math.sqrt(Math.max(0,r*r-dy*dy)));g.fillRect(x-w,y+dy,w*2+1,1)}}
+function drawSkyDragon(g,t){
+  const SPEED=26,LEN=150,cyc=(160+LEN+40)/SPEED;const u=(t%cyc)/cyc;const hx=170-u*(160+LEN+40);const base=70,A=9,K=.075,W=2.6;
+  const yAt=x=>base+A*Math.sin(x*K+t*W)+Math.sin(t*.6)*3;
+  const N=40,SP=3.6;const pts=[];for(let i=0;i<=N;i++){const x=hx+12+i*SP;pts.push([x,yAt(x)])}
+  const rad=i=>i<4?5.5:i>N-6?Math.max(1.5,5.5*(N-i)/6):5.5-(i/N)*2.2;
+  // 背上的白色鬃毛、身體、金色肚子（由尾巴畫到頭）
+  for(let i=N;i>=0;i--){const [x,y]=pts[i];const r=rad(i);pdisk(g,x,y,r+1,'#0c2a2a')}
+  for(let i=N;i>=0;i--){const [x,y]=pts[i];const r=rad(i);
+    if(i%3===0&&i<N-4){const [x2,y2]=pts[Math.min(N,i+1)];const ang=Math.atan2(y2-y,x2-x)-Math.PI/2;const fx=x+Math.cos(ang)*(r+4),fy=y+Math.sin(ang)*(r+4);
+      g.fillStyle='#f4f4ff';g.beginPath();g.moveTo(x-1.5,y-r+1);g.lineTo(fx+2+Math.sin(t*8+i)*1.2,fy);g.lineTo(x+2,y-r+1);g.fill()}
+    pdisk(g,x,y,r,i%2?'#1e9a7a':'#26b08a');pdisk(g,x,y-r*.35,r*.45,i%2?'#3ccaa0':'#56d8b0');
+    if(r>2.5){g.fillStyle='#f0c040';g.fillRect(Math.round(x-r*.6),Math.round(y+r*.35),Math.max(1,Math.round(r*1.2)),Math.max(1,Math.round(r*.45)))}}
+  // 尾巴的白色毛
+  {const [x,y]=pts[N];for(let k=0;k<4;k++){const a=Math.sin(t*6+k)*.5+k*.35-.5;g.fillStyle=k%2?'#ffffff':'#d8e8ff';g.beginPath();g.moveTo(x,y);g.lineTo(x+10*Math.cos(a)+4,y+8*Math.sin(a)-2);g.lineTo(x+3,y+1);g.fill()}}
+  // 四隻爪子
+  for(const i of [7,9,24,26]){const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*5+i)*1.5;g.fillStyle='#1e9a7a';g.fillRect(Math.round(x-1),Math.round(y+r-1),2,4);g.fillStyle='#f0c040';g.fillRect(Math.round(x-2+sw),Math.round(y+r+2),2,2);g.fillRect(Math.round(x+1+sw),Math.round(y+r+2),2,2)}
+  // 頭（朝左）
+  const [x0,y0]=pts[0];const hx2=hx+2,hy=yAt(hx2);
+  g.save();g.translate(Math.round(hx2),Math.round(hy));g.rotate(Math.atan2(y0-hy,x0-hx2)-0);
+  // 角
+  g.fillStyle='#f8e070';g.fillRect(4,-11,2,6);g.fillRect(6,-13,2,3);g.fillRect(8,-10,2,6);g.fillRect(10,-12,2,3);
+  // 鬃毛
+  for(let k=0;k<5;k++){g.fillStyle=k%2?'#ffffff':'#e0ecff';g.beginPath();g.moveTo(8,-4+k*2);g.lineTo(18+k*2+Math.sin(t*7+k)*2,-6+k*3);g.lineTo(10,-1+k*2);g.fill()}
+  // 頭部
+  pdisk(g,6,0,6.5,'#0c2a2a');pdisk(g,-2,1,4.5,'#0c2a2a');pdisk(g,6,0,5.5,'#26b08a');pdisk(g,-2,1,3.6,'#26b08a');
+  g.fillStyle='#56d8b0';g.fillRect(0,-4,9,2);g.fillStyle='#f0c040';g.fillRect(-5,3,10,2);
+  const jaw=Math.sin(t*2)>0.6?2:0;g.fillStyle='#0c2a2a';g.fillRect(-6,1+jaw,6,1);
+  g.fillStyle='#ffe040';g.fillRect(3,-2,2,2);g.fillStyle='#c02020';g.fillRect(4,-2,1,1);
+  g.fillStyle='#ffffff';g.fillRect(-6,-1,1,1);
+  // 鬍鬚
+  g.strokeStyle='#f8e070';g.lineWidth=1;for(const s2 of [-1,1]){g.beginPath();g.moveTo(-5,s2);for(let k=1;k<=6;k++)g.lineTo(-5+k*3,s2*1+Math.sin(t*4+k*.8+s2)*2.5+k*1.2*s2+2);g.stroke()}
+  g.restore();
+  // 龍身邊的光點
+  for(let i=0;i<10;i++){const k=(t*1.5+i/10)%1;const [px,py]=pts[Math.floor(i/10*N)];g.fillStyle=`rgba(255,240,160,${1-k})`;g.fillRect(Math.round(px+(Math.sin(i*3)*6)),Math.round(py-8-k*10),1,1)}}
 function drawTitle(now){const g=tbg,t=now/1000;
   const sky=g.createLinearGradient(0,0,0,144);sky.addColorStop(0,'#0a1238');sky.addColorStop(.38,'#3a2a78');sky.addColorStop(.62,'#c8587a');sky.addColorStop(.78,'#f8a050');sky.addColorStop(1,'#ffd890');g.fillStyle=sky;g.fillRect(0,0,160,144);
   for(const [x,y,k] of TSTARS){const a=.4+.6*Math.abs(Math.sin(t*1.3+k));g.fillStyle=`rgba(255,255,230,${a})`;g.fillRect(x,y,1,1);if(k===0&&a>.9){g.fillRect(x-1,y,3,1);g.fillRect(x,y-1,1,3)}}
   g.fillStyle='rgba(255,240,200,.5)';g.beginPath();g.arc(128,104,16,0,7);g.fill();g.fillStyle='#fff4d0';g.beginPath();g.arc(128,104,10,0,7);g.fill();
   for(const [cx0,cy,front,sp] of TCLOUDS)if(!front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,30,.55);
-  // dragon flying: sways left-right across the sky
-  const ph=t*.35,x=80+Math.sin(ph)*48,y=70+Math.sin(t*1.1)*5,dir=Math.cos(ph);
-  if(TITLE_DRAGON.complete&&TITLE_DRAGON.naturalWidth){g.save();g.translate(Math.round(x),Math.round(y));if(dir>0)g.scale(-1,1);g.drawImage(TITLE_DRAGON,-32,-32);g.restore();
-    for(let i=0;i<6;i++){const k=(t*2+i/6)%1;g.fillStyle=`rgba(255,240,150,${1-k})`;g.fillRect(Math.round(x-dir*(10+k*30)+Math.sin(i)*6),Math.round(y+10+Math.sin(i*2)*8),1,1)}}
+  drawSkyDragon(g,t);
   // 玉山 mountains
   g.fillStyle='#2a1e50';g.beginPath();g.moveTo(0,112);g.lineTo(18,98);g.lineTo(34,104);g.lineTo(58,84);g.lineTo(66,90);g.lineTo(78,78);g.lineTo(92,92);g.lineTo(112,96);g.lineTo(130,90);g.lineTo(160,102);g.lineTo(160,144);g.lineTo(0,144);g.fill();
   g.fillStyle='#e8e0f8';g.beginPath();g.moveTo(78,78);g.lineTo(72,84);g.lineTo(76,83);g.lineTo(79,86);g.lineTo(82,83);g.lineTo(85,85);g.fill();
