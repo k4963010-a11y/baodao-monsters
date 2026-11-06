@@ -171,7 +171,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-222546';
+import CONFIG from './firebase-config.js?v=20261106-223516';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -300,7 +300,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-222546";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-223516";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -803,6 +803,7 @@ const MAPS={
   signs:{'24,12':'台北101 摩天道館\n館主：阿鈞\n「要爬上四樓才見得到他」','33,27':'信義區\n「台北最高、最熱鬧的地方」','2,30':'信義公園\n晚上常有夜影貓出沒'},zone:()=>'xinyi',
   npcs:[{id:'xy1',x:28,y:15,dir:'down',look:'woman',lines:['台北101以前是世界最高的大樓喔！','裡面有一顆超大的阻尼球，地震時會晃來晃去保護大樓。']},
    {id:'xy2',x:12,y:15,dir:'down',look:'boy',lines:['技能商店可以讓怪獸學新招式！','怪獸商店還有賣很稀有的霧紋豹，不過超貴……']},
+   {id:'gardener',x:24,y:34,dir:'down',look:'oldman',talk:async()=>{if(!G.flags.shake){await sayAll(['園丁伯伯：公園的大樹上，住了好多蟲系怪獸喔。','牠們平常躲在樹葉裡，很難發現。','我教你「搖樹」的訣竅吧！抓住樹幹……用力搖三下！']);G.flags.shake=true;sfx('badge');await sayAll([`${G.name} 學會了 搖樹！`,'面向樹木按 A，就能把躲在樹上的怪獸搖下來。']);scheduleSave(200)}else await say('園丁伯伯：竹節忍很會躲，多搖幾棵樹試試看！')}},
    {id:'xy3',x:45,y:30,dir:'left',look:'girl',lines:['晚上公園裡會出現夜影貓，眼睛會發光喔。']},
    {id:'xy4',x:33,y:22,dir:'left',look:'oldman',lines:['跨年的時候，101會放超大的煙火！','整個台北的人都會跑來看。']},
    {id:'xy5',x:47,y:15,dir:'down',look:'youth',lines:['市政府前面的廣場，常常有人在跳街舞。']},
@@ -831,7 +832,7 @@ const MAPS={
   npcs:[{id:'nurse3',x:2,y:1,dir:'down',look:'nurse',talk:nurseTalk}]},
  shop3:{name:'信義百貨',out:' ',rows:['WWNWWNWW','ffkkkkkk','CCffffff','ffffkkff','ffffffff','ffffffff','fffmmfff'],
   warps:[[3,6,'xinyi',5,21,'down'],[4,6,'xinyi',5,21,'down']],
-  npcs:[{id:'clerk3',x:1,y:1,dir:'down',look:'clerk',talk:async()=>{await say('店員：歡迎光臨信義百貨！這裡有賣超級球喔！');await shop()}},
+  npcs:[{id:'clerk3',x:1,y:1,dir:'down',look:'clerk',talk:async()=>{await say('店員：歡迎光臨信義百貨！這裡有賣超級球和釣竿喔！');await shop()}},
    {id:'soyman3',x:6,y:4,dir:'left',look:'soyboss',talk:async()=>{await say('永和豆漿 信義分店：今天也來份早餐吧！');await soyShop()}}]},
  skillshop:{name:'技能商店',out:' ',rows:['WWNWWNWW','kkfffPkk','ffffffff','CCCfffff','ffffffff','ffffffff','fffmmfff'],
   warps:[[3,6,'xinyi',17,5,'down'],[4,6,'xinyi',17,5,'down']],
@@ -1136,6 +1137,8 @@ async function interact(x,y){const pe=lastPeers.find(o=>Math.round(o.x)===x&&Mat
   const key=x+','+y;
   if(M.inspect&&M.inspect[key]){await M.inspect[key]();return}
   if(M.signs&&M.signs[key]){await say(M.signs[key]);return}
+  if(ch==='~'||ch==='M'){await fishHere();return}
+  if(ch==='T'&&!/^(gym|center|shop|lab|home)/.test(M.id)){await shakeTree();return}
   if(ch==='v'){await say(G.flags.badge1?'電視：「北投地熱谷恢復平靜，感謝一位年輕的訓練家……」':'電視：「……今天北投地熱谷冒出奇怪的灰色霧氣，請民眾小心……」');return}
   if(ch==='e'||ch==='E'){await say('軟綿綿的床。躺下來休息一下……');fadeA=1;await wait(400);fadeA=0;healAll();await say('怪獸們都恢復精神了！');return}
   if(ch==='c'){await say('是一台舊電腦。');return}
@@ -1151,6 +1154,21 @@ async function trainerTalk(e){const T=e.trainer;
   await sayAll(T.intro.map(l=>`${T.name}：${l}`));
   const res=await battle(T.party.map(([s,l])=>makeMon(s,l,T.name)),T);
   if(res==='win'){G.flags['t_'+e.id]=true;scheduleSave(200);if(e.done)await e.done(e)}}
+/* ---- 釣魚（釣竿）/ 搖樹（園丁伯伯教的） ---- */
+const FISH_T=[[13,45],[7,30],[23,15],[24,.09]],TREE_T=[[36,50],[37,40],[6,10],[21,.1]];
+const fieldLv=()=>{const b=G.badges|0;return [4+b*6,8+b*6]};
+async function fishHere(){if(!G.flags.rod){await say('清澈的水，好像有東西在游。\n有釣竿的話就能釣魚了。');return}
+  if(!G.party.some(m=>m.hp>0)){await say('怪獸們都沒有力氣了，先去休息吧！');return}
+  if(!(await yesNo('要在這裡釣魚嗎？')))return;
+  showText(`${G.name} 甩出了釣竿……`);await wait(600);showText('……');await wait(700+Math.random()*1500);
+  if(Math.random()<.35){await say('……什麼都沒釣到。');return}
+  sfx('badge');await say('！有東西上鉤了！');ZONES.fish={lv:fieldLv(),t:FISH_T};await wildEncounter('fish')}
+async function shakeTree(){if(!G.flags.shake){await say('一棵大樹。\n樹葉裡好像有什麼東西在動……');return}
+  if(!G.party.some(m=>m.hp>0)){await say('怪獸們都沒有力氣了，先去休息吧！');return}
+  if(!(await yesNo('要搖這棵樹嗎？')))return;
+  for(let i=0;i<3;i++){sfx('bump');showText('搖啊搖……'.slice(0,2+i*2));await wait(330)}
+  if(Math.random()<.55){await say('樹葉沙沙作響……\n什麼都沒有掉下來。');return}
+  sfx('badge');await say('啪噠！有怪獸從樹上掉下來了！');ZONES.tree={lv:fieldLv(),t:TREE_T};await wildEncounter('tree')}
 let RARE_NEXT=false;
 async function wildEncounter(zk){const z=ZONES[zk];const tot=z.t.reduce((s,a)=>s+a[1],0);let r=Math.random()*tot,sp=z.t[0][0],sw=0;for(const [s,w] of z.t){if((r-=w)<0){sp=s;sw=w;break}}RARE_NEXT=sw/tot<=0.005;
   await battle([makeMon(sp,rnd(z.lv[0],z.lv[1]))],null)}
@@ -1331,15 +1349,15 @@ async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.it
   const m=G.party[t];const before=m.hp;m.hp=Math.min(maxhp(m),m.hp+H[2]);G.items[k]--;if(inBattle)updHud();sfx('catch');await say(`${nm(m)} ${H[3]}${H[1]}，HP 回復了 ${m.hp-before}！`);scheduleSave();if(inBattle)return {type:'item'}}}
 async function soyShop(){const L=[['soy','豆漿',120],['rice','米漿',200],['youtiao','燒餅油條',400]];for(;;){showText(`你有 ${G.money} 元。要吃什麼？`);
   const D={soy:'回復30',rice:'回復50',youtiao:'HP全滿'};moneyOn();const i=await choose([...L.map(([k,n,pr])=>`${n} ${pr}元・${D[k]}（有${G.items[k]|0}）`),'不用了'],{pos:'list'});if(i<0||i===3){moneyOff();await say('老闆：謝謝！慢走喔！');return}
-  const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}const q=await pickQty(n,pr,G.items[k]|0);if(!q)continue;G.money-=pr*q;G.items[k]=(G.items[k]|0)+q;moneyOn();await say(`買了 ${q} 份${n}！`);scheduleSave()}}
+  const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if(k==='rod'){G.money-=pr;G.flags.rod=true;moneyOn();sfx('badge');await sayAll(['買了 釣竿！','走到河邊或海邊，面向水按 A，就能釣水系怪獸喔！']);L.splice(i,1);scheduleSave();continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}const q=await pickQty(n,pr,G.items[k]|0);if(!q)continue;G.money-=pr*q;G.items[k]=(G.items[k]|0)+q;moneyOn();await say(`買了 ${q} 份${n}！`);scheduleSave()}}
 async function pickQty(n,pr,have){const opts=[1,3,5,10].filter(q=>have+q<=99);const lab=opts.map(q=>`${q} 個　${q*pr} 元${q*pr>G.money?'（錢不夠）':''}`);
   showText(`${n} 要買幾個？`);const i=await choose([...lab,'算了'],{pos:'list'});if(i<0||i===opts.length)return 0;const q=opts[i];if(q*pr>G.money){await say('錢不夠喔！');return 0}return q}
 function moneyOn(){const b=$('moneyBox');b.textContent=`所持金　${G.money} 元`;b.hidden=false}
 function moneyOff(){$('moneyBox').hidden=true}
 async function shop(){const L=[['ball','捉捉球',100,'抓怪獸用'],['potion','傷藥',150,'回復20'],['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50']];
-  if(G.badges>=2)L.splice(1,0,['ball2','高級球',300,'好抓1.5倍']);if(M.id==='shop3')L.splice(2,0,['ball3','超級球',800,'好抓2倍']);
+  if(G.badges>=2)L.splice(1,0,['ball2','高級球',300,'好抓1.5倍']);if(M.id==='shop3')L.splice(2,0,['ball3','超級球',800,'好抓2倍']);if(M.id==='shop3'&&!G.flags.rod)L.push(['rod','釣竿',1500,'水邊按A釣魚']);
   try{for(;;){moneyOn();showText('要買什麼？');const i=await choose([...L.map(([k,n,pr,d])=>`${n} ${pr}元・${d}（有${G.items[k]|0}）`),'不買了'],{pos:'list'});
-  if(i<0||i===L.length){await say('老闆：謝謝光臨！');return}const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}
+  if(i<0||i===L.length){await say('老闆：謝謝光臨！');return}const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if(k==='rod'){G.money-=pr;G.flags.rod=true;moneyOn();sfx('badge');await sayAll(['買了 釣竿！','走到河邊或海邊，面向水按 A，就能釣水系怪獸喔！']);L.splice(i,1);scheduleSave();continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}
   const q=await pickQty(n,pr,G.items[k]|0);if(!q)continue;G.money-=pr*q;G.items[k]=(G.items[k]|0)+q;moneyOn();await say(`買了 ${q} 個${n}！`);scheduleSave()}}finally{moneyOff()}}
 
 /* ================= battle ================= */
