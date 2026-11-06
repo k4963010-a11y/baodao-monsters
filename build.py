@@ -24,6 +24,9 @@ page = ('<!doctype html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
         + head + '</head>\n<body>\n' + auth_html + '\n<div class="wrap">' + body + '\n</body>\n</html>\n')
 # 遊戲主程式之前先放一個「等待登入」的 promise
-page = page.replace('<script>\n(()=>{', '<script>window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>\n<script>\n(()=>{', 1)
+import time, json
+build = time.strftime('%Y%m%d-%H%M%S')
+page = page.replace('<script>\n(()=>{', '<script>window.BD_BUILD="' + build + '";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>\n<script>\n(()=>{', 1)
 open(os.path.join(here, 'index.html'), 'w', encoding='utf-8').write(page)
+json.dump({'build': build}, open(os.path.join(here, 'version.json'), 'w'))
 print('OK -> index.html')
