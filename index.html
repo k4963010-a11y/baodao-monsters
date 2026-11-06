@@ -171,7 +171,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-205708';
+import CONFIG from './firebase-config.js?v=20261106-211451';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -300,7 +300,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-205708";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-211451";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1444,7 +1444,7 @@ async function doMove(att,def,mvName,side){const mv=MOVES[mvName];const tgt=side
   sfx('hit');B.shake[tgt]=performance.now()+420;await wait(420);def.hp=Math.max(0,def.hp-dmg);updHud();await wait(450);
   if(crit)await say('擊中要害！');if(eff>1)await say('效果絕佳！');else if(eff===0)await say('好像完全沒有效果……');else if(eff<1)await say('效果不太好……')}
 function enemyMove(e){const ms=e.moves;const atk=ms.filter(m=>MOVES[m].p>0);if(atk.length&&(Math.random()<.78||atk.length===ms.length))return atk[rnd(0,atk.length-1)];return ms[rnd(0,ms.length-1)]}
-async function gainExp(me,foe,trainer){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;const show=B.me===me;
+async function gainExp(me,foe,trainer,div=1){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)/div));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;const show=B.me===me;
   while(me.lv<100&&me.exp>=lvExp(me.lv+1)){if(show){setXp(1);await wait(750)}const old=maxhp(me);me.lv++;if(show)setXp(0,true);me.hp+=maxhp(me)-old;updHud();sfx('lvl');await say(`${nm(me)} 升到了 Lv${me.lv}！`);
     for(const [l,mv] of SP[me.sp].l){if(l===me.lv&&!me.moves.includes(mv)){if(me.moves.length<4){me.moves.push(mv);await say(`${nm(me)} 學會了 ${mv}！`)}else{const f=me.moves.shift();me.moves.push(mv);await say(`${nm(me)} 忘記了 ${f}，學會了 ${mv}！`)}}}
     const ev=SP[me.sp].evo;if(ev&&me.lv>=ev[0])me.evo=true}
@@ -1460,10 +1460,10 @@ async function throwBall(foe,k='ball'){k=BALLS[k]?k:'ball';G.items[k]--;sfx('bal
 async function transition(){for(let i=0;i<3;i++){fadeA=1;await wait(80);fadeA=0;await wait(80)}}
 async function battle(enemies,trainer){
   await transition();mode='battle';updatePresence();$('moneyBox').hidden=true;music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer};
-  markSeen(B.enemy.sp);let ei=0,mi=G.party.findIndex(m=>m.hp>0);let me=G.party[mi],foe=B.enemy;B.me=me;updHud();
+  markSeen(B.enemy.sp);let ei=0,mi=G.party.findIndex(m=>m.hp>0);let me=G.party[mi],foe=B.enemy;B.me=me;B.fought=new Set([me]);updHud();
   if(trainer){await say(`${trainer.name} 想要對戰！`);await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else await say(`野生的 ${nm(foe)} 跳出來了！`);
   B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`);let result=null;
-  while(!result){showText(`${nm(me)}\n要做什麼？`);const a=await choose(['戰鬥','背包','怪獸','逃跑'],{pos:'battle',cols:2,cancel:false});let act=null;
+  while(!result){B.fought.add(me);showText(`${nm(me)}\n要做什麼？`);const a=await choose(['戰鬥','背包','怪獸','逃跑'],{pos:'battle',cols:2,cancel:false});let act=null;
     if(a===0){if(me.moves.every(mv=>ppOf(me,mv)<=0)){await say(`${nm(me)} 的招式都沒有 PP 了！\n只能拚命一擊！`);act={type:'move',m:'拚命一擊'}}
       else{showText('');const k=await choose(me.moves.map(mv=>`${mv} ${ppOf(me,mv)}/${maxPP(mv)}`),{pos:'moves',cols:2});if(k<0)continue;const mv=me.moves[k];
         if(ppOf(me,mv)<=0){await say('這一招已經沒有 PP 了！\n去寶貝中心休息就會恢復。');continue}me.pp=me.pp||{};me.pp[mv]=ppOf(me,mv)-1;act={type:'move',m:mv}}}
@@ -1476,11 +1476,11 @@ async function battle(enemies,trainer){
     else if(act.type==='item'||act.type==='none'){await doMove(foe,me,em,'e')}
     else{const first=st(me,3)>st(foe,3)||(st(me,3)===st(foe,3)&&Math.random()<.5);
       if(first){await doMove(me,foe,act.m,'p');if(foe.hp>0)await doMove(foe,me,em,'e')}else{await doMove(foe,me,em,'e');if(me.hp>0)await doMove(me,foe,act.m,'p')}}
-    if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);if(me.hp>0)await gainExp(me,foe,!!trainer);
+    if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);B.fought.add(me);{const ps=[...B.fought].filter(m=>m.hp>0&&G.party.includes(m));for(const p of ps)await gainExp(p,foe,!!trainer,ps.length)}
       if(trainer&&ei<enemies.length-1){const nx=enemies[ei+1];
         if(me.hp>0&&G.party.some((x,j)=>j!==mi&&x.hp>0)&&await yesNo(`${trainer.name} 準備派出 ${nm(nx)}。\n要換怪獸嗎？`)){const sw=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);
           if(sw>=0){await say(`${nm(me)}，回來！`);B.mehidden=true;updHud();mi=sw;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};await wait(250);B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}}
-        ei++;foe=enemies[ei];B.enemy=foe;B.stage.e={a:0,d:0};markSeen(foe.sp);B.ehidden=false;updHud();await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else result='win'}
+        ei++;foe=enemies[ei];B.enemy=foe;B.fought=new Set([me]);B.stage.e={a:0,d:0};markSeen(foe.sp);B.ehidden=false;updHud();await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else result='win'}
     if(me.hp<=0){B.mehidden=true;updHud();await say(`${nm(me)} 倒下了！`);
       if(result!=='win'){if(G.party.some(m=>m.hp>0)){const s=await partyPick('要派出哪一隻？',i=>G.party[i].hp>0,false);mi=s;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}else result='lose'}}}
   if(result==='win'){music('victory');if(trainer){if(trainer.win)await sayAll(trainer.win);if(trainer.reward){G.money+=trainer.reward;await say(`打贏了 ${trainer.name}！得到 ${trainer.reward} 元。`)}}else{const c=foe.lv*10;G.money+=c;await say(`撿到了 ${c} 元！`)}}
