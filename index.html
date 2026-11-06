@@ -185,7 +185,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-011749';
+import CONFIG from './firebase-config.js?v=20261107-012648';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -319,7 +319,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-011749";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-012648";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1580,7 +1580,9 @@ async function gymLeader(){
   await chapterEnd()}
 async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴鈴——','是林教授打來的電話！',`林教授：${G.name}！聽說你拿到徽章了？太厲害了！`,'溫醫師跟我說了灰霧幫的事。','他們好像在找傳說中的怪獸——「雲豹影」。','我這邊會繼續調查。你先好好休息……','下一站，就是台北城了！']);
   G.flags.ch1=true;scheduleSave(200);
-  await sheet(s=>{const d=el('div',null,'big');d.append(el('h3','第一章　完'),el('p',`恭喜 ${G.name} 拿到第一個徽章！\n\n下一章：台北城篇\n（從北投商店街往東走）\n\n你可以繼續收集圖鑑，\n或到北投寶貝中心的電腦\n用交換箱跟朋友換怪獸。`));s.append(d)})}
+  await sheet(s=>{const d=el('div',null,'big');d.append(el('h3','第一章　完'),el('p',`恭喜 ${G.name} 拿到第一個徽章！\n\n下一章：台北城篇\n（從北投商店街往東走）\n\n你可以繼續收集圖鑑，
+或走到朋友面前按 A
+跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
 async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸','背包',G.name,'存檔','關閉']:['背包',G.name,'存檔','關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');const i=await choose(opts,{pos:'right'});const o=opts[i];
@@ -1614,8 +1616,15 @@ async function boxMenu(){for(;;){showText(`怪獸箱（${G.box.length} 隻）・
   else if(a===1){if(G.party.length<=1){await say('身上至少要帶一隻怪獸！');continue}showText('要存放哪一隻？');const i=await choose(G.party.map(monLabel),{pos:'list'});if(i<0)continue;
     const m=G.party.splice(i,1)[0];G.box.push(m);await say(`把 ${nm(m)} 存進怪獸箱了。`);scheduleSave()}
   else return}}
-async function pcMenu(swap){await say(`${G.name} 打開了電腦。`);for(;;){const opts=swap?['怪獸箱','交換箱（跟朋友換）','關機']:['怪獸箱','關機'];showText('要用什麼功能？');const i=await choose(opts,{pos:'list'});
-  if(i===0)await boxMenu();else if(swap&&i===1)await swapBox();else return}}
+async function pcMenu(swap){await say(`${G.name} 打開了電腦。`);for(;;){const mine=swap&&db?SLOTS.filter(id=>slotMon(id)&&swapSlots[id].by===uid):[];const opts=mine.length?['怪獸箱','拿回交換箱的怪獸','關機']:['怪獸箱','關機'];showText('要用什麼功能？');const i=await choose(opts,{pos:'list'});
+  if(i===0)await boxMenu();else if(mine.length&&i===1)await takeBackSwap(mine);else return}}
+/* 交換箱功能已收掉（2026-11-07），只保留把自己以前放進去的怪獸拿回來 */
+async function takeBackSwap(ids){for(const id of ids){const cur=slotMon(id);if(!cur)continue;const ref=db.doc('swap/'+id);
+  if(!(await yesNo(`交換箱裡有你以前放的 ${nm(cur)} Lv${cur.lv}。
+要拿回來嗎？`)))continue;
+  const r=await lockSlot(ref);if(!r)continue;const s=await ref.get();const live=s.exists?s.data():null;
+  if(!live||!live.mon||live.by!==uid||live.mon.id!==cur.id){await say('箱子裡的怪獸已經被換走了！');continue}
+  await ref.delete();const m=sanMon(live.mon);m.hp=maxhp(m);const w=addMon(m);await say(`把 ${nm(m)} 拿回來了！${w==='box'?'（放進怪獸箱）':''}`);await saveNow()}}
 async function partyPick(prompt,ok,cancel=true){for(;;){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list',cancel,start:Math.max(0,G.party.findIndex((m,j)=>ok(j)))});if(i<0)return -1;if(ok(i))return i;await say('不能選這一隻。')}}
 const HEALS=[['potion','傷藥',20,'用了'],['soy','豆漿',30,'喝了'],['rice','米漿',50,'喝了'],['youtiao','燒餅油條',999,'吃了']];
 async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.items.ball}`}];if(G.items.ball2)rows.push({k:'ball2',t:`高級球 ×${G.items.ball2}・好抓1.5倍`});if(G.items.ball3)rows.push({k:'ball3',t:`超級球 ×${G.items.ball3}・好抓2倍`});HEALS.forEach(([k,n,h])=>{if(k==='potion'||G.items[k])rows.push({k,t:`${n} ×${G.items[k]|0}・${h>=999?'全滿':'回'+h}`})});
