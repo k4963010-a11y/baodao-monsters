@@ -2,6 +2,7 @@
 export default {
   apiKey: "AIzaSyBXc0Eo7XrPvKUY-m5FQWUWwxngNrFDO3A",
   authDomain: "baodao-monsters.firebaseapp.com",
+  databaseURL: "https://baodao-monsters-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "baodao-monsters",
   storageBucket: "baodao-monsters.firebasestorage.app",
   messagingSenderId: "1037559254092",

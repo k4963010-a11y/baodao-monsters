@@ -34,6 +34,7 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
 const $=id=>document.getElementById(id);
@@ -58,13 +59,14 @@ function makeDb(){return {
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
   collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
-function makeRoom(uid){let mine={},docs=[];const cbs=[];const R=doc(fs,'presence',uid);let last=0;
-  const push=()=>{last=Date.now();return setDoc(R,{...mine,t:last}).catch(()=>{})};
-  setInterval(()=>{if(mine.uid)push()},25000);
-  addEventListener('pagehide',()=>{deleteDoc(R).catch(()=>{})});
-  onSnapshot(collection(fs,'presence'),s=>{docs=s.docs.map(d=>d.data());cbs.forEach(f=>f())},()=>{});
+function makeRoom(uid){let mine={},all={};const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
+  onDisconnect(me).remove().catch(()=>{});
+  const push=()=>set(me,{...mine,uid,t:Date.now()}).catch(()=>{});
+  setInterval(()=>{if(mine.name)push()},30000);
+  addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
+  onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
-  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>docs.filter(d=>d&&Date.now()-(d.t||0)<70000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
 function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
   try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}

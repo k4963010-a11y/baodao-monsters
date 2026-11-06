@@ -98,6 +98,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #boards{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .bd{position:absolute;transform:translate(-50%,-50%);font-size:calc(var(--u)*6.4);line-height:1;padding:calc(var(--u)*1.6) calc(var(--u)*3);white-space:nowrap;border:calc(var(--u)*.9) solid #2a1a10;border-radius:calc(var(--u)*1.4);box-shadow:0 calc(var(--u)*1) 0 rgba(0,0,0,.35);color:#fff;background:#8a5a30;letter-spacing:.05em}
 .bd.red{background:#d83838}.bd.blue{background:#2c60c0}.bd.gold{background:#f0c030;color:#5a2a00}.bd.green{background:#2f8a40}.bd.pink{background:#fff0f6;color:#d83878;border-color:#d83878}.bd.soy{background:#fff4d8;color:#c02020;border-color:#c02020}.bd.wood{background:#9a6a3a}
+.ptag{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*5.5);line-height:1;padding:calc(var(--u)*.8) calc(var(--u)*2);background:rgba(20,26,42,.78);color:#fff;border-radius:calc(var(--u)*1.5);white-space:nowrap}
 #mapName{position:absolute;left:calc(var(--u)*4);top:calc(var(--u)*4);padding:calc(var(--u)*3) calc(var(--u)*7);font-size:calc(var(--u)*7);z-index:1}
 
 .side{display:flex;flex-direction:column;gap:18px;min-width:0}
@@ -164,6 +165,7 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
 const $=id=>document.getElementById(id);
@@ -188,13 +190,14 @@ function makeDb(){return {
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
   collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
-function makeRoom(uid){let mine={},docs=[];const cbs=[];const R=doc(fs,'presence',uid);let last=0;
-  const push=()=>{last=Date.now();return setDoc(R,{...mine,t:last}).catch(()=>{})};
-  setInterval(()=>{if(mine.uid)push()},25000);
-  addEventListener('pagehide',()=>{deleteDoc(R).catch(()=>{})});
-  onSnapshot(collection(fs,'presence'),s=>{docs=s.docs.map(d=>d.data());cbs.forEach(f=>f())},()=>{});
+function makeRoom(uid){let mine={},all={};const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
+  onDisconnect(me).remove().catch(()=>{});
+  const push=()=>set(me,{...mine,uid,t:Date.now()}).catch(()=>{});
+  setInterval(()=>{if(mine.name)push()},30000);
+  addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
+  onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
-  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>docs.filter(d=>d&&Date.now()-(d.t||0)<70000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>Object.values(all).filter(d=>d&&typeof d==='object'&&Date.now()-(d.t||0)<90000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
 
 function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
   try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}
@@ -289,7 +292,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-160211";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-160647";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -748,7 +751,7 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:''}).catch(()=>{})}
+function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
@@ -762,7 +765,7 @@ let rosterDocs=[],swapSlots={};
 function subscribeCloud(){
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   db.collection('players').onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
-  if(room){try{room.onPeers(()=>renderRoster(),()=>{})}catch(e){}}
+  if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
 }
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
@@ -839,9 +842,20 @@ function refreshEnts(){const old=ents;ents=[];
 function spawn(e){const o={...e,map:M.id,temp:true};temps.push(o);ents.push(o);return o}
 function despawn(id){temps=temps.filter(e=>e.id!==id);ents=ents.filter(e=>e.id!==id)}
 let nameTimer=0;const boardsEl=$('boards');let boardEls=[];
-function buildBoards(){boardsEl.replaceChildren();boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
+const ghosts={},tags={};
+function otherPlayers(now){if(!room||!M)return [];let ps=[];try{ps=room.peers()}catch(e){return []}const out=[],seen=new Set();
+  for(const p of ps){const q=p.presence||{};if(typeof q.uid!=='string'||q.uid===uid||q.map!==M.id)continue;const x=+q.x,y=+q.y;if(!Number.isFinite(x)||!Number.isFinite(y))continue;
+    let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
+    const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
+    const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
+    seen.add(q.uid);out.push({id:q.uid,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+  for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return out}
+function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
+  if(t.d.textContent!==o.name)t.d.textContent=o.name;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+function sweepTags(){for(const k in tags){if(tags[k].live)tags[k].live=false;else{tags[k].d.remove();delete tags[k]}}}
+function buildBoards(){boardsEl.replaceChildren();for(const k in tags)delete tags[k];boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
 function loadMap(id){M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy)/)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
-function placePlayer(p){player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
+function placePlayer(p){setTimeout(updatePresence,0);player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
   if(walkable(bx,by)){follower.x=follower.tx=bx;follower.y=follower.ty=by}else{follower.x=follower.tx=p.x;follower.y=follower.ty=p.y}}
 async function event(fn){busy=true;try{await fn()}catch(e){console.error(e)}finally{busy=false;hideText();menuEl.hidden=true;for(const k in held)held[k]=0}}
 function tryMove(d){player.dir=d;const [dx,dy]=DIRS[d];const nx=player.x+dx,ny=player.y+dy;
@@ -859,7 +873,7 @@ function spotter(){for(const e of ents){if(!e.trainer||!e.sight||G.flags['t_'+e.
   for(let i=1;i<=e.sight;i++){const x=e.x+dx*i,y=e.y+dy*i;if(x===player.x&&y===player.y)return e;if(!WALK.has(tileAt(x,y))||entAt(x,y))break}}return null}
 async function spotted(e){e.alert=true;await wait(650);e.alert=false;const [dx,dy]=DIRS[e.dir];
   while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e)}
-function onStep(){G.steps++;if(G.steps%25===0)scheduleSave(300);
+function onStep(){G.steps++;updatePresence();if(G.steps%25===0)scheduleSave(300);
   const w=warpAt(player.x,player.y);if(w){event(()=>doWarp(w));return}
   const tr=(M.triggers||[]).find(t=>t.at.some(([x,y])=>x===player.x&&y===player.y)&&t.cond());if(tr){event(tr.run);return}
   const sp=spotter();if(sp){event(()=>spotted(sp));return}
@@ -891,9 +905,11 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
     list.push({y:ey,d:()=>{drawPerson(e.look,e.dir,Math.round(ex-cx),Math.round(ey-cy)-3,wk,e.par);
       if(e.alert){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17;ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#fff';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#e03030';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}}})}
   const lead=G&&G.party[0];if(lead&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w)}})}
+  for(const o of otherPlayers(now)){list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4)}
   list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;drawPerson(heroLook(),player.dir,Math.round(px-cx),Math.round(py-cy)-3,wk,player.par);
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
   list.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
+  sweepTags();
   for(const b of boardEls){const X=b.x*16-cx,Y=b.y*16-cy,k=X+','+Y;if(k!==b.k){b.k=k;b.d.style.left=`calc(var(--u)*${X})`;b.d.style.top=`calc(var(--u)*${Y})`}}}
 
 /* ================= interactions ================= */
