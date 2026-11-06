@@ -170,7 +170,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-191036';
+import CONFIG from './firebase-config.js?v=20261106-191134';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -298,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-191036";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-191134";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1532,38 +1532,38 @@ function drawSkyDragon(g,t){
   // 龍爪：短而粗的腿向後收、手肘有白色毛、末端是彎鉤狀的金色利爪（像老鷹抓東西）
   const leg=(i,front,ph)=>{const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*3+ph)*1.2;
     const kx=x+4+sw,ky=y+r+3,fx=kx-2+sw,fy=ky+3;
-    g.lineCap='round';g.strokeStyle='#0c2a2a';g.lineWidth=6;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
-    g.strokeStyle=front?'#26b08a':'#1e9a7a';g.lineWidth=4;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    g.lineCap='round';g.strokeStyle='#000000';g.lineWidth=6;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    g.strokeStyle=front?'#0e0e16':'#0a0a10';g.lineWidth=4;g.beginPath();g.moveTo(x-1,y+r-2);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
     // 手肘的白毛（往後飄）
-    g.fillStyle='#f4f8ff';g.beginPath();g.moveTo(kx,ky-1);g.lineTo(kx+7+Math.sin(t*6+ph)*1.5,ky+1);g.lineTo(kx+1,ky+2);g.fill();
+    g.fillStyle='#101018';g.beginPath();g.moveTo(kx,ky-1);g.lineTo(kx+7+Math.sin(t*6+ph)*1.5,ky+1);g.lineTo(kx+1,ky+2);g.fill();
     // 彎鉤爪：三根往前、一根往後
-    const claw=(ax,ay,cx,cy,bx,by)=>{for(const [w,col] of [[2.6,'#3a2a08'],[1.3,'#ffd84a']]){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(ax,ay);g.quadraticCurveTo(cx,cy,bx,by);g.stroke()}};
+    const claw=(ax,ay,cx,cy,bx,by)=>{for(const [w,col] of [[2.6,'#000000'],[1.3,'#1a1a26']]){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(ax,ay);g.quadraticCurveTo(cx,cy,bx,by);g.stroke()}};
     claw(fx,fy,fx-4,fy+1,fx-4,fy+4);claw(fx,fy,fx-2,fy+3,fx-1,fy+6);claw(fx,fy,fx+1,fy+3,fx+2,fy+5);claw(fx,fy,fx+3,fy,fx+4,fy+2)};
   // 遠處的兩隻腳先畫（在身體後面）
   leg(8,true,1.6);leg(29,false,4.2);
-  tube('#0c2a2a',1.2);tube('#1e9a7a',0);tube('#3ccaa0',0,-1.8,.45);
+  tube('#000000',1.2);tube('#0a0a10',0);tube('#24243a',0,-1.8,.45);
   // 金色肚子 + 鱗片紋
-  g.strokeStyle='#f0c040';g.lineCap='round';for(let i=N-6;i>2;i--){const [x1,y1]=pts[i],[x2,y2]=pts[i-1];g.lineWidth=Math.max(1,rad(i)*.7);g.beginPath();g.moveTo(x1,y1+rad(i)*.55);g.lineTo(x2,y2+rad(i-1)*.55);g.stroke()}
-  g.fillStyle='rgba(12,60,50,.55)';for(let i=3;i<N-4;i+=2){const [x,y]=pts[i];g.fillRect(Math.round(x),Math.round(y-1),1,1)}
+  g.strokeStyle='#14141e';g.lineCap='round';for(let i=N-6;i>2;i--){const [x1,y1]=pts[i],[x2,y2]=pts[i-1];g.lineWidth=Math.max(1,rad(i)*.7);g.beginPath();g.moveTo(x1,y1+rad(i)*.55);g.lineTo(x2,y2+rad(i-1)*.55);g.stroke()}
+  g.fillStyle='rgba(60,60,90,.5)';for(let i=3;i<N-4;i+=2){const [x,y]=pts[i];g.fillRect(Math.round(x),Math.round(y-1),1,1)}
   // 背鰭（白色火焰狀）
   for(let i=5;i<N-6;i+=4){const [x,y]=pts[i],[x2,y2]=pts[i+1];const r=rad(i);const ang=Math.atan2(y2-y,x2-x)-Math.PI/2;const fx=x+Math.cos(ang)*(r+5)+3+Math.sin(t*7+i)*1.5,fy=y+Math.sin(ang)*(r+5);
-    g.fillStyle='#f4f8ff';g.beginPath();g.moveTo(x-2,y-r+1);g.lineTo(fx,fy);g.lineTo(x+3,y-r+1);g.fill()}
+    g.fillStyle='#101018';g.beginPath();g.moveTo(x-2,y-r+1);g.lineTo(fx,fy);g.lineTo(x+3,y-r+1);g.fill()}
   // 尾巴的白毛
-  {const [x,y]=pts[N];for(let k=0;k<5;k++){const a=Math.sin(t*5+k)*.5+k*.3-.6;g.fillStyle=k%2?'#ffffff':'#d8e8ff';g.beginPath();g.moveTo(x-1,y);g.lineTo(x+12*Math.cos(a)+4,y+9*Math.sin(a)-2);g.lineTo(x+3,y+1);g.fill()}}
+  {const [x,y]=pts[N];for(let k=0;k<5;k++){const a=Math.sin(t*5+k)*.5+k*.3-.6;g.fillStyle=k%2?'#101018':'#0a0a12';g.beginPath();g.moveTo(x-1,y);g.lineTo(x+12*Math.cos(a)+4,y+9*Math.sin(a)-2);g.lineTo(x+3,y+1);g.fill()}}
   // 近處的兩隻腳（在身體前面）
   leg(6,true,0);leg(27,false,2.6);
   // 頭（朝左）
   const hx2=hx+2,hy=yAt(hx2);const [x0,y0]=pts[0];
   g.save();g.translate(Math.round(hx2),Math.round(hy));g.rotate(Math.atan2(y0-hy,x0-hx2));
-  g.fillStyle='#f8e070';g.fillRect(5,-12,2,7);g.fillRect(7,-14,2,3);g.fillRect(9,-11,2,7);g.fillRect(11,-13,2,3);
-  for(let k=0;k<6;k++){g.fillStyle=k%2?'#ffffff':'#e0ecff';g.beginPath();g.moveTo(9,-5+k*2);g.lineTo(20+k*2+Math.sin(t*7+k)*2,-7+k*3);g.lineTo(11,-2+k*2);g.fill()}
-  pdisk(g,7,0,7,'#0c2a2a');pdisk(g,-2,1,5,'#0c2a2a');pdisk(g,7,0,6,'#26b08a');pdisk(g,-2,1,4,'#26b08a');
-  g.fillStyle='#56d8b0';g.fillRect(0,-5,10,2);g.fillStyle='#f0c040';g.fillRect(-6,3,11,2);
-  const jaw=Math.sin(t*2)>0.6?2:0;g.fillStyle='#0c2a2a';g.fillRect(-7,1+jaw,7,1);g.fillStyle='#ffffff';g.fillRect(-6,2+jaw,1,1);g.fillRect(-3,2+jaw,1,1);
-  g.fillStyle='#ffe040';g.fillRect(3,-3,3,2);g.fillStyle='#c02020';g.fillRect(4,-3,1,1);
-  g.strokeStyle='#f8e070';g.lineWidth=1;for(const s2 of [-1,1]){g.beginPath();g.moveTo(-6,s2);for(let k=1;k<=7;k++)g.lineTo(-6+k*3,s2+Math.sin(t*4+k*.8+s2)*2.5+k*1.3*s2+2);g.stroke()}
+  g.fillStyle='#0c0c14';g.fillRect(5,-12,2,7);g.fillRect(7,-14,2,3);g.fillRect(9,-11,2,7);g.fillRect(11,-13,2,3);
+  for(let k=0;k<6;k++){g.fillStyle=k%2?'#101018':'#0a0a12';g.beginPath();g.moveTo(9,-5+k*2);g.lineTo(20+k*2+Math.sin(t*7+k)*2,-7+k*3);g.lineTo(11,-2+k*2);g.fill()}
+  pdisk(g,7,0,7,'#000000');pdisk(g,-2,1,5,'#000000');pdisk(g,7,0,6,'#0e0e16');pdisk(g,-2,1,4,'#0e0e16');
+  g.fillStyle='#24243a';g.fillRect(0,-5,10,2);g.fillStyle='#14141e';g.fillRect(-6,3,11,2);
+  const jaw=Math.sin(t*2)>0.6?2:0;g.fillStyle='#000000';g.fillRect(-7,1+jaw,7,1);g.fillStyle='#101018';g.fillRect(-6,2+jaw,1,1);g.fillRect(-3,2+jaw,1,1);
+  g.fillStyle='#ff3030';g.fillRect(3,-3,3,2);g.fillStyle='#ffd060';g.fillRect(4,-3,1,1);
+  g.strokeStyle='#0c0c14';g.lineWidth=1;for(const s2 of [-1,1]){g.beginPath();g.moveTo(-6,s2);for(let k=1;k<=7;k++)g.lineTo(-6+k*3,s2+Math.sin(t*4+k*.8+s2)*2.5+k*1.3*s2+2);g.stroke()}
   g.restore();
-  for(let i=0;i<10;i++){const k=(t*1.5+i/10)%1;const [px,py]=pts[Math.floor(i/10*N)];g.fillStyle=`rgba(255,240,160,${1-k})`;g.fillRect(Math.round(px+(Math.sin(i*3)*6)),Math.round(py-8-k*10),1,1)}}
+  for(let i=0;i<10;i++){const k=(t*1.5+i/10)%1;const [px,py]=pts[Math.floor(i/10*N)];g.fillStyle=`rgba(180,170,220,${(1-k)*.6})`;g.fillRect(Math.round(px+(Math.sin(i*3)*6)),Math.round(py-8-k*10),1,1)}}
 // 霧：好幾層半透明的霧帶，慢慢飄
 function drawMist(g,t,layer){const L=layer?[[96,.30,7,9],[112,.38,5,12],[126,.45,9,14]]:[[58,.16,4,8],[80,.2,6,10]];
   for(const [y0,a,sp,h] of L){for(let k=0;k<3;k++){const x=((k*90-t*sp*(layer?1:.6))%270+270)%270-80;const grd=g.createLinearGradient(0,y0-h,0,y0+h);
