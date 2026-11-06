@@ -171,7 +171,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-000010';
+import CONFIG from './firebase-config.js?v=20261107-000933';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -300,7 +300,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-000010";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-000933";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -885,7 +885,7 @@ const MAPS={
   npcs:[{id:'g3guide',x:11,y:17,dir:'left',look:'aide',lines:['歡迎來到台北101摩天道館！','這裡每一層都很大，館主在四樓等你，一層一層爬上去吧！']},
    {id:'g3t1',x:19,y:18,dir:'up',look:'clerk',sight:3,trainer:{name:'大樓工程師 小鋼',party:[[39,20],[8,20]],reward:700,intro:['想上樓？先過我這關！'],win:['螺絲鬆掉了……'],post:['鋼系怪獸很硬，用火系或地面系打比較快。']}},
    {id:'g3t1b',x:18,y:6,dir:'left',look:'youth',sight:3,trainer:{name:'保全 阿龍',party:[[38,20],[11,21]],reward:720,intro:['這層樓由我巡邏！'],win:['巡邏失敗……'],post:['樓梯在右上角。']}}]},
- gym3b:{name:'台北101 2F',out:' ',rows:['WWWWWWWWWNWNWWWWWWWWW','llllllllllllllllllqUl','lllllllllllllllllllql','lqqqqqqqqqqqqqqqqqqql','lqlqlllqlllllllqlllql','lqlqlqlqqqqqqqqqqqqql','lllqlqlqlqqllllqlqlll','lqqqlqqqqqqqlqqqlqlql','lqlqlqlqlqlqqqlqlqqql','lqqqlqqqqqqqlqlqqqlql','lqlqlqlqlllllqlqlllql','lqlqqqqqlqlqqqqqqqlql','llllqqqqqqqqllqllqlql','lqqqqqqqlqlqqqqqlqqql','lqqllqlqlqqqlqqqlllql','lqqqqqqqqqqqlqlqqqqql','lqqllqqqlqlllqlllllql','lUqqqqlqqqqqqqqqqqqql','lllllllllllllllllllll'],
+ gym3b:{name:'台北101 2F',out:' ',rows:['WWWWWWWWWNWNWWWWWWWWW','llllllllllllllllllqUl','llllllllllllllllllqql','lqqqqqqqqqqqqqqqqqqql','lqlqlllqlllllllqlllql','lqlqlqlqqqqqqqqqqqqql','lllqlqlqlqqllllqlqlll','lqqqlqqqqqqqlqqqlqlql','lqlqlqlqlqlqqqlqlqqql','lqqqlqqqqqqqlqlqqqlql','lqlqlqlqlllllqlqlllql','lqlqqqqqlqlqqqqqqqlql','llllqqqqqqqqllqllqlql','lqqqqqqqlqlqqqqqlqqql','lqqllqlqlqqqlqqqlllql','lqqqqqqqqqqqlqlqqqqql','lqqllqqqlqlllqlllllql','lUqqqqlqqqqqqqqqqqqql','lllllllllllllllllllll'],
   warps:[[19,1,'gym3a',19,2,'down'],[1,17,'gym3c',2,17,'right']],
   npcs:[{id:'g3t2',x:15,y:4,dir:'up',look:'youth',sight:3,trainer:{name:'電梯管理員 阿翰',party:[[39,21],[31,21]],reward:740,intro:['電梯今天維修，請走樓梯！順便跟我打一場！'],win:['叮——出局了。'],post:['再爬兩層就到了！']}},
    {id:'g3t3',x:6,y:11,dir:'left',look:'lass',sight:3,trainer:{name:'觀景台導覽員 小琳',party:[[29,21],[39,22]],reward:760,intro:['從這裡看出去，整個台北都在腳下！'],win:['風景很美，可是我輸了……'],post:['館主的阻尼球非常非常硬。']}}]},
