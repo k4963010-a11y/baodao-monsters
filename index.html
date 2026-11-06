@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>寶島怪獸</title>
+<title>凱凱的冒險世界</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
 <style>
@@ -88,7 +88,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #sheet .big h3{font-size:1.6em;color:#c03030;margin-bottom:calc(var(--u)*6)}
 .tag{display:inline-block;padding:0 calc(var(--u)*2);border-radius:calc(var(--u)*1);color:#fff;font-size:.85em}
 #title{inset:0;z-index:2;background:linear-gradient(#1c2a58,#3a5aa8 55%,#f0a040 56%,#f8d070);display:flex;flex-direction:column;align-items:center;padding-top:calc(var(--u)*10);text-align:center;box-shadow:none}
-#title .t1{font-size:calc(var(--u)*22);letter-spacing:.06em;color:#f8d040;line-height:1;text-shadow:calc(var(--u)*1.2) calc(var(--u)*1.2) 0 #a02828,calc(var(--u)*-.6) calc(var(--u)*-.6) 0 #fff4c0}
+#title .t1{font-size:calc(var(--u)*17);letter-spacing:.04em;white-space:nowrap;color:#f8d040;line-height:1;text-shadow:calc(var(--u)*1.2) calc(var(--u)*1.2) 0 #a02828,calc(var(--u)*-.6) calc(var(--u)*-.6) 0 #fff4c0}
 #title .t2{font-size:calc(var(--u)*7);color:#e8f0ff;margin-top:calc(var(--u)*4);letter-spacing:.3em}
 #title canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;image-rendering:pixelated}
 #title .t1,#title .t2,#title .st{position:relative;z-index:1}
@@ -153,7 +153,7 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 </style>
 <div id="auth" class="auth">
   <form id="authForm" class="auth-card" novalidate>
-    <h1>寶島怪獸</h1>
+    <h1>凱凱的冒險世界</h1>
     <p class="sub">線上版・和朋友一起冒險</p>
     <div class="auth-tabs"><button type="button" data-m="login" class="on">登入</button><button type="button" data-m="reg">註冊新帳號</button></div>
     <label>帳號<input id="au" maxlength="10" autocomplete="username" placeholder="中文、英文、數字都可以"></label>
@@ -170,7 +170,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261106-190124';
+import CONFIG from './firebase-config.js?v=20261106-190443';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -244,7 +244,7 @@ if(auth){
         <div id="sheet" class="box" hidden></div>
         <div id="title" class="box">
           <canvas id="titleBg" width="160" height="144"></canvas>
-          <div class="t1">寶島怪獸</div>
+          <div class="t1">凱凱的冒險世界</div>
           <div class="t2">台灣原創怪獸冒險</div>
           <div class="st" id="titleStatus">讀取中……</div>
         </div>
@@ -257,7 +257,7 @@ if(auth){
       </div>
       <div class="logo-small">COLOR</div>
     </div>
-    <div class="brand">寶島怪獸<small>BAODAO MONSTERS</small></div>
+    <div class="brand">凱凱的冒險世界<small>KAIKAI ADVENTURE</small></div>
     <div class="pad">
       <div class="dpad">
         <button class="u" data-k="up" aria-label="上">▲</button>
@@ -298,7 +298,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-190124";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-190443";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1521,50 +1521,60 @@ function tcloud(g,x,y,w,a){g.fillStyle=`rgba(255,236,230,${a})`;g.fillRect(x+4,y
 // 首頁：一條長長的東方龍，身體像波浪一樣扭動，橫著飛過天空
 function pdisk(g,x,y,r,col){g.fillStyle=col;x=Math.round(x);y=Math.round(y);const R=Math.round(r);for(let dy=-R;dy<=R;dy++){const w=Math.floor(Math.sqrt(Math.max(0,r*r-dy*dy)));g.fillRect(x-w,y+dy,w*2+1,1)}}
 function drawSkyDragon(g,t){
-  const SPEED=26,LEN=150,cyc=(160+LEN+40)/SPEED;const u=(t%cyc)/cyc;const hx=170-u*(160+LEN+40);const base=70,A=9,K=.075,W=2.6;
+  const SPEED=24,LEN=150,cyc=(160+LEN+40)/SPEED;const u=(t%cyc)/cyc;const hx=170-u*(160+LEN+40);const base=70,A=9,K=.07,W=2.4;
   const yAt=x=>base+A*Math.sin(x*K+t*W)+Math.sin(t*.6)*3;
-  const N=40,SP=3.6;const pts=[];for(let i=0;i<=N;i++){const x=hx+12+i*SP;pts.push([x,yAt(x)])}
-  const rad=i=>i<4?5.5:i>N-6?Math.max(1.5,5.5*(N-i)/6):5.5-(i/N)*2.2;
-  // 背上的白色鬃毛、身體、金色肚子（由尾巴畫到頭）
-  for(let i=N;i>=0;i--){const [x,y]=pts[i];const r=rad(i);pdisk(g,x,y,r+1,'#0c2a2a')}
-  for(let i=N;i>=0;i--){const [x,y]=pts[i];const r=rad(i);
-    if(i%3===0&&i<N-4){const [x2,y2]=pts[Math.min(N,i+1)];const ang=Math.atan2(y2-y,x2-x)-Math.PI/2;const fx=x+Math.cos(ang)*(r+4),fy=y+Math.sin(ang)*(r+4);
-      g.fillStyle='#f4f4ff';g.beginPath();g.moveTo(x-1.5,y-r+1);g.lineTo(fx+2+Math.sin(t*8+i)*1.2,fy);g.lineTo(x+2,y-r+1);g.fill()}
-    pdisk(g,x,y,r,i%2?'#1e9a7a':'#26b08a');pdisk(g,x,y-r*.35,r*.45,i%2?'#3ccaa0':'#56d8b0');
-    if(r>2.5){g.fillStyle='#f0c040';g.fillRect(Math.round(x-r*.6),Math.round(y+r*.35),Math.max(1,Math.round(r*1.2)),Math.max(1,Math.round(r*.45)))}}
-  // 尾巴的白色毛
-  {const [x,y]=pts[N];for(let k=0;k<4;k++){const a=Math.sin(t*6+k)*.5+k*.35-.5;g.fillStyle=k%2?'#ffffff':'#d8e8ff';g.beginPath();g.moveTo(x,y);g.lineTo(x+10*Math.cos(a)+4,y+8*Math.sin(a)-2);g.lineTo(x+3,y+1);g.fill()}}
-  // 四隻爪子
-  for(const i of [7,9,24,26]){const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*5+i)*1.5;g.fillStyle='#1e9a7a';g.fillRect(Math.round(x-1),Math.round(y+r-1),2,4);g.fillStyle='#f0c040';g.fillRect(Math.round(x-2+sw),Math.round(y+r+2),2,2);g.fillRect(Math.round(x+1+sw),Math.round(y+r+2),2,2)}
+  const N=44,SP=3.3;const pts=[];for(let i=0;i<=N;i++){const x=hx+12+i*SP;pts.push([x,yAt(x)])}
+  const rad=i=>i<5?6:i>N-8?Math.max(1.2,6*(N-i)/8):6-(i/N)*2.4;
+  const tube=(col,extra,yoff=0,scale=1)=>{g.strokeStyle=col;g.lineCap='round';for(let i=N;i>0;i--){const [x1,y1]=pts[i],[x2,y2]=pts[i-1];g.lineWidth=(rad(i)*scale+extra)*2;g.beginPath();g.moveTo(x1,y1+yoff);g.lineTo(x2,y2+yoff);g.stroke()}};
+  // 一隻腳：上臂→前臂→三根金色爪子，會像划水一樣動
+  const leg=(i,front,ph)=>{const [x,y]=pts[i];const r=rad(i);const sw=Math.sin(t*4+ph);
+    const kx=x+(front?-3:2)+sw*2,ky=y+r+5,fx=kx+(front?-5:-3)+sw*2.5,fy=ky+4+Math.cos(t*4+ph)*1.5;
+    g.lineCap='round';g.strokeStyle='#0c2a2a';g.lineWidth=5;g.beginPath();g.moveTo(x,y+r-1);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    g.strokeStyle=front?'#26b08a':'#1e9a7a';g.lineWidth=3;g.beginPath();g.moveTo(x,y+r-1);g.lineTo(kx,ky);g.lineTo(fx,fy);g.stroke();
+    g.fillStyle='#f0c040';g.fillRect(Math.round(kx)-1,Math.round(ky)-1,2,2);
+    g.strokeStyle='#0c2a2a';g.lineWidth=2.4;for(let k=-1;k<=1;k++){g.beginPath();g.moveTo(fx,fy);g.lineTo(fx-3+k*2.2,fy+3+Math.abs(k)*-.6);g.stroke()}
+    g.strokeStyle='#ffe070';g.lineWidth=1.2;for(let k=-1;k<=1;k++){g.beginPath();g.moveTo(fx,fy);g.lineTo(fx-3+k*2.2,fy+3+Math.abs(k)*-.6);g.stroke()}};
+  // 遠處的兩隻腳先畫（在身體後面）
+  leg(8,true,1.6);leg(29,false,4.2);
+  tube('#0c2a2a',1.2);tube('#1e9a7a',0);tube('#3ccaa0',0,-1.8,.45);
+  // 金色肚子 + 鱗片紋
+  g.strokeStyle='#f0c040';g.lineCap='round';for(let i=N-6;i>2;i--){const [x1,y1]=pts[i],[x2,y2]=pts[i-1];g.lineWidth=Math.max(1,rad(i)*.7);g.beginPath();g.moveTo(x1,y1+rad(i)*.55);g.lineTo(x2,y2+rad(i-1)*.55);g.stroke()}
+  g.fillStyle='rgba(12,60,50,.55)';for(let i=3;i<N-4;i+=2){const [x,y]=pts[i];g.fillRect(Math.round(x),Math.round(y-1),1,1)}
+  // 背鰭（白色火焰狀）
+  for(let i=5;i<N-6;i+=4){const [x,y]=pts[i],[x2,y2]=pts[i+1];const r=rad(i);const ang=Math.atan2(y2-y,x2-x)-Math.PI/2;const fx=x+Math.cos(ang)*(r+5)+3+Math.sin(t*7+i)*1.5,fy=y+Math.sin(ang)*(r+5);
+    g.fillStyle='#f4f8ff';g.beginPath();g.moveTo(x-2,y-r+1);g.lineTo(fx,fy);g.lineTo(x+3,y-r+1);g.fill()}
+  // 尾巴的白毛
+  {const [x,y]=pts[N];for(let k=0;k<5;k++){const a=Math.sin(t*5+k)*.5+k*.3-.6;g.fillStyle=k%2?'#ffffff':'#d8e8ff';g.beginPath();g.moveTo(x-1,y);g.lineTo(x+12*Math.cos(a)+4,y+9*Math.sin(a)-2);g.lineTo(x+3,y+1);g.fill()}}
+  // 近處的兩隻腳（在身體前面）
+  leg(6,true,0);leg(27,false,2.6);
   // 頭（朝左）
-  const [x0,y0]=pts[0];const hx2=hx+2,hy=yAt(hx2);
-  g.save();g.translate(Math.round(hx2),Math.round(hy));g.rotate(Math.atan2(y0-hy,x0-hx2)-0);
-  // 角
-  g.fillStyle='#f8e070';g.fillRect(4,-11,2,6);g.fillRect(6,-13,2,3);g.fillRect(8,-10,2,6);g.fillRect(10,-12,2,3);
-  // 鬃毛
-  for(let k=0;k<5;k++){g.fillStyle=k%2?'#ffffff':'#e0ecff';g.beginPath();g.moveTo(8,-4+k*2);g.lineTo(18+k*2+Math.sin(t*7+k)*2,-6+k*3);g.lineTo(10,-1+k*2);g.fill()}
-  // 頭部
-  pdisk(g,6,0,6.5,'#0c2a2a');pdisk(g,-2,1,4.5,'#0c2a2a');pdisk(g,6,0,5.5,'#26b08a');pdisk(g,-2,1,3.6,'#26b08a');
-  g.fillStyle='#56d8b0';g.fillRect(0,-4,9,2);g.fillStyle='#f0c040';g.fillRect(-5,3,10,2);
-  const jaw=Math.sin(t*2)>0.6?2:0;g.fillStyle='#0c2a2a';g.fillRect(-6,1+jaw,6,1);
-  g.fillStyle='#ffe040';g.fillRect(3,-2,2,2);g.fillStyle='#c02020';g.fillRect(4,-2,1,1);
-  g.fillStyle='#ffffff';g.fillRect(-6,-1,1,1);
-  // 鬍鬚
-  g.strokeStyle='#f8e070';g.lineWidth=1;for(const s2 of [-1,1]){g.beginPath();g.moveTo(-5,s2);for(let k=1;k<=6;k++)g.lineTo(-5+k*3,s2*1+Math.sin(t*4+k*.8+s2)*2.5+k*1.2*s2+2);g.stroke()}
+  const hx2=hx+2,hy=yAt(hx2);const [x0,y0]=pts[0];
+  g.save();g.translate(Math.round(hx2),Math.round(hy));g.rotate(Math.atan2(y0-hy,x0-hx2));
+  g.fillStyle='#f8e070';g.fillRect(5,-12,2,7);g.fillRect(7,-14,2,3);g.fillRect(9,-11,2,7);g.fillRect(11,-13,2,3);
+  for(let k=0;k<6;k++){g.fillStyle=k%2?'#ffffff':'#e0ecff';g.beginPath();g.moveTo(9,-5+k*2);g.lineTo(20+k*2+Math.sin(t*7+k)*2,-7+k*3);g.lineTo(11,-2+k*2);g.fill()}
+  pdisk(g,7,0,7,'#0c2a2a');pdisk(g,-2,1,5,'#0c2a2a');pdisk(g,7,0,6,'#26b08a');pdisk(g,-2,1,4,'#26b08a');
+  g.fillStyle='#56d8b0';g.fillRect(0,-5,10,2);g.fillStyle='#f0c040';g.fillRect(-6,3,11,2);
+  const jaw=Math.sin(t*2)>0.6?2:0;g.fillStyle='#0c2a2a';g.fillRect(-7,1+jaw,7,1);g.fillStyle='#ffffff';g.fillRect(-6,2+jaw,1,1);g.fillRect(-3,2+jaw,1,1);
+  g.fillStyle='#ffe040';g.fillRect(3,-3,3,2);g.fillStyle='#c02020';g.fillRect(4,-3,1,1);
+  g.strokeStyle='#f8e070';g.lineWidth=1;for(const s2 of [-1,1]){g.beginPath();g.moveTo(-6,s2);for(let k=1;k<=7;k++)g.lineTo(-6+k*3,s2+Math.sin(t*4+k*.8+s2)*2.5+k*1.3*s2+2);g.stroke()}
   g.restore();
-  // 龍身邊的光點
   for(let i=0;i<10;i++){const k=(t*1.5+i/10)%1;const [px,py]=pts[Math.floor(i/10*N)];g.fillStyle=`rgba(255,240,160,${1-k})`;g.fillRect(Math.round(px+(Math.sin(i*3)*6)),Math.round(py-8-k*10),1,1)}}
+// 霧：好幾層半透明的霧帶，慢慢飄
+function drawMist(g,t,layer){const L=layer?[[96,.30,7,9],[112,.38,5,12],[126,.45,9,14]]:[[58,.16,4,8],[80,.2,6,10]];
+  for(const [y0,a,sp,h] of L){for(let k=0;k<3;k++){const x=((k*90-t*sp*(layer?1:.6))%270+270)%270-80;const grd=g.createLinearGradient(0,y0-h,0,y0+h);
+    grd.addColorStop(0,'rgba(240,228,245,0)');grd.addColorStop(.5,`rgba(240,228,245,${a})`);grd.addColorStop(1,'rgba(240,228,245,0)');g.fillStyle=grd;
+    g.beginPath();g.ellipse(x+40,y0+Math.sin(t*.5+k)*2,70,h,0,0,7);g.fill()}}}
 function drawTitle(now){const g=tbg,t=now/1000;
   const sky=g.createLinearGradient(0,0,0,144);sky.addColorStop(0,'#0a1238');sky.addColorStop(.38,'#3a2a78');sky.addColorStop(.62,'#c8587a');sky.addColorStop(.78,'#f8a050');sky.addColorStop(1,'#ffd890');g.fillStyle=sky;g.fillRect(0,0,160,144);
   for(const [x,y,k] of TSTARS){const a=.4+.6*Math.abs(Math.sin(t*1.3+k));g.fillStyle=`rgba(255,255,230,${a})`;g.fillRect(x,y,1,1);if(k===0&&a>.9){g.fillRect(x-1,y,3,1);g.fillRect(x,y-1,1,3)}}
   g.fillStyle='rgba(255,240,200,.5)';g.beginPath();g.arc(128,104,16,0,7);g.fill();g.fillStyle='#fff4d0';g.beginPath();g.arc(128,104,10,0,7);g.fill();
   for(const [cx0,cy,front,sp] of TCLOUDS)if(!front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,30,.55);
-  drawSkyDragon(g,t);
+  drawMist(g,t,0);drawSkyDragon(g,t);
   // 玉山 mountains
   g.fillStyle='#2a1e50';g.beginPath();g.moveTo(0,112);g.lineTo(18,98);g.lineTo(34,104);g.lineTo(58,84);g.lineTo(66,90);g.lineTo(78,78);g.lineTo(92,92);g.lineTo(112,96);g.lineTo(130,90);g.lineTo(160,102);g.lineTo(160,144);g.lineTo(0,144);g.fill();
   g.fillStyle='#e8e0f8';g.beginPath();g.moveTo(78,78);g.lineTo(72,84);g.lineTo(76,83);g.lineTo(79,86);g.lineTo(82,83);g.lineTo(85,85);g.fill();
   g.fillStyle='#161034';g.beginPath();g.moveTo(0,124);g.lineTo(26,112);g.lineTo(50,118);g.lineTo(80,108);g.lineTo(110,116);g.lineTo(140,110);g.lineTo(160,118);g.lineTo(160,144);g.lineTo(0,144);g.fill();
-  for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7)}
+  for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7);drawMist(g,t,1)}
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
 function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map'}
@@ -1588,7 +1598,7 @@ async function titleFlow(){const ep=EPOCH;const {saved,oldVer}=await getSaved();
   if(saved&&pick===0){G=saved;enterWorld();scheduleSave(500);return}
   const name=await askName();const look=await chooseLook();newGame(name,look);
   titleEl.hidden=true;mode='blank';
-  await event(async()=>{await sayAll([`${name}，歡迎來到寶島怪獸的世界！`,'這座島上，住著各式各樣的怪獸。','有的住在山裡，有的住在河邊，也有的住在溫泉旁。','人們和怪獸一起生活、一起工作，也一起冒險。','你住在淡水河邊的小鎮——淡水鎮。','今天，就是你冒險的第一天！']);
+  await event(async()=>{await sayAll([`${name}，歡迎來到凱凱的冒險世界！`,'這座島上，住著各式各樣的怪獸。','有的住在山裡，有的住在河邊，也有的住在溫泉旁。','人們和怪獸一起生活、一起工作，也一起冒險。','你住在淡水河邊的小鎮——淡水鎮。','今天，就是你冒險的第一天！']);
     enterWorld();await wait(300);await say('（樓下傳來媽媽的聲音……）')});
   saveNow()}
 boot();
