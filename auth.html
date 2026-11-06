@@ -1,0 +1,86 @@
+<style>
+.auth{position:fixed;inset:0;z-index:50;background:rgba(10,14,28,.92);display:flex;align-items:center;justify-content:center;padding:16px}
+.auth-card{width:100%;max-width:340px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 20px;display:flex;flex-direction:column;gap:12px;font-family:var(--f-game);color:var(--ink)}
+.auth-card h1{margin:0;font-size:28px;font-weight:normal;letter-spacing:.1em;color:#f8d040;text-align:center;text-shadow:2px 2px 0 #a02828}
+.auth-card .sub{margin:0;text-align:center;color:var(--muted);font-size:13px}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.auth-tabs button{font-family:inherit;font-size:15px;padding:8px;border-radius:8px;border:1px solid var(--line);background:#18203a;color:var(--muted);cursor:pointer}
+.auth-tabs button.on{background:var(--shell-dk);color:#fff;border-color:var(--shell)}
+.auth-card label{display:flex;flex-direction:column;gap:4px;font-size:14px}
+.auth-card input{font-family:inherit;font-size:17px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:#0f1426;color:var(--ink)}
+.auth-card .go{font-family:inherit;font-size:17px;padding:10px;border:0;border-radius:8px;background:#c7334c;color:#fff;cursor:pointer;margin-top:4px}
+.auth-card .go:disabled{opacity:.6}
+.auth-card .msg{margin:0;min-height:1.2em;color:#ff8a8a;font-size:13px;text-align:center}
+.auth-card .hint{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.auth-card .link{background:none;border:0;color:var(--muted);text-decoration:underline;font-family:inherit;font-size:13px;cursor:pointer}
+.card.acct{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;font-size:14px}
+.card.acct button{font-family:var(--f-game);font-size:13px;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:#18203a;color:var(--ink);cursor:pointer}
+</style>
+<div id="auth" class="auth">
+  <form id="authForm" class="auth-card" novalidate>
+    <h1>寶島怪獸</h1>
+    <p class="sub">線上版・和朋友一起冒險</p>
+    <div class="auth-tabs"><button type="button" data-m="login" class="on">登入</button><button type="button" data-m="reg">註冊新帳號</button></div>
+    <label>帳號<input id="au" maxlength="10" autocomplete="username" placeholder="中文、英文、數字都可以"></label>
+    <label>密碼<input id="ap" type="password" autocomplete="current-password" placeholder="至少 6 個字"></label>
+    <label id="ap2w" hidden>再輸入一次密碼<input id="ap2" type="password" autocomplete="new-password"></label>
+    <button id="ago" class="go" type="submit">登入</button>
+    <p id="amsg" class="msg" role="alert"></p>
+    <p id="ahint" class="hint" hidden>帳號最多 10 個字。密碼請自己記好，忘記的話要請管理員幫忙重設。</p>
+    <button type="button" id="aoff" class="link">先不登入，單機玩</button>
+  </form>
+</div>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import CONFIG from './firebase-config.js';
+
+const $=id=>document.getElementById(id);
+const authEl=$('auth'),form=$('authForm');
+let mode='login',done=false;
+const finish=v=>{if(done)return;done=true;authEl.hidden=true;window.__resolveCloud(v)};
+const toEmail=u=>'u'+[...new TextEncoder().encode(u.trim().toLowerCase())].map(b=>b.toString(16).padStart(2,'0')).join('')+'@baodao-monsters.game';
+const ERR={'auth/email-already-in-use':'這個帳號已經有人用了，換一個吧！','auth/invalid-credential':'帳號或密碼不對喔。','auth/wrong-password':'帳號或密碼不對喔。','auth/user-not-found':'帳號或密碼不對喔。','auth/invalid-email':'帳號格式不對。','auth/weak-password':'密碼至少要 6 個字。','auth/too-many-requests':'試太多次了，等一下再試。','auth/network-request-failed':'連不上網路，檢查一下網路。'};
+
+document.querySelectorAll('.auth-tabs button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.m;document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  $('ap2w').hidden=$('ahint').hidden=mode!=='reg';$('ago').textContent=mode==='reg'?'註冊並開始':'登入';$('ap').autocomplete=mode==='reg'?'new-password':'current-password';$('amsg').textContent=''}));
+$('aoff').addEventListener('click',()=>finish(null));
+
+let app,auth,fs;
+try{if(!CONFIG||!CONFIG.apiKey)throw new Error('no config');app=initializeApp(CONFIG);auth=getAuth(app);fs=getFirestore(app)}
+catch(e){$('amsg').textContent='線上功能還沒設定好，目前只能單機玩。';$('ago').disabled=true}
+
+function makeDb(){return {
+  doc(path){const r=doc(fs,path);return {
+    async get(){const s=await getDoc(r);return {exists:s.exists(),data:()=>s.data()}},
+    set:v=>setDoc(r,v),delete:()=>deleteDoc(r),
+    acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
+      if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
+  collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
+function makeRoom(uid){let mine={},docs=[];const cbs=[];const R=doc(fs,'presence',uid);let last=0;
+  const push=()=>{last=Date.now();return setDoc(R,{...mine,t:last}).catch(()=>{})};
+  setInterval(()=>{if(mine.uid)push()},25000);
+  addEventListener('pagehide',()=>{deleteDoc(R).catch(()=>{})});
+  onSnapshot(collection(fs,'presence'),s=>{docs=s.docs.map(d=>d.data());cbs.forEach(f=>f())},()=>{});
+  setInterval(()=>cbs.forEach(f=>f()),20000);
+  return {presence:async p=>{mine={...mine,...p};await push()},peers:()=>docs.filter(d=>d&&Date.now()-(d.t||0)<70000).map(d=>({presence:d})),onPeers:f=>{cbs.push(f);return ()=>{}}}}
+
+function enter(user,name){$('acctName').textContent='帳號：'+(name||'已登入');$('logoutBtn').hidden=false;
+  try{localStorage.setItem('baodao_acct_'+user.uid,name||'')}catch(e){}
+  finish({db:makeDb(),uid:user.uid,room:makeRoom(user.uid)})}
+$('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){}location.reload()});
+
+if(auth){
+  let first=true;
+  onAuthStateChanged(auth,u=>{if(!first)return;first=false;
+    if(u){let nm='';try{nm=localStorage.getItem('baodao_acct_'+u.uid)||''}catch(e){}enter(u,nm)}
+    else{authEl.hidden=false;setTimeout(()=>$('au').focus(),50)}});
+  form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
+    if(!u){msg.textContent='請輸入帳號。';return}if(p.length<6){msg.textContent='密碼至少要 6 個字。';return}
+    if(mode==='reg'&&p!==$('ap2').value){msg.textContent='兩次密碼不一樣喔。';return}
+    $('ago').disabled=true;msg.textContent=mode==='reg'?'註冊中……':'登入中……';
+    try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);msg.textContent='';enter(c.user,u)}
+    catch(err){msg.textContent=ERR[err.code]||('出了點問題：'+(err.code||err.message));$('ago').disabled=false}});
+}
+</script>
