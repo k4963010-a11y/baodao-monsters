@@ -285,7 +285,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261106-150425";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261106-151558";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -413,50 +413,74 @@ const LOOK={
  baker:{c:'#f8f8f8',h:'#6a3a20',s:'#f8c8a0',a:'#f8f8f8',b:'#f088b0'},
  soyboss:{c:'#e04040',h:'#303030',s:'#e8b890',a:'#f0f0e8',b:'#3a4a6a'},
  foodie:{c:'#f0a030',h:'#202020',s:'#f0c098',a:'#e84848',b:'#384858'}};
+// 30 種造型：[名字, 說明, 帽/頭頂, 頭髮, 皮膚, 上衣, 褲子, 配件]
 const CHARS=[
- ['阿凱','冒險家','#2878d8','#3a2818','#f8c8a0','#f09828','#304868','',{ball:3},'捉捉球 +3'],
- ['小美','溫柔的照顧者','#f088a8','#5a3020','#f8d0b0','#ffffff','#f088a8','bow',{potion:3},'傷藥 +3'],
- ['阿豪','力氣很大','#d83030','#202020','#e0a878','#303030','#4a4a5a','',{exp:1.1},'經驗值 +10%'],
- ['小玲','眼明手快','#48b848','#2a1a10','#f8c8a0','#f8f070','#386838','bow',{catch:1.15},'捕獲率 +15%'],
- ['阿明','家裡開銀樓','#f0c030','#3a2818','#f8c8a0','#ffffff','#2a2a3a','',{money:500},'起始金錢 +500'],
- ['小晴','跑得超快','#40c0e0','#5a3020','#f8d0b0','#40c0e0','#f8f8f8','bow',{run:.25},'逃跑成功率提高'],
- ['小芬','豆漿控','#f8f0d8','#3a2818','#f8c8a0','#f8f0d8','#a87048','bow',{soy:3},'豆漿 ×3'],
- ['阿德','早餐王','#e85030','#202020','#e8b890','#f8a030','#384858','',{youtiao:1},'燒餅油條 ×1'],
- ['米米','米漿妹妹','#e0c890','#6a4020','#f8d0b0','#e0c890','#8a6040','bow',{rice:2},'米漿 ×2'],
- ['小哲','愛看書的學霸','#5060c0','#202020','#f0c098','#f8f8f8','#5060c0','glasses',{exp:1.1},'經驗值 +10%'],
- ['阿海','淡水漁夫之子','#2860a0','#202020','#d09060','#58a8e0','#2a3a5a','',{catch:1.1,ball:2},'捕獲率 +10%、球 +2'],
- ['小安','護理師的女兒','#ffffff','#e86890','#f8d0b0','#f8a8c0','#ffffff','bow',{potion:5},'傷藥 +5'],
- ['阿翰','登山少年','#5a8a38','#3a2818','#d8a070','#88b048','#5a4a3a','',{run:.2,potion:1},'逃跑提高、傷藥 +1'],
- ['小柔','花店女孩','#f8a0c8','#8a4020','#f8d0b0','#a8e070','#f8a0c8','bow',{catch:1.1,money:200},'捕獲率 +10%、+200 元'],
- ['阿傑','街頭舞者','#202020','#202020','#e8b890','#e8e8e8','#d83030','',{exp:1.05,run:.15},'經驗 +5%、逃跑提高'],
- ['小雨','雨天出生','#3870c0','#202838','#f8d0b0','#a8d0f8','#3870c0','bow',{soy:2,potion:2},'豆漿 ×2、傷藥 +2'],
- ['阿宏','夜市老闆','#f0a030','#202020','#e0a878','#d83030','#303030','',{money:800},'起始金錢 +800'],
- ['小琪','小提琴手','#8a3a8a','#3a1a20','#f8d0b0','#b868c8','#2a2a3a','bow',{exp:1.1},'經驗值 +10%'],
- ['阿風','外送騎士','#e03070','#202020','#d8a070','#e03070','#303848','',{run:.3},'逃跑成功率大幅提高'],
- ['小蓁','書法社社長','#303030','#101010','#f8d0b0','#f0f0e8','#303030','glasses',{exp:1.08,potion:1},'經驗 +8%、傷藥 +1'],
- ['阿弘','棒球隊捕手','#2850a8','#202020','#d09060','#f8f8f8','#2850a8','',{catch:1.2},'捕獲率 +20%'],
- ['小萱','飲料店店員','#c88850','#3a2010','#f8d0b0','#f8f0e0','#6a4020','bow',{rice:1,soy:1,money:200},'米漿、豆漿、+200 元'],
- ['阿峰','衝浪手','#f8e040','#e8c060','#c88050','#40b0d0','#f8e040','',{run:.2,exp:1.05},'逃跑提高、經驗 +5%'],
- ['小葵','向日葵女孩','#f8c020','#5a3020','#f8d0b0','#f8c020','#48a048','bow',{ball:2,potion:2},'球 +2、傷藥 +2'],
- ['阿誠','廟口師傅','#a02020','#202020','#d8a070','#f0d040','#a02020','',{youtiao:1,money:300},'燒餅油條 ×1、+300 元'],
- ['小穎','電競少女','#9050e0','#202030','#f8d0b0','#303040','#9050e0','glasses',{exp:1.12},'經驗值 +12%'],
- ['阿樂','樂天派','#50c8a0','#3a2818','#f0c098','#f8a0a0','#3a5a8a','',{potion:2,ball:2,money:100},'球、傷藥 +2、+100 元'],
- ['小星','天文社社員','#283878','#101828','#f8d0b0','#f8e070','#283878','bow',{catch:1.12,ball:1},'捕獲率 +12%、球 +1'],
- ['小土豆','茶園小幫手','#6a9a38','#3a2818','#d8a070','#c8e0a0','#6a5a3a','',{soy:2,catch:1.08},'豆漿 ×2、捕獲率 +8%'],
- ['小雪','溫泉旅館的女兒','#e8f0f8','#202838','#fff0e8','#e05070','#f8f8f8','bow',{potion:3,rice:1},'傷藥 +3、米漿 ×1']];
-CHARS.forEach((c,i)=>{LOOK['p'+i]={c:c[2],h:c[3],s:c[4],a:c[5],b:c[6],acc:c[7]}});
-const perk=()=>(CHARS[(G&&G.look)|0]||CHARS[0])[8];
+ ['冒險少年','背著背包出發的新手訓練家','#2878d8','#3a2818','#f8c8a0','#f09828','#304868',{}],
+ ['醫生','穿白袍、戴眼鏡的醫生','#303030','#303030','#f0c098','#a8d0f0','#5a6a8a',{coat:'#f8f8f8',glasses:1}],
+ ['護理師','帽子上有紅十字','#ffffff','#5a3020','#f8d0b0','#ffffff','#ffffff',{cross:1,longhair:1}],
+ ['野人','一頭亂髮、穿豹紋皮衣','#5a3418','#5a3418','#c88050','#d89040','#8a5a30',{wild:1,beard:'#5a3418',spots:1}],
+ ['老爺爺','白鬍子、老花眼鏡','#e8b890','#d8d8d8','#e8b890','#8a6a4a','#5a4a3a',{beard:'#e8e8e8',glasses:1}],
+ ['老奶奶','灰頭髮綁成包包頭','#c8c8d0','#c8c8d0','#f0c8a0','#9a68b8','#6a4a8a',{bun:1,glasses:1}],
+ ['勇者','紅披風、綁頭帶的英雄','#e0a020','#e0a020','#f8c8a0','#3060c0','#303848',{cape:'#c02020',headband:'#c02020'}],
+ ['超級英雄','披風加胸前星星徽章','#202030','#202030','#f8c8a0','#2850d0','#2850d0',{cape:'#d02020',emblem:'#f0c030',belt:'#f0c030'}],
+ ['忍者','黑衣蒙面，只露出眼睛','#303040','#303040','#f0c098','#303040','#303040',{ninja:'#303040',headband:'#c02020'}],
+ ['廚師','高高的白色廚師帽','#3a2818','#3a2818','#f8c8a0','#ffffff','#303030',{chef:1}],
+ ['警察','藍帽子、金色警徽','#203060','#202020','#f0c098','#4060a0','#203060',{emblem:'#f0c030'}],
+ ['消防員','紅色頭盔、黃色反光條','#e03020','#202020','#e8b890','#c03020','#303030',{belt:'#f0e040'}],
+ ['太空人','白色太空衣和頭盔','#f0f0f0','#f0f0f0','#f8c8a0','#f0f0f0','#f0f0f0',{visor:'#304870',emblem:'#2850d0'}],
+ ['海盜','三角帽、眼罩、大鬍子','#202020','#202020','#e8b890','#f0f0e8','#3a2a20',{tophat:'#202020',beard:'#4a2810',patch:1}],
+ ['魔法師','尖尖的巫師帽、長袍','#5030a0','#d8d8d8','#f0c098','#5030a0','#5030a0',{wizard:'#5030a0',beard:'#e8e8e8',coat:'#5030a0'}],
+ ['騎士','全身銀色盔甲','#a0a8b8','#a0a8b8','#f0c098','#c0c8d8','#808898',{visorline:1,emblem:'#c02020'}],
+ ['農夫','戴斗笠、穿綠衣','#4a3018','#4a3018','#d8a070','#4a8a38','#4a6a9a',{straw:'#e8c860'}],
+ ['牛仔','寬邊牛仔帽、皮帶','#8a5a30','#5a3418','#e0a878','#c86030','#3a5a9a',{cowboy:'#8a5a30',belt:'#3a2010'}],
+ ['國王','金皇冠、紅披風','#8a5a30','#8a5a30','#f0c098','#a02030','#f0e8d8',{crown:1,cape:'#c02020',beard:'#8a5a30'}],
+ ['公主','金皇冠、長長的頭髮','#f0c040','#f0c040','#f8d0b0','#f088c0','#f088c0',{crown:1,longhair:1,coat:'#f088c0'}],
+ ['小丑','紅鼻子、彩色衣服','#f04040','#f04040','#ffffff','#f0c030','#3080e0',{wild:1,nose:1}],
+ ['武士','綁髮髻、穿袴裙','#202020','#202020','#f0c098','#3a4a8a','#202838',{topknot:1,coat:'#202838',belt:'#f0f0f0'}],
+ ['科學家','白髮亂翹、白袍眼鏡','#e8e8e8','#e8e8e8','#f8c8a0','#80b0e0','#404858',{wild:1,glasses:1,coat:'#f8f8f8'}],
+ ['運動員','頭帶、運動服','#3a2818','#3a2818','#d8a070','#f08020','#303848',{headband:'#ffffff',emblem:'#ffffff'}],
+ ['學生','白襯衫、紅領帶','#202020','#202020','#f8c8a0','#ffffff','#304878',{tie:'#c02020'}],
+ ['工人','黃色安全帽、反光背心','#f0c020','#3a2818','#d8a070','#f08020','#3a5a8a',{belt:'#f0f0a0'}],
+ ['郵差','綠帽子、綠制服','#2a7a3a','#202020','#f0c098','#2a7a3a','#203028',{emblem:'#f0e040'}],
+ ['潛水員','潛水面鏡、黑色潛水衣','#202838','#202838','#f0c098','#202838','#202838',{visor:'#60c0e0',emblem:'#f0c030'}],
+ ['機器人','銀色身體、紅色眼燈','#a8b0c0','#a8b0c0','#c8d0e0','#8890a0','#707888',{robot:1}],
+ ['功夫大師','光頭、橘色功夫服','#e8b890','#e8b890','#e8b890','#f0a020','#f0a020',{beard:'#ffffff',belt:'#202020'}]];
+CHARS.forEach((c,i)=>{LOOK['p'+i]={c:c[2],h:c[3],s:c[4],a:c[5],b:c[6],f:c[7]}});
 const heroLook=()=>'p'+((G&&G.look)|0);
-function accessorize(cv,lk,view){if(!lk.acc)return cv;const g=cv.getContext('2d');const r=(x,y,w,h,k)=>{g.fillStyle=k;g.fillRect(x,y,w,h)};
-  if(lk.acc==='bow'){r(10,0,2,2,'#202028');r(13,0,2,2,'#202028');r(10,0,2,1,'#e83050');r(13,0,2,1,'#e83050');r(12,1,1,1,'#e83050');
-    if(view!=='side'){r(2,6,2,6,lk.h);r(12,6,2,6,lk.h);r(1,6,1,6,'#181820');r(14,6,1,6,'#181820')}}
-  if(lk.acc==='glasses'&&view==='down'){r(4,5,3,3,'#202838');r(9,5,3,3,'#202838');r(5,6,1,1,'#a8d8f8');r(10,6,1,1,'#a8d8f8');r(7,6,2,1,'#202838')}
+function accessorize(cv,lk,view){const f=lk.f;if(!f)return cv;const g=cv.getContext('2d');const r=(x,y,w,h,k)=>{g.fillStyle=k;g.fillRect(x,y,w,h)};const K='#181820';
+  const dn=view==='down',up=view==='up',sd=view==='side';
+  if(f.cape){if(dn){r(1,9,2,6,f.cape);r(13,9,2,6,f.cape)}else if(up){r(3,9,10,6,f.cape)}else{r(1,8,3,7,f.cape)}}
+  if(f.longhair&&!sd){r(2,6,2,6,lk.h);r(12,6,2,6,lk.h);r(1,6,1,6,K);r(14,6,1,6,K)}
+  if(f.coat){if(sd)r(4,12,6,2,f.coat);else r(4,12,8,2,f.coat)}
+  if(f.spots){[[5,10],[9,9],[10,11],[6,12]].forEach(([x,y])=>r(x,y,1,1,'#3a2010'))}
+  if(f.belt){if(sd)r(4,11,6,1,f.belt);else r(3,11,10,1,f.belt)}
+  if(f.emblem&&dn){r(7,9,2,1,f.emblem);r(6,10,4,1,f.emblem);r(7,11,2,1,f.emblem)}
+  if(f.tie&&dn){r(7,9,2,3,f.tie)}
+  if(f.beard){if(dn){r(4,7,8,2,f.beard);r(5,9,6,1,f.beard);r(7,7,2,1,'#c06050')}else if(sd)r(8,7,4,2,f.beard)}
+  if(f.glasses&&dn){r(4,5,3,3,'#202838');r(9,5,3,3,'#202838');r(5,6,1,1,'#a8d8f8');r(10,6,1,1,'#a8d8f8');r(7,6,2,1,'#202838')}
+  if(f.patch&&dn){r(9,5,3,2,'#101010');r(4,4,8,1,'#101010')}
+  if(f.nose&&dn){r(7,7,2,2,'#e02020')}
+  if(f.ninja&&dn){r(3,7,10,2,f.ninja)}
+  if(f.visor){if(dn)r(3,5,10,3,f.visor);else if(sd)r(8,5,5,3,f.visor);if(dn)r(4,5,3,1,'#c0e8ff')}
+  if(f.visorline&&dn){r(3,5,10,1,'#505868');r(3,7,10,1,'#505868')}
+  if(f.robot){if(dn){r(4,6,8,1,'#e03030')}else if(sd)r(8,6,5,1,'#e03030');r(7,0,2,1,'#e03030');r(7,1,2,1,'#606878')}
+  if(f.headband){r(2,4,12,1,f.headband);if(up){r(6,5,1,3,f.headband);r(9,5,1,3,f.headband)}}
+  if(f.wild){r(3,0,2,1,lk.h);r(7,0,2,1,lk.h);r(11,0,2,1,lk.h);r(2,1,1,1,lk.h);r(13,1,1,1,lk.h)}
+  if(f.bun){r(6,0,4,2,lk.h);r(6,0,4,1,'#a0a0a8')}
+  if(f.topknot){r(7,0,2,2,lk.h)}
+  if(f.cross){r(7,1,2,3,'#e03030');r(6,2,4,1,'#e03030')}
+  if(f.chef){r(4,0,8,3,'#ffffff');r(3,0,1,2,'#ffffff');r(12,0,1,2,'#ffffff');r(4,3,8,1,'#d8d8d8')}
+  if(f.tophat){r(4,0,8,3,f.tophat);r(2,3,12,1,f.tophat);r(4,2,8,1,'#d8b040')}
+  if(f.wizard){r(7,0,2,1,f.wizard);r(6,1,4,1,f.wizard);r(5,2,6,1,f.wizard);r(2,3,12,1,f.wizard);r(7,1,1,1,'#f0e040')}
+  if(f.straw){r(5,0,6,2,f.straw);r(1,2,14,2,f.straw);r(1,3,14,1,'#c8a040')}
+  if(f.cowboy){r(5,0,6,2,f.cowboy);r(1,2,14,1,f.cowboy);r(5,1,6,1,'#5a3418')}
+  if(f.crown){r(4,0,8,2,'#f0c030');r(4,0,1,1,'#00000000');[4,7,11].forEach(x=>r(x,0,1,1,'#f8e070'));r(7,1,2,1,'#e03050')}
   return cv}
 function chooseLook(){return new Promise(res=>{let i=0,fr=0;sheetEl.replaceChildren();const h=el('h3','');const top=el('div',null,'top');const c=document.createElement('canvas');c.width=c.height=16;
   c.style.cssText='position:static;width:calc(var(--u)*48);height:calc(var(--u)*48);image-rendering:pixelated;flex:none;background:#e8f0f8;box-shadow:0 0 0 calc(var(--u)*1) var(--c3)';
   const info=el('div');const nmEl=el('h3','');const tEl=el('p','');const pEl=el('p','');pEl.style.color='#c03030';info.append(nmEl,tEl,pEl);top.append(c,info);
   const hint=el('div','◀ ▶ 換人　A 決定','hint');sheetEl.append(h,top,hint);sheetEl.hidden=false;
-  const draw=()=>{const C=CHARS[i];h.textContent=`選擇你的樣子　${i+1} / ${CHARS.length}`;nmEl.textContent=C[0];tEl.textContent=C[1];pEl.textContent='特色：'+C[9];const x=c.getContext('2d');x.clearRect(0,0,16,16);x.drawImage(sprites('p'+i).down[fr],0,0)};
+  const draw=()=>{const C=CHARS[i];h.textContent=`選擇你的樣子　${i+1} / ${CHARS.length}`;nmEl.textContent=C[0];tEl.textContent=C[1];pEl.textContent='';const x=c.getContext('2d');x.clearRect(0,0,16,16);x.drawImage(sprites('p'+i).down[fr],0,0)};
   const tm=setInterval(()=>{fr^=1;draw()},400);
   const hd=k=>{if(k==='left'||k==='up')i=(i+CHARS.length-1)%CHARS.length;else if(k==='right'||k==='down')i=(i+1)%CHARS.length;else if(k==='a'){clearInterval(tm);popUI(hd);sheetEl.hidden=true;sheetEl.onclick=null;res(i);return}else return;draw()};
   sheetEl.onclick=e=>{const r=sheetEl.getBoundingClientRect();press(e.clientX<r.left+r.width/3?'left':e.clientX>r.right-r.width/3?'right':'a')};
@@ -638,7 +662,7 @@ function sanMon(m){if(!m||typeof m!=='object')return null;const sp=m.sp|0;if(!SP
 
 /* ================= game state ================= */
 let G=null;
-function newGame(name,look=0){G={ver:2,look:clamp(look|0,0,CHARS.length-1),name,money:500,items:{ball:0,potion:0,soy:0,rice:0,youtiao:0},party:[],box:[],seen:[],caught:[],badges:0,flags:{},pos:{...NEW_POS},lastHeal:{...HOME_HEAL},steps:0};const P=perk();if(P.money)G.money+=P.money;['ball','potion','soy','rice','youtiao'].forEach(k=>{if(P[k])G.items[k]=(G.items[k]|0)+P[k]})}
+function newGame(name,look=0){G={ver:2,look:clamp(look|0,0,CHARS.length-1),name,money:500,items:{ball:0,potion:0,soy:0,rice:0,youtiao:0},party:[],box:[],seen:[],caught:[],badges:0,flags:{},pos:{...NEW_POS},lastHeal:{...HOME_HEAL},steps:0}}
 function sanPos(p,def){if(!p||!MAPS[p.map])return {...def};const M=MAPS[p.map];const x=p.x|0,y=p.y|0;if(x<0||y<0||x>=M.w||y>=M.h||!WALK.has(M.grid[y][x]))return {...def};return {map:p.map,x,y,dir:['up','down','left','right'].includes(p.dir)?p.dir:'down'}}
 function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const party=(Array.isArray(d.party)?d.party:[]).map(sanMon).filter(Boolean).slice(0,6);
@@ -967,8 +991,8 @@ async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸',
   else if(o===G.name)await trainerCard();
   else if(o==='存檔'){await saveNow();await say(db?'已存檔！進度存在雲端了。':'已存檔！（單機模式，只存在這台裝置）')}
   else return}}
-async function trainerCard(){await sheet(s=>{const C=CHARS[G.look|0];s.append(el('h3',`訓練家　${G.name}`),el('p',`樣子：${C[0]}（${C[1]}）\n特色：${C[9]}\n錢：${G.money} 元\n圖鑑：抓到 ${G.caught.length} / 看過 ${G.seen.length}\n徽章：${G.badges?'北投石徽章 ◆':'（還沒有）'}\n\n目前任務：\n${questText()}`))});
-  showText('要換造型嗎？（起始道具不會重拿）');const c=await choose(['不用','換造型'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}}
+async function trainerCard(){await sheet(s=>{const C=CHARS[G.look|0];s.append(el('h3',`訓練家　${G.name}`),el('p',`樣子：${C[0]}\n錢：${G.money} 元\n圖鑑：抓到 ${G.caught.length} / 看過 ${G.seen.length}\n徽章：${G.badges?'北投石徽章 ◆':'（還沒有）'}\n\n目前任務：\n${questText()}`))});
+  showText('要換造型嗎？');const c=await choose(['不用','換造型'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}}
 function questText(){const f=G.flags;if(!f.starter)return '去林教授的研究所。';if(!f.letter_done)return '到北投寶貝中心，把信交給溫醫師。';if(!f.leader_back)return '去北投的地熱谷看看。';if(!G.badges)return '挑戰北投溫泉道館！';return '第一章完成！繼續收集怪獸吧。'}
 async function dex(){let at=0;for(;;){const items=SP.slice(1).map((s,i)=>{const id=i+1;return `No.${String(id).padStart(2,'0')} ${G.seen.includes(id)?s.n:'？？？'} ${G.caught.includes(id)?'●':G.seen.includes(id)?'○':''}`});
   showText(`圖鑑　看過 ${G.seen.length}・抓到 ${G.caught.length}\n●抓到了　○看過`);const i=await choose(items,{pos:'list',start:at,vis:6});if(i<0)return;at=i;const id=i+1;
@@ -1073,14 +1097,14 @@ async function doMove(att,def,mvName,side){const mv=MOVES[mvName];const tgt=side
   sfx('hit');B.shake[tgt]=performance.now()+420;await wait(420);def.hp=Math.max(0,def.hp-dmg);updHud();await wait(450);
   if(crit)await say('擊中要害！');if(eff>1)await say('效果絕佳！');else if(eff<1)await say('效果不太好……')}
 function enemyMove(e){const ms=e.moves;const atk=ms.filter(m=>MOVES[m].p>0);if(atk.length&&(Math.random()<.78||atk.length===ms.length))return atk[rnd(0,atk.length-1)];return ms[rnd(0,ms.length-1)]}
-async function gainExp(me,foe,trainer){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)*(perk().exp||1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;
+async function gainExp(me,foe,trainer){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;
   while(me.lv<100&&me.exp>=lvExp(me.lv+1)){const old=maxhp(me);me.lv++;me.hp+=maxhp(me)-old;updHud();sfx('lvl');await say(`${nm(me)} 升到了 Lv${me.lv}！`);
     for(const [l,mv] of SP[me.sp].l){if(l===me.lv&&!me.moves.includes(mv)){if(me.moves.length<4){me.moves.push(mv);await say(`${nm(me)} 學會了 ${mv}！`)}else{const f=me.moves.shift();me.moves.push(mv);await say(`${nm(me)} 忘記了 ${f}，學會了 ${mv}！`)}}}
     const ev=SP[me.sp].evo;if(ev&&me.lv>=ev[0])me.evo=true}}
 async function throwBall(foe){G.items.ball--;sfx('ball');await say(`${G.name} 丟出了捉捉球！`);
   for(let i=0;i<=14;i++){const t=i/14;B.ball={x:20+(124-20)*t,y:110-(110-40)*t-Math.sin(t*Math.PI)*40,rot:t*8};await wait(28)}
   B.ehidden=true;B.ball={x:124,y:58,rot:0};await wait(400);
-  const Mx=maxhp(foe);const p=clamp(((3*Mx-2*foe.hp)*SP[foe.sp].c)/(3*Mx*255)*(perk().catch||1),0.02,1);const caught=Math.random()<p;const shakes=caught?3:Math.min(2,Math.floor(Math.random()*3*p+Math.random()));
+  const Mx=maxhp(foe);const p=clamp(((3*Mx-2*foe.hp)*SP[foe.sp].c)/(3*Mx*255),0.02,1);const caught=Math.random()<p;const shakes=caught?3:Math.min(2,Math.floor(Math.random()*3*p+Math.random()));
   for(let s=0;s<shakes;s++){B.ball.rot=.5;await wait(180);B.ball.rot=-.5;await wait(180);B.ball.rot=0;await wait(350)}
   if(caught){sfx('catch');foe.ot=G.name;await say(`抓到了 ${nm(foe)}！`);B.eGone=true;updHud();const where=addMon(foe);if(where==='box')await say(`身上滿了，${nm(foe)} 送進怪獸箱了。`);B.ball=null;return true}
   B.ball=null;B.ehidden=false;await say(['哎呀！跑出來了！','差一點點就抓到了！','可惡！只差一點！'][Math.min(2,shakes)]);return false}
@@ -1094,7 +1118,7 @@ async function battle(enemies,trainer){
     if(a===0){showText('');const k=await choose(me.moves.map(m=>`${m}`),{pos:'moves',cols:2});if(k<0)continue;act={type:'move',m:me.moves[k]}}
     else if(a===1){act=await bag(true);if(!act)continue}
     else if(a===2){const s=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);if(s<0)continue;act={type:'switch',i:s}}
-    else{if(trainer){await say('不能從訓練家對戰中逃跑！');continue}const ch=clamp(.5+(st(me,3)-st(foe,3))*.04+(perk().run||0),.3,1);if(Math.random()<ch){await say('順利逃走了！');result='run';break}await say('逃不掉！');act={type:'none'}}
+    else{if(trainer){await say('不能從訓練家對戰中逃跑！');continue}const ch=clamp(.5+(st(me,3)-st(foe,3))*.04,.3,1);if(Math.random()<ch){await say('順利逃走了！');result='run';break}await say('逃不掉！');act={type:'none'}}
     const em=enemyMove(foe);
     if(act.type==='switch'){await say(`${nm(me)}，回來！`);B.mehidden=true;updHud();mi=act.i;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};await wait(250);B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`);await doMove(foe,me,em,'e')}
     else if(act.type==='ball'){if(await throwBall(foe)){result='caught';break}await doMove(foe,me,em,'e')}
