@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>凱凱的冒險世界</title>
+<title>飽島怪獸</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
 <style>
@@ -173,7 +173,7 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 </style>
 <div id="auth" class="auth">
   <form id="authForm" class="auth-card" novalidate>
-    <h1>凱凱的冒險世界</h1>
+    <h1>飽島怪獸</h1>
     <p class="sub">線上版・和朋友一起冒險</p>
     <div class="auth-tabs"><button type="button" data-m="login" class="on">登入</button><button type="button" data-m="reg">註冊新帳號</button></div>
     <label>帳號<input id="au" maxlength="10" autocomplete="username" placeholder="中文、英文、數字都可以"></label>
@@ -191,7 +191,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-132347';
+import CONFIG from './firebase-config.js?v=20261107-141500';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -274,7 +274,7 @@ if(auth){
         <div id="sheet" class="box" hidden></div>
         <div id="title" class="box">
           <canvas id="titleBg" width="160" height="144"></canvas>
-          <div class="t1">凱凱的冒險世界</div>
+          <div class="t1">飽島怪獸</div>
           <div class="t2">台灣原創怪獸冒險</div>
           <div class="st" id="titleStatus">讀取中……</div>
         </div>
@@ -287,7 +287,7 @@ if(auth){
       </div>
       <div class="logo-small">COLOR</div>
     </div>
-    <div class="brand">凱凱的冒險世界<small>KAIKAI ADVENTURE</small></div>
+    <div class="brand">飽島怪獸<small>BAODAO MONSTERS</small></div>
     <div class="pad">
       <div class="dpad">
         <button class="u" data-k="up" aria-label="上">▲</button>
@@ -333,7 +333,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-132347";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-141500";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2388,7 +2388,7 @@ async function titleFlow(){const ep=EPOCH;const {saved,oldVer,localNewer}=await 
   if(saved&&pick===0){G=saved;enterWorld();scheduleSave(500);return}
   const name=await askName();const look=await chooseLook();newGame(name,look);
   titleEl.hidden=true;mode='blank';
-  await event(async()=>{await sayAll([`${name}，歡迎來到凱凱的冒險世界！`,'這座島上，住著各式各樣的怪獸。','有的住在山裡，有的住在河邊，也有的住在溫泉旁。','人們和怪獸一起生活、一起工作，也一起冒險。','你住在淡水河邊的小鎮——淡水鎮。','今天，就是你冒險的第一天！']);
+  await event(async()=>{await sayAll([`${name}，歡迎來到飽島怪獸的世界！`,'這座島上，住著各式各樣的怪獸。','有的住在山裡，有的住在河邊，也有的住在溫泉旁。','人們和怪獸一起生活、一起工作，也一起冒險。','你住在淡水河邊的小鎮——淡水鎮。','今天，就是你冒險的第一天！']);
     enterWorld();await wait(300);await say('（樓下傳來媽媽的聲音……）')});
   saveNow()}
 boot();
