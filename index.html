@@ -203,7 +203,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-222140';
+import CONFIG from './firebase-config.js?v=20261107-222639';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -353,7 +353,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-222140";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-222639";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1252,14 +1252,14 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
+function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
 let saveTimer=0,saving=false,again=false,cloudRev=0,staleStop=false;
 function snapshotPos(){if(G&&M)G.pos={map:M.id,x:player.x,y:player.y,dir:player.dir}}
 function scheduleSave(ms=1200){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,ms)}
-async function saveNow(){if(!G)return;if(mode==='map')snapshotPos();saveLocal();if(!db)return;if(saving){again=true;return}saving=true;
+async function saveNow(){if(!G||G.dream)return;if(mode==='map')snapshotPos();saveLocal();if(!db)return;if(saving){again=true;return}saving=true;
   try{if(staleStop)throw 0;const ref=db.doc('players/'+uid);const cur=await ref.get();const cr=cur.exists?((cur.data()||{}).rev|0):0;if(cr>cloudRev){staleStop=true;saving=false;await staleReload();return}const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();doc.rev=cloudRev+1;await ref.set(doc);cloudRev=doc.rev}catch(e){if(e!==0)console.warn('save failed',e)}
   saving=false;if(again){again=false;saveNow()}}
 let rosterDocs=[],swapSlots={},INVMAP={};
@@ -1532,6 +1532,15 @@ let RIDE=null;
 async function rideAnim(kind,dest,toYilan){await fade(1);hideText();const prev=mode;RIDE={k:kind,t0:performance.now(),dest,toY:!!toYilan,T:kind==='hsr'?2200:2800};mode='ride';await fade(0);
   const n=kind==='hsr'?3:kind==='bus'?7:6;for(let i=0;i<n;i++){sfx(kind==='hsr'?'slash':'bump');await wait(RIDE.T/n)}
   await fade(1);RIDE=null;mode=prev==='ride'?'map':prev;mode='map'}
+/* ---- 新遊戲開場：先讓玩家用傳說神龍打一場（其實是一場夢） ---- */
+async function dreamIntro(){newGame('你');G.dream=true;G.party=[makeMon(SPN('玉山蒼龍'),70,'你')];G.party[0].moves=['神龍天降','龍之怒','神速突擊','暴風'];
+  M=MAPS.tamsui;mode='blank';
+  await sayAll(['……','轟隆隆——','玉山主峰，雲海翻騰，雷聲大作。','灰霧幫首領：哼哼……終於等到你了！','把傳說中的玉山蒼龍交出來吧！','（身旁的玉山蒼龍發出低吼——）','按 A 選「戰鬥」，用招式打倒對手！']);
+  const foe=makeMon(SPN('閻王穢土神象'),65,'灰霧幫首領');foe.moves=['象鼻重擊','黃泉象踏','大地震動','落石雨'];
+  await battle([foe],{name:'灰霧幫首領',reward:0,noLose:true,dream:true,win:['灰霧幫首領：怎、怎麼可能……！','這股力量……難道是傳說中的……！']});
+  mode='blank';flash=true;await wait(500);flash=false;
+  await sayAll(['玉山蒼龍朝著天空大吼一聲——','整座山都亮了起來……','……','…………','「起床了——！要遲到囉——！」','咚！','……','……原來是一場夢。','（夢裡那隻龍……好帥喔。）','（要是有一天，真的能遇到牠就好了……）']);
+  G=null;hideText()}
 /* ================= 傳說登場動畫（玉山主峰・蒼龍降臨） ================= */
 let CINE=null;
 const CINE_STARS=[...Array(60)].map((_,i)=>[(i*73)%160,(i*41+i*i*7)%150,(i*13)%5]);
@@ -2220,14 +2229,14 @@ async function doMove(att,def,mvName,side){const mv=MOVES[mvName];const tgt=side
   {const r=recOf(att),q=stPre(r);for(const w of q.out){updHud();await say(`${pre(side)}${nm(att)} ${w}`)}updHud();
    if(q.self){const d=selfHitDmg(att);sfx('hit');B.shake[side]=performance.now()+420;await wait(420);att.hp=Math.max(0,att.hp-d);updHud();await say(`${pre(side)}${nm(att)} 暈到打中了自己！`);return}if(q.stop)return}
   await say(`${pre(side)}${nm(att)} 使出了 ${mvName}！`);
-  if(Math.random()>(mv.acc||0.95)){await say('可是沒有打中！');return}
+  if(!(B.trainer&&B.trainer.dream)&&Math.random()>(mv.acc||0.95)){await say('可是沒有打中！');return}
   await playFx(mvName,side);
   if(STSFX[mv.fx]){const w=stApply(recOf(def),mv.fx,def);updHud();await say(w?`${pre(tgt)}${nm(def)} ${w}`:'沒有效果……');return}
   if(mv.fx==='atkdown'){if(B.stage[tgt].a<=-6){await say('沒有效果……');return}B.stage[tgt].a--;await say(`${pre(tgt)}${nm(def)} 的攻擊力下降了！`);return}
   if(mv.fx==='defup'){if(B.stage[side].d>=6){await say('沒有效果……');return}B.stage[side].d++;await say(`${pre(side)}${nm(att)} 的防禦力提高了！`);return}
   const eff=TYPES_EFF[mv.t]?.[SP[def.sp].t]??1;const stab=mv.t===SP[att.sp].t?1.5:1;const crit=Math.random()<1/16;
   const a=st(att,1)*stageMul(B.stage[side].a),d=st(def,2)*stageMul(B.stage[tgt].d);
-  let dmg=Math.floor(Math.floor((2*att.lv/5+2)*mv.p*a/d)/50)+2;dmg=eff===0?0:Math.max(1,Math.floor(dmg*stab*eff*(crit?1.5:1)*(0.85+Math.random()*.15)));
+  let dmg=Math.floor(Math.floor((2*att.lv/5+2)*mv.p*a/d)/50)+2;dmg=eff===0?0:Math.max(1,Math.floor(dmg*stab*eff*(crit?1.5:1)*(0.85+Math.random()*.15)));if(B.trainer&&B.trainer.dream){dmg=side==='p'?Math.ceil(maxhp(def)/3)+1:Math.max(1,Math.min(Math.floor(maxhp(def)*.12),def.hp-1))}
   sfx('hit');B.shake[tgt]=performance.now()+420;await wait(420);def.hp=Math.max(0,def.hp-dmg);updHud();await wait(450);
   if(crit)await say('擊中要害！');if(eff>1)await say('效果絕佳！');else if(eff===0)await say('好像完全沒有效果……');else if(eff<1)await say('效果不太好……');
   if(mv.ef&&def.hp>0&&Math.random()<(mv.ch||.3)){const w=stApply(recOf(def),mv.ef,def);updHud();if(w)await say(`${pre(tgt)}${nm(def)} ${w}`)}}
@@ -2271,7 +2280,7 @@ async function battle(enemies,trainer){
     else if(act.type==='item'||act.type==='none'){await doMove(foe,me,em,'e')}
     else{const first=spdOf(me)>spdOf(foe)||(spdOf(me)===spdOf(foe)&&Math.random()<.5);
       if(first){await doMove(me,foe,act.m,'p');if(foe.hp>0)await doMove(foe,me,em,'e')}else{await doMove(foe,me,em,'e');if(me.hp>0)await doMove(me,foe,act.m,'p')}}
-    if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);B.fought.add(me);{const ps=[...B.fought].filter(m=>m.hp>0&&G.party.includes(m));for(const p of ps)await gainExp(p,foe,!!trainer,ps.length)}
+    if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);B.fought.add(me);{const ps=[...B.fought].filter(m=>m.hp>0&&G.party.includes(m));if(!(trainer&&trainer.dream))for(const p of ps)await gainExp(p,foe,!!trainer,ps.length)}
       if(trainer&&ei<enemies.length-1){const nx=enemies[ei+1];
         if(me.hp>0&&G.party.some((x,j)=>j!==mi&&x.hp>0)&&await yesNo(`${trainer.name} 準備派出 ${nm(nx)}。\n要換怪獸嗎？`)){const sw=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);
           if(sw>=0){await say(`${nm(me)}，回來！`);B.mehidden=true;updHud();mi=sw;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};await wait(250);B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}}
@@ -2591,6 +2600,7 @@ async function titleFlow(){const ep=EPOCH;const {saved,oldVer,localNewer}=await 
   if(saved&&pick===0&&localNewer){$('titleStatus').textContent='這台裝置上有比較新的進度！要用哪一個？';const c=await choose([`這台（${sumG(localNewer)}）較新`,`雲端（${sumG(saved)}）`],{pos:'list',cancel:false});if(ep!==EPOCH)return;
     G=c===0?localNewer:saved;enterWorld();if(c===0)await saveNow();else saveLocal();return}
   if(saved&&pick===0){G=saved;enterWorld();scheduleSave(500);return}
+  titleEl.hidden=true;await dreamIntro();titleEl.hidden=false;
   const name=await askName();const look=await chooseLook();newGame(name,look);
   titleEl.hidden=true;mode='blank';
   await event(async()=>{await sayAll([`${name}，歡迎來到飽島怪獸的世界！`,'這座島上，住著各式各樣的怪獸。','有的住在山裡，有的住在河邊，也有的住在溫泉旁。','人們和怪獸一起生活、一起工作，也一起冒險。','你住在淡水河邊的小鎮——淡水鎮。','今天，就是你冒險的第一天！']);
