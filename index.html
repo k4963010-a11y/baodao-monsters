@@ -91,6 +91,9 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .xbar i{background:#40a8f0!important;transition:width .7s linear}
 .xbar i.now{transition:none}
 .bar i.mid{background:#f0c030}.bar i.low{background:#e84830}
+.balls{display:flex;gap:calc(var(--u)*1.3);margin-top:calc(var(--u)*1.6)}#pInfo .balls{justify-content:flex-end}
+.balls i{width:calc(var(--u)*4.6);height:calc(var(--u)*4.6);border-radius:50%;background:linear-gradient(#e84040 45%,#202838 45% 55%,#f8f8f8 55%);box-shadow:0 0 0 calc(var(--u)*.6) #202838}
+.balls i.ko{background:linear-gradient(#8a8f9c 45%,#202838 45% 55%,#c8ccd4 55%)}.balls i.no{background:transparent;box-shadow:inset 0 0 0 calc(var(--u)*.6) #9aa0b0}
 .hpt{color:var(--c3);font-size:1.15em;white-space:nowrap}
 #sheet{inset:0;padding:calc(var(--u)*8);z-index:4;overflow:hidden;font-size:calc(var(--u)*7.4)}
 #sheet .top{display:flex;gap:calc(var(--u)*6);align-items:flex-start}
@@ -185,7 +188,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-015921';
+import CONFIG from './firebase-config.js?v=20261107-081754';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -253,8 +256,8 @@ if(auth){
         <div id="boards"></div>
         <div id="mapName" class="box" hidden></div>
         <div id="moneyBox" class="box" hidden></div>
-        <div id="eInfo" class="binfo" hidden><div class="row"><span id="eName"></span><span id="eLv"></span></div><div class="hp">HP<div class="bar"><i id="eHp"></i></div></div></div>
-        <div id="pInfo" class="binfo" hidden><div class="row"><span id="pName"></span><span id="pLv"></span></div><div class="hp">HP<div class="bar"><i id="pHp"></i></div><span class="hpt" id="pHpT"></span></div><div class="xp">EXP<div class="bar xbar"><i id="pXp"></i></div></div></div>
+        <div id="eInfo" class="binfo" hidden><div class="row"><span id="eName"></span><span id="eLv"></span></div><div class="hp">HP<div class="bar"><i id="eHp"></i></div></div><div class="balls" id="eBalls"></div></div>
+        <div id="pInfo" class="binfo" hidden><div class="row"><span id="pName"></span><span id="pLv"></span></div><div class="hp">HP<div class="bar"><i id="pHp"></i></div><span class="hpt" id="pHpT"></span></div><div class="xp">EXP<div class="bar xbar"><i id="pXp"></i></div></div><div class="balls" id="pBalls"></div></div>
         <div id="dlg" class="box" hidden><p id="dlgText"></p><span id="dlgArrow" hidden>▼</span></div>
         <div id="menu" class="box" hidden></div>
         <div id="sheet" class="box" hidden></div>
@@ -319,7 +322,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-015921";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-081754";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1294,6 +1297,7 @@ function frame(now){requestAnimationFrame(frame);boardsEl.hidden=mode!=='map';bo
     drawMap(now)}
   else if(mode==='battle')drawBattle(now);
   else if(mode==='tmap')drawTownMap(now);
+  else if(mode==='ride')drawRide(now);
   else{ctx.fillStyle='#000';ctx.fillRect(0,0,160,144)}
   if(!titleEl.hidden)drawTitle(now)
   if(fadeA>0){ctx.fillStyle=`rgba(0,0,0,${fadeA})`;ctx.fillRect(0,0,160,144)}
@@ -1362,15 +1366,54 @@ async function mrtTalk(here){
     const i=await choose([...opts.map(m=>m[1]),'不搭了'],{pos:'list'});hideText();if(i<0||i===opts.length)return;
     if(G.money<MRT_FARE){await say('錢不夠喔！');return}G.money-=MRT_FARE;moneyOn();sfx('badge');d=opts[i];
     await sayAll(['嗶！刷卡成功。',`往 ${d[1]} 的列車進站了……`])}finally{moneyOff()}
-  await fade(1);for(let k=0;k<3;k++){sfx('bump');await wait(260)}loadMap(d[2]);placePlayer({x:3,y:3,dir:'down'});await fade(0);
+  await rideAnim('mrt',d[1]);loadMap(d[2]);placePlayer({x:3,y:3,dir:'down'});await fade(0);
   await say(`到站了！這裡是 捷運${d[1]}。`);scheduleSave(300)}
+/* ---- 搭車動畫：mrt 捷運、hsr 高鐵（很快）、bus 客運（郊遊） ---- */
+let RIDE=null;
+async function rideAnim(kind,dest,toYilan){await fade(1);hideText();const prev=mode;RIDE={k:kind,t0:performance.now(),dest,toY:!!toYilan,T:kind==='hsr'?2200:2800};mode='ride';await fade(0);
+  const n=kind==='hsr'?3:kind==='bus'?7:6;for(let i=0;i<n;i++){sfx(kind==='hsr'?'slash':'bump');await wait(RIDE.T/n)}
+  await fade(1);RIDE=null;mode=prev==='ride'?'map':prev;mode='map'}
+function drawRide(now){if(!RIDE)return;const c=ctx,t=(now-RIDE.t0)/1000,p=Math.min(1,t*1000/RIDE.T);const R=(x,y,w,h,k)=>{c.fillStyle=k;c.fillRect(Math.round(x),Math.round(y),w,h)};
+  const loop=(sp,w)=>-((t*sp)%w);const H=i=>((i*2654435761)>>>0)%1000/1000;
+  if(RIDE.k==='mrt'){const g=c.createLinearGradient(0,0,0,144);g.addColorStop(0,'#5a9ae8');g.addColorStop(1,'#bfe0f8');c.fillStyle=g;c.fillRect(0,0,160,144);
+    for(let k=0;k<2;k++){const sp=k?90:30,col=k?'#4a5c7c':'#8ea4c4',o=loop(sp,320);for(let i=0;i<24;i++){const x=o+i*20,h=(k?30:45)+H(i+k*40)*(k?40:35);R(x,104-h,18,h,col);if(k)for(let wy=104-h+4;wy<100;wy+=7)R(x+4,wy,3,3,'#f8e888'),R(x+11,wy,3,3,'#f8e888')}}
+    if(p<.6){const x=200-t*40;R(x+6,10,6,94,'#3a8a82');R(x,40,18,64,'#2e7a72');R(x+8,2,2,10,'#c8d8e8')}
+    R(0,104,160,8,'#8890a0');R(0,104,160,2,'#c0c8d4');const po=loop(160,40);for(let i=0;i<6;i++)R(po+i*40,112,8,32,'#6a7080');
+    const by=Math.sin(t*22)*.6;for(let car=0;car<3;car++){const x=8+car*50,y=80+by;R(x,y,46,22,'#f4f4f4');R(x,y,46,2,'#d0d0d8');R(x,y+14,46,3,'#d83838');for(let w=0;w<4;w++)R(x+4+w*11,y+5,7,7,'#2a3a5a');R(x+3,y+22,10,3,'#303038');R(x+33,y+22,10,3,'#303038')}
+    R(155,82+by,5,18,'#f4f4f4');R(156,84+by,3,6,'#2a3a5a')}
+  else if(RIDE.k==='hsr'){const g=c.createLinearGradient(0,0,0,144);g.addColorStop(0,'#78b8f0');g.addColorStop(1,'#e0f0ff');c.fillStyle=g;c.fillRect(0,0,160,144);
+    const mo=loop(80,160);for(let i=0;i<3;i++){c.fillStyle='#6a9a78';c.beginPath();c.moveTo(mo+i*160,90);c.lineTo(mo+i*160+50,40);c.lineTo(mo+i*160+110,90);c.fill()}
+    R(0,90,160,30,'#8ac860');const fo=loop(500,32);for(let i=0;i<7;i++)R(fo+i*32,94,20,2,'#6aa848');
+    const tp=loop(900,90);for(let i=0;i<3;i++){R(tp+i*90,50,3,60,'#5a4a3a');R(tp+i*90-6,52,15,2,'#5a4a3a')}
+    c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=1;for(let i=0;i<14;i++){const y=20+H(i)*110,len=20+H(i+9)*40,x=160-((t*700+H(i+3)*400)%260);c.beginPath();c.moveTo(x,y);c.lineTo(x+len,y);c.stroke()}
+    const sh=Math.round((Math.random()-.5)*1.2);R(0,118,160,6,'#9098a8');
+    const y=96+sh;R(0,y,124,20,'#f8f8f8');R(0,y+8,124,3,'#f08030');R(0,y+3,124,4,'#303848');for(let w=0;w<8;w++)R(4+w*15,y+3,10,4,'#5878a8');
+    c.fillStyle='#f8f8f8';c.beginPath();c.moveTo(124,y);c.quadraticCurveTo(158,y+6,158,y+18);c.lineTo(124,y+20);c.fill();c.fillStyle='#f08030';c.fillRect(124,y+8,22,3);c.fillStyle='#303848';c.beginPath();c.moveTo(126,y+3);c.lineTo(142,y+4);c.lineTo(126,y+7);c.fill();
+    c.strokeStyle='rgba(255,255,255,.9)';for(let i=0;i<5;i++){c.beginPath();c.moveTo(0,y+2+i*4);c.lineTo(-30+((t*300)%20),y+2+i*4);c.stroke()}}
+  else{const g=c.createLinearGradient(0,0,0,144);g.addColorStop(0,'#58a8f0');g.addColorStop(1,'#c8e8ff');c.fillStyle=g;c.fillRect(0,0,160,144);
+    c.fillStyle='#ffe060';c.beginPath();c.arc(132,22,10,0,7);c.fill();for(let i=0;i<8;i++){const a=i*Math.PI/4+t;R(132+Math.cos(a)*15-1,22+Math.sin(a)*15-1,2,2,'#ffe060')}
+    const cl=loop(15,200);for(let i=0;i<2;i++){c.fillStyle='#ffffff';[[0,0,9],[9,-4,10],[19,0,8]].forEach(([dx,dy,r])=>{c.beginPath();c.arc(cl+i*100+30+dx,30+dy,r,0,7);c.fill()})}
+    const stage=RIDE.toY?(p<.35?0:p<.6?1:2):(p<.35?2:p<.6?1:3);
+    if(stage===1){R(0,0,160,144,'#26262e');R(0,66,160,10,'#3a3a44');const lo=loop(260,40);for(let i=0;i<6;i++){R(lo+i*40,70,10,3,'#f8c050');c.fillStyle='rgba(248,192,80,.18)';c.fillRect(lo+i*40-6,62,22,12)}}
+    else if(stage===0){const ho=loop(40,160);for(let i=0;i<3;i++){c.fillStyle='#4a9a48';c.beginPath();c.ellipse(ho+i*160+60,100,80,40,0,Math.PI,0);c.fill()}
+      const to=loop(110,36);for(let i=0;i<6;i++){const x=to+i*36;R(x+5,86,4,14,'#7a4a28');c.fillStyle='#2f8a38';c.beginPath();c.arc(x+7,82,8,0,7);c.fill()}R(0,100,160,10,'#78c050')}
+    else if(stage===2){R(0,70,160,30,'#3a80d0');R(0,70,160,2,'#a8d8f8');c.fillStyle='#4a9a48';c.beginPath();c.moveTo(92,72);c.quadraticCurveTo(112,54,128,64);c.quadraticCurveTo(138,62,142,72);c.fill();R(118,52,2,6,'#e8f0f0');
+      R(0,90,160,20,'#98d060');const fo=loop(110,16);for(let i=0;i<12;i++){R(fo+i*16,92,2,16,'#c8b040');R(fo+i*16+8,92,2,16,'#78b040')}}
+    else{const bo=loop(50,40);for(let i=0;i<6;i++){const h=20+H(i)*30;R(bo+i*40,100-h,30,h,'#8ea4c4')}R(70,30,8,70,'#3a8a82');R(0,100,160,10,'#78c050')}
+    R(0,108,160,36,'#707480');const ro=loop(150,32);for(let i=0;i<7;i++)R(ro+i*32,124,16,2,'#f8f0c0');
+    const by=Math.abs(Math.sin(t*9))*-2.5,x=36,y=78+by;R(x,y,88,30,'#f0c030');R(x,y,88,3,'#f8e070');R(x,y+20,88,4,'#38a060');R(x+80,y+4,8,14,'#a8d8f8');
+    for(let w=0;w<5;w++){R(x+5+w*15,y+5,12,11,'#a8d8f8');R(x+9+w*15,y+9+(w%2?0:1),5,5,['#f8c8a0','#e8b890','#f8d0b0'][w%3]);R(x+9+w*15,y+8,5,2,['#3a2818','#f06080','#2878d8'][w%3])}
+    for(const wx of [x+16,x+68]){c.fillStyle='#202028';c.beginPath();c.arc(wx,y+31,6,0,7);c.fill();c.fillStyle='#a8a8b0';c.beginPath();c.arc(wx,y+31,2.5,0,7);c.fill();const a=t*12;R(wx+Math.cos(a)*4-1,y+31+Math.sin(a)*4-1,2,2,'#e8e8f0')}
+    c.font='10px DotGothic16,sans-serif';c.textBaseline='top';for(let i=0;i<4;i++){const q=((t*.8+i*.27)%1);c.fillStyle=`rgba(255,255,255,${1-q})`;c.fillText(i%2?'♪':'♫',x+10+i*20-q*22,y-6-q*30)}}
+  const label=RIDE.k==='mrt'?'捷運 淡水信義線':RIDE.k==='hsr'?'台灣高鐵':'國道客運';c.font='10px DotGothic16,sans-serif';c.textBaseline='top';const tw=c.measureText(label+'　往 '+RIDE.dest).width+10;
+  c.fillStyle='rgba(20,26,42,.78)';c.fillRect(4,4,tw,15);c.fillStyle='#ffffff';c.fillText(label+'　往 '+RIDE.dest,9,6)}
 const BUS=[['xinyi','台北101客運站','busst'],['yilan','宜蘭轉運站','ylst']],BUS_FARE=120;
 async function busTalk(here){
   if(!G.flags.yilan){await sayAll(['售票小姐：往宜蘭的客運要經過雪山隧道。','可是隧道裡現在都是灰霧，客運停駛中……','要先自己走到宜蘭一次，客運才會開通喔！']);return}
   const d=BUS.find(b=>b[0]!==here);let ok=false;
   try{moneyOn();showText(`售票小姐：國道客運，經雪山隧道往 ${d[1]}。\n一趟 ${BUS_FARE} 元，要搭嗎？`);const i=await choose(['搭客運','不搭了'],{pos:'list'});hideText();if(i!==0)return;
     if(G.money<BUS_FARE){await say('錢不夠喔！');return}G.money-=BUS_FARE;moneyOn();sfx('badge');ok=true;await sayAll(['嗶！刷卡成功。','客運開進了長長的雪山隧道……'])}finally{moneyOff()}
-  if(!ok)return;await fade(1);for(let k=0;k<4;k++){sfx('bump');await wait(300)}loadMap(d[2]);placePlayer({x:3,y:3,dir:'down'});await fade(0);
+  if(!ok)return;await rideAnim('bus',d[1],d[0]==='yilan');loadMap(d[2]);placePlayer({x:3,y:3,dir:'down'});await fade(0);
   await say(`到站了！這裡是 ${d[1]}。`);scheduleSave(300)}
 /* ---- 釣魚（釣竿）/ 搖樹（園丁伯伯教的） ---- */
 const FISH_T=[[13,45],[7,30],[23,15],[24,.362],[52,.0905]],TREE_T=[[36,50],[37,40],[6,10],[21,.402],[53,.1006]];
@@ -1666,7 +1709,8 @@ async function shop(){const L=[['ball','捉捉球',100,'抓怪獸用'],['potion'
 /* ================= battle ================= */
 let B=null;const eInfo=$('eInfo'),pInfo=$('pInfo');
 function setBar(elm,r){elm.style.width=(r*100)+'%';elm.className=r<.2?'low':r<.5?'mid':''}
-function updHud(){if(!B)return;const e=B.enemy,m=B.me;
+function ballRow(id,team){const el=$(id);if(!el)return;if(!team){el.hidden=true;return}el.hidden=false;const k=team.map(x=>x.hp>0?'':'ko').join();if(el.dataset.k===k)return;el.dataset.k=k;el.replaceChildren();for(let i=0;i<6;i++){const b=document.createElement('i');b.className=i<team.length?(team[i].hp>0?'':'ko'):'no';el.append(b)}}
+function updHud(){if(!B)return;const e=B.enemy,m=B.me;ballRow('eBalls',B.eTeam);ballRow('pBalls',B.pTeam);
   if(e){$('eName').textContent=nm(e);$('eLv').textContent='Lv'+e.lv+tagOf(e);setBar($('eHp'),e.hp/maxhp(e))}
   if(m){$('pName').textContent=nm(m);$('pLv').textContent='Lv'+m.lv+tagOf(m);setBar($('pHp'),m.hp/maxhp(m));$('pHpT').textContent=`${m.hp} / ${maxhp(m)}`;if(B.xpLock!==m){B.xpLock=m;setXp(xpRatio(m),true)}}
   eInfo.hidden=!e||B.eGone;pInfo.hidden=!m||B.mehidden}
@@ -1814,7 +1858,7 @@ async function throwBall(foe,k='ball'){k=BALLS[k]?k:'ball';G.items[k]--;sfx('bal
   B.ball=null;B.ehidden=false;await say(['哎呀！跑出來了！','差一點點就抓到了！','可惡！只差一點！'][Math.min(2,shakes)]);return false}
 async function transition(){for(let i=0;i<3;i++){fadeA=1;await wait(80);fadeA=0;await wait(80)}}
 async function battle(enemies,trainer){
-  await transition();mode='battle';updatePresence();$('moneyBox').hidden=true;music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer};
+  await transition();mode='battle';updatePresence();$('moneyBox').hidden=true;music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer,eTeam:trainer?enemies:null,pTeam:G.party};
   markSeen(B.enemy.sp);let ei=0,mi=G.party.findIndex(m=>m.hp>0);let me=G.party[mi],foe=B.enemy;B.me=me;B.fought=new Set([me]);updHud();
   if(trainer){await say(`${trainer.name} 想要對戰！`);await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else{await say(`野生的 ${nm(foe)} 跳出來了！`);if(RARE_NEXT){RARE_NEXT=false;B.rare=true;sfx('lvl');for(let i=0;i<3;i++){fadeA=.55;await wait(70);fadeA=0;await wait(70)}await playFx('變硬','e');await playFx('變硬','e');await say(`★ 哇！閃閃發光的稀有怪獸！ ★`)}}
   B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`);let result=null;
@@ -1851,7 +1895,7 @@ async function battle(enemies,trainer){
 const DUEL=()=>room&&room.duel;let PV=null;const mailbox=[];let mbWait=null;let duelInit=false;
 function initDuel(){if(duelInit||!DUEL())return;duelInit=true;DUEL().on(m=>{
   if(!m||typeof m!=='object'||typeof m.from!=='string')return;
-  if(['invite','trade','gift','giveitem'].includes(m.type)){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>m.type==='trade'?gotTrade(m):m.type==='gift'?gotGift(m):m.type==='giveitem'?gotItem(m):gotInvite(m));return}
+  if(['invite','trade','gift','giveitem','show'].includes(m.type)){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>m.type==='show'?gotShow(m):m.type==='trade'?gotTrade(m):m.type==='gift'?gotGift(m):m.type==='giveitem'?gotItem(m):gotInvite(m));return}
   mailbox.push(m);if(mbWait)mbWait()})}
 function waitMsg(pred,ms){return new Promise(res=>{const t0=Date.now();const chk=()=>{const i=mailbox.findIndex(pred);if(i>=0){const m=mailbox.splice(i,1)[0];mbWait=null;clearInterval(iv);res(m);return}if(Date.now()-t0>ms){mbWait=null;clearInterval(iv);res(null)}};mbWait=chk;const iv=setInterval(chk,500);chk()})}
 const snapTeam=()=>G.party.slice(0,6).map(m=>({sp:m.sp,lv:m.lv,moves:m.moves.slice(0,4),id:m.id}));
@@ -1859,7 +1903,8 @@ const teamOf=arr=>(Array.isArray(arr)?arr:[]).slice(0,6).map(sanMon).filter(Bool
 async function peerTalk(pe){
   if(!DUEL()){await say(`${pe.name}：嗨！（真人對戰請到網站版玩喔）`);return}
   if(pe.fight){await say(`${pe.name} 正在對戰中，等一下再來吧！`);return}
-  showText(`要跟 ${pe.name} 做什麼？`);const c=await choose(['對戰','交換寶貝','給予寶貝','給予道具','算了'],{pos:'list'});hideText();
+  showText(`要跟 ${pe.name} 做什麼？`);const c=await choose(['對戰','交換寶貝','給予寶貝','給予道具','展示寶貝','算了'],{pos:'list'});hideText();
+  if(c===4){await showOffer(pe);return}
   if(c===1){await tradeOffer(pe);return}if(c===2){await giftOffer(pe);return}if(c===3){await itemOffer(pe);return}if(c!==0)return;
   if(!G.party.some(m=>m.hp>0)){await say('你的怪獸都沒有力氣了，先去休息吧！');return}
   const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
@@ -1871,6 +1916,18 @@ async function peerTalk(pe){
   const opp=teamOf(r.team);if(!opp.length){await say('對方沒有可以戰鬥的怪獸。');return}
   await pvpBattle(true,pe.id,pe.name,opp,id)}
 
+async function showOffer(pe){
+  const i=await pickMine(`要給 ${pe.name} 看哪一隻？`);if(i<0)return;const mine=G.party[i];
+  const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
+  DUEL().send(pe.id,{type:'show',id,name:G.name,mon:JSON.parse(JSON.stringify(mine))});showText(`把 ${nm(mine)} 秀給 ${pe.name} 看……`);
+  const r=await waitMsg(m=>m.id===id&&m.from===pe.id&&['showok','busy','decline'].includes(m.type),30000);hideText();
+  if(!r){await say(`${pe.name} 好像沒看到。`);return}
+  if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return}
+  await say(`${pe.name}：哇！你的 ${nm(mine)} 好帥！`)}
+async function gotShow(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);
+  if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');if(m.mon&&m.mon.rare)theirs.rare=1;
+  await say(`${nm2} 拿出了 ${monTxt(theirs)} 給你看！`);markSeen(theirs.sp);await monSheet(theirs);
+  DUEL().send(m.from,{type:'showok',id:m.id});scheduleSave()}
 async function pickMine(prompt){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list'});hideText();return i}
 const monTxt=m=>`${nm(m)} Lv${m.lv}`;
 async function tradeOffer(pe){
@@ -1969,7 +2026,7 @@ async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){
   const me=isHost?'h':'g',op=isHost?'g':'h';const S={t:{[me]:myTeam,[op]:oppTeam},a:{h:0,g:0},st:{h:{a:0,d:0},g:{a:0,d:0}}};
   const vis=s=>s===me?'p':'e';const cur=s=>S.t[s][S.a[s]];
   PV={id,opp:oppUid};await transition();mode='battle';updatePresence();$('moneyBox').hidden=true;music('boss');$('mapName').hidden=true;
-  B={enemy:cur(op),me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer:{name:oppName}};updHud();
+  B={enemy:cur(op),me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer:{name:oppName},eTeam:S.t[op],pTeam:S.t[me]};updHud();
   await say(`和 ${oppName} 的真人對戰開始！`);await say(`${oppName} 派出了 ${nm(cur(op))}！`);B.me=cur(me);B.mehidden=false;updHud();await say(`去吧！${nm(cur(me))}！`);
   let turn=0,result=null;
   const play=async ev=>{for(const e of ev){
