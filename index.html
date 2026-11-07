@@ -191,7 +191,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-095554';
+import CONFIG from './firebase-config.js?v=20261107-102104';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -332,7 +332,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-095554";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-102104";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -962,23 +962,33 @@ const MAPS={
  teahouse:{name:'坪林茶行',out:' ',rows:['WWNWWNWW','kkfffPkk','ffffffff','CCCfffff','ffffffff','ffffffff','fffmmfff'],warps:[[3,6,'route5',17,8,'down'],[4,6,'route5',17,8,'down']],
   npcs:[{id:'teaman',x:1,y:2,dir:'down',look:'oldman',talk:async()=>{if(!G.flags.tea){await sayAll(['茶行阿伯：來來來，喝杯包種茶！','要進雪山隧道啊？裡面很長，帶點傷藥去。']);G.items.potion=(G.items.potion|0)+3;G.flags.tea=true;sfx('catch');await say(`${G.name} 得到了 傷藥×3！`);scheduleSave(200)}else await say('茶行阿伯：坪林的茶，喝了精神好！')}},
    {id:'teakid',x:6,y:4,dir:'left',look:'kid',lines:['我家的茶園裡住著好多包種蛙！','晚上牠們會一起「咕嚕咕嚕」地叫。']}]},
- tunnel1:{name:'雪山隧道 西段',out:'X',cave:true,dark:true,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','aaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaa','IIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIIIVVIIIIIII','aaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaa','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XaaaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaa','XIIIIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaa','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
-  warps:[[0,1,'route5',41,9,'left'],[0,2,'route5',41,9,'left'],[0,3,'route5',41,10,'left'],[45,7,'tunnel2',1,8,'right'],[45,8,'tunnel2',1,8,'right'],[45,9,'tunnel2',1,8,'right']],zone:()=>'tunnel',
+ tunnel1:{name:'雪山隧道 第1段',out:'X',cave:true,dark:1,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','aaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaa','IIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIIIVVIIIIIII','aaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaa','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XXXXXXXXXxxXXXXXXxxXxxXXXXXXXXXXxxXXXXXXXXXXXX','XaaaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaa','XIIIIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaa','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
+  warps:[[0,1,'route5',41,9,'left'],[0,2,'route5',41,9,'left'],[0,3,'route5',41,10,'left'],[45,7,'tunnelA',1,8,'right'],[45,8,'tunnelA',1,8,'right'],[45,9,'tunnelA',1,8,'right']],zone:()=>'tunnel',
   items:[{id:'tn1a',x:1,y:9,item:'potion',n:2},{id:'tn1b',x:35,y:1,item:'ball2',n:2}],
   npcs:[{id:'tn1t1',x:18,y:1,dir:'down',look:'clerk',sight:2,trainer:{name:'隧道工程師 阿勇',party:[[63,24],[31,24]],reward:760,intro:['我在這裡顧隧道顧了二十年！'],win:['安全帽歪掉了……'],post:['車子被灰霧幫丟得到處都是，要從避難通道繞過去。']}},
    {id:'tn1t2',x:40,y:7,dir:'down',look:'grunt',sight:2,trainer:{name:'灰霧幫 手下',party:[[65,24],[27,24]],reward:760,intro:['灰霧要灌滿整條隧道！你過不去的！'],win:['咳咳……自己被灰霧嗆到了……'],post:['老大在隧道東段等你。']}}]},
- tunnel2:{name:'雪山隧道 中段',out:'X',cave:true,dark:true,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','XaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaa','XIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaa','XXXXXXXXxxXXXXXXXxxXXXXXXXqqqXXqqqXXXXxxXXXXXX','XXXXXXXXxxXXXXXXXxxXXXXXXXqqqqqqqqXXXXxxXXXXXX','XXXXXXXXxxXXXXXXXxxXXXXXXXXXqqqqqqXXXXxxXXXXXX','aaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','IIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIX','aaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
-  warps:[[0,7,'tunnel1',44,8,'left'],[0,8,'tunnel1',44,8,'left'],[0,9,'tunnel1',44,8,'left'],[45,1,'tunnel3',1,2,'right'],[45,2,'tunnel3',1,2,'right'],[45,3,'tunnel3',1,2,'right']],zone:()=>'tunnel',
+ tunnel2:{name:'雪山隧道 第3段（管理站）',out:'X',cave:true,dark:3,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','XaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaa','XIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaa','XXXXXXXXxxXXXXXXXxxXXXXXXXqqqXXqqqXXXXxxXXXXXX','XXXXXXXXxxXXXXXXXxxXXXXXXXqqqqqqqqXXXXxxXXXXXX','XXXXXXXXxxXXXXXXXxxXXXXXXXXXqqqqqqXXXXxxXXXXXX','aaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','IIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIX','aaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
+  warps:[[0,7,'tunnelA',44,8,'left'],[0,8,'tunnelA',44,8,'left'],[0,9,'tunnelA',44,8,'left'],[45,1,'tunnelB',1,2,'right'],[45,2,'tunnelB',1,2,'right'],[45,3,'tunnelB',1,2,'right']],zone:()=>'tunnel',
   items:[{id:'tn2a',x:1,y:1,item:'soy',n:2},{id:'tn2b',x:44,y:9,item:'ball2',n:2}],
   npcs:[{id:'tnstaff',x:30,y:5,dir:'down',look:'nurse',talk:tunnelStaff},
    {id:'tn2t1',x:12,y:1,dir:'down',look:'grunt',sight:2,trainer:{name:'灰霧幫 手下',party:[[38,25],[63,25]],reward:780,intro:['嘿嘿，這裡伸手不見五指！'],win:['我、我看不到路了……'],post:['前面有個管理站，裡面的護理師會幫怪獸治療。']}},
    {id:'tn2t2',x:36,y:3,dir:'up',look:'youth',sight:2,trainer:{name:'夜班警察 阿正',party:[[10,25],[29,25]],reward:800,intro:['站住！……喔，你不是灰霧幫？','那就來練習一下吧！'],win:['好身手！'],post:['灰霧幫的幹部「黑霧」就在東段出口。']}}]},
- tunnel3:{name:'雪山隧道 東段',out:'X',cave:true,dark:true,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','aaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','IIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIX','aaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaVVVaVVX','XIIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaVVVaVVX','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
-  warps:[[0,1,'tunnel2',44,2,'left'],[0,2,'tunnel2',44,2,'left'],[0,3,'tunnel2',44,2,'left'],[45,8,'toucheng',2,6,'right']],zone:()=>'tunnel',
+ tunnel3:{name:'雪山隧道 第5段',out:'X',cave:true,dark:5,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','aaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','IIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIX','aaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XXXXXXXxxXXXXXXXXXxxXXXXXXXXXxxXXXXXXXXXXXXXXX','XaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaVVVaVVX','XIIIIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIIII','XaaaaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaVVVaVVX','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
+  warps:[[0,1,'tunnelB',44,2,'left'],[0,2,'tunnelB',44,2,'left'],[0,3,'tunnelB',44,2,'left'],[45,8,'toucheng',2,6,'right']],zone:()=>'tunnel',
   items:[{id:'tn3a',x:1,y:9,item:'ball3',n:1},{id:'tn3b',x:13,y:3,item:'rice',n:2}],
   npcs:[{id:'tn3t1',x:15,y:9,dir:'up',look:'grunt',sight:2,trainer:{name:'灰霧幫 手下',party:[[65,26],[28,25]],reward:800,intro:['不准再往前走！'],win:['黑霧大人，對不起……'],post:[]}},
    {id:'tn3t2',x:26,y:1,dir:'down',look:'clerk',sight:2,trainer:{name:'隧道工程師 阿德',party:[[64,26]],reward:820,intro:['我的隧道鑽王，可是把山鑽穿的大功臣！'],win:['鑽頭斷了……'],post:['出口就在前面了，聽說有很兇的灰霧幫幹部。']}},
-   {id:'tnboss',x:42,y:7,dir:'down',look:'grunt',sight:1,trainer:{name:'灰霧幫幹部 黑霧',party:[[28,27],[65,27],[63,28]],reward:1500,intro:['哼……就是你一路壞我們好事？','灰霧幫要用灰霧封住雪山隧道，讓宜蘭變成我們的地盤！','想過去？先打倒我！'],win:['怎麼可能……灰霧散掉了……'],post:['哼，這次算你贏。','老大已經坐船去龜山島了，你永遠追不上的！']}}]},
+   {id:'tnboss',x:42,y:7,dir:'down',look:'grunt',sight:1,trainer:{name:'灰霧幫幹部 黑霧',party:[[28,27],[65,27],[63,28]],reward:1500,intro:['哼……就是你一路壞我們好事？','灰霧幫要用灰霧封住雪山隧道，讓宜蘭變成我們的地盤！','想過去？先打倒我！'],win:['怎麼可能……灰霧散掉了……'],post:['哼，這次算你贏。','老大已經往花蓮去了，蘇花公路那麼危險，你追不上的！']}}]},
+ tunnelA:{name:'雪山隧道 第2段',out:'X',cave:true,dark:2,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','XaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaX','XIIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIVVIIIX','XaaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaX','XXXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXX','XXXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXX','XXXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXX','aaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaa','IIIIIIIIIIVVIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIII','aaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaa','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
+  warps:[[0,7,'tunnel1',44,8,'left'],[0,8,'tunnel1',44,8,'left'],[0,9,'tunnel1',44,8,'left'],[45,7,'tunnel2',1,8,'right'],[45,8,'tunnel2',1,8,'right'],[45,9,'tunnel2',1,8,'right']],zone:()=>'tunnel',
+  items:[{id:'tnAa',x:44,y:1,item:'potion',n:2},{id:'tnAb',x:1,y:9,item:'ball2',n:2}],
+  npcs:[{id:'tnAt1',x:11,y:1,dir:'down',look:'grunt',sight:2,trainer:{name:'灰霧幫 手下',party:[[63,24],[38,24]],reward:770,intro:['車子都是我們推過來擋路的！嘿嘿！'],win:['車子擋得住你，我擋不住……'],post:['走避難通道繞過車子吧，反正你也只能這樣。']}},
+   {id:'tnAt2',x:20,y:9,dir:'up',look:'clerk',sight:2,trainer:{name:'隧道清潔員 阿芬',party:[[65,24],[31,24]],reward:760,intro:['隧道裡都是灰霧，我掃都掃不完！'],win:['掃把斷了……'],post:['越往裡面燈越暗，要跟緊路邊的反光標喔。']}}]},
+ tunnelB:{name:'雪山隧道 第4段',out:'X',cave:true,dark:4,rows:['BB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5BBBBBBBBBBBBB5B','aaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaa','IIIIIIIIIVVIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIII','aaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaa','XXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXXX','XXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXXX','XXXXXxxXXXXXXXxxXXXXXXXXxxXXXXXXXXxxXXXXXXXXXX','XaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaX','XIIIIIIIIIIIIIIIIIIVVIIIIIIIIIIIIIIIIIIVVIIIIX','XaaaaaaaaaaaaaaaaaaVVaaaaaaaaaaaaaaaaaaVVaaaaX','BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'],
+  warps:[[0,1,'tunnel2',44,2,'left'],[0,2,'tunnel2',44,2,'left'],[0,3,'tunnel2',44,2,'left'],[45,1,'tunnel3',1,2,'right'],[45,2,'tunnel3',1,2,'right'],[45,3,'tunnel3',1,2,'right']],zone:()=>'tunnel',
+  items:[{id:'tnBa',x:44,y:9,item:'ball3',n:1},{id:'tnBb',x:21,y:1,item:'soy',n:2}],
+  npcs:[{id:'tnBt1',x:10,y:7,dir:'down',look:'grunt',sight:2,trainer:{name:'灰霧幫 手下',party:[[65,25],[27,25]],reward:790,intro:['燈都被我們弄暗了，你看得到我嗎？'],win:['原來你看得到……'],post:['再過去就是黑霧大人守的最後一段。']}},
+   {id:'tnBt2',x:19,y:3,dir:'up',look:'youth',sight:2,trainer:{name:'隧道巡邏員 阿光',party:[[64,26]],reward:820,intro:['巡邏中！先跟我打一場確認你不是灰霧幫！'],win:['好，你通過檢查了。'],post:['最後一段幾乎全黑，小心腳下。']}}]},
  toucheng:{name:'頭城',out:'T',rows:['TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT','TT.........................===~~~~~~','TT..rrrrr.ooooo...yyyyy....===~~~~~~','TT..rrrrr.ooooo...yyyyy....===~~~~~~','BB..wnDnw.wnDnw...wnDnw....===~~~~~~','BBS...=.....=...S...=......===~~~~~~','aa============================~~~~~~','BB============================~~~~~~','BB............==..........S===~~~~~~','BB............==...........===~~~~~~','TT..ppppp.....==....T......===~~~~~~','TT..ppppp.....==...........===~~~~~~','TT..wnDnw.....==..FFFFFFF..===~~~~~~','TT....=.......==..FFFFFFF..===~~~~~~','TT............==..FFFFFFF..===~~~~~~','TT.......T....==..FFFFFFF..===~~~~~~','TT.,,,,,,,,...==......T....===~~~~~~','TT.,,,,,,,,...==...........===~~~~~~','TT.,,,,,,,,...==...........===~~~~~~','TT.,,,,,,,,...==...........===~~~~~~','TT...T........==...........===~~~~~~','TT............==........T..===~~~~~~','TT........T...==...........===~~~~~~','TT............==...T.......===~~~~~~','TT............==...........===~~~~~~','TTTTTTTTTTTTTT==TTTTTTTTTTTTTTTTTTTT'],
   warps:[[0,6,'tunnel3',44,8,'left'],[14,25,'route6',14,1,'down'],[15,25,'route6',15,1,'down'],[6,4,'center4',4,6,'up'],[12,4,'shop4',3,5,'up'],[20,4,'thouse1',3,5,'up'],[6,12,'thouse2',3,5,'up']],
   boards:[[6,1.4,'寶貝中心','red'],[12,1.4,'頭城雜貨店','wood'],[20,1.4,'民家','wood'],[6,9.4,'民家','wood']],
@@ -988,7 +998,7 @@ const MAPS={
   items:[{id:'tc1',x:29,y:24,item:'ball3',n:1}],
   npcs:[{id:'tcfish',x:28,y:10,dir:'right',look:'fisher',lines:['在這裡釣魚，偶爾會釣到背著小島的海龜喔！','聽說那是龜山島的守護神的孩子……']},
    {id:'tckid',x:16,y:9,dir:'down',look:'kid',lines:['我們頭城有「搶孤」！','大家爬上好高好高的柱子搶東西，超刺激的！']},
-   {id:'tcold',x:24,y:8,dir:'left',look:'oldman',lines:['剛剛有一群穿灰衣服的人，','跑到海邊租了船，往龜山島開過去了……']}]},
+   {id:'tcold',x:24,y:8,dir:'left',look:'oldman',lines:['剛剛有一群穿灰衣服的人，','往南邊的蘇花公路開過去了……']}]},
  center4:{name:'頭城寶貝中心',out:' ',rows:['WWWNWWNWWW','PffffffPcf','CCCCCCffff','ffffffffff','ffffffffff','jjffffffjj','tffffffffP','ffffmmffff'],warps:[[4,7,'toucheng',6,5,'down'],[5,7,'toucheng',6,5,'down']],inspect:{'8,1':()=>pcMenu(true)},
   npcs:[{id:'nurse4',x:2,y:1,dir:'down',look:'nurse',talk:nurseTalk}]},
  shop4:{name:'頭城雜貨店',out:' ',rows:['WWNWWNWW','ffkkkkkk','CCffffff','ffffkkff','ffffffff','ffffffff','fffmmfff'],warps:[[3,6,'toucheng',12,5,'down'],[4,6,'toucheng',12,5,'down']],
@@ -1006,7 +1016,7 @@ const MAPS={
    {id:'r6t1',x:12,y:6,dir:'right',look:'oldman',sight:3,trainer:{name:'農夫 阿土伯',party:[[66,25],[13,25]],reward:800,intro:['我的田裡有好多稻浪鴨，牠們會幫忙吃蟲！'],win:['哎呀，該去巡田水了。'],post:['宜蘭的米，是用雪山上流下來的水種的。']}},
    {id:'r6t2',x:17,y:22,dir:'left',look:'girl',sight:3,trainer:{name:'泡湯少女 小溫',party:[[61,26],[71,25]],reward:820,intro:['泡完溫泉，精神超好！來對戰吧！'],win:['又要回去泡一次了……'],post:['溫泉旅館的老闆娘會幫怪獸泡湯喔。']}},
    {id:'r6t3',x:13,y:30,dir:'right',look:'kid',sight:3,trainer:{name:'鐵馬少年 阿騎',party:[[3,25],[70,26]],reward:800,intro:['我騎腳踏車繞了整個蘭陽平原！'],win:['腳軟了……'],post:['蔥尾鼬跑超快，我都追不上。']}},
-   {id:'r6t4',x:16,y:37,dir:'left',look:'grunt',sight:3,trainer:{name:'灰霧幫 手下',party:[[65,26],[38,26]],reward:820,intro:['黑霧大人輸了？不可能！'],win:['我要去龜山島找老大……'],post:['宜蘭的道館館主阿蘭，是唯一能游到龜山島的人……']}}]},
+   {id:'r6t4',x:16,y:37,dir:'left',look:'grunt',sight:3,trainer:{name:'灰霧幫 手下',party:[[65,26],[38,26]],reward:820,intro:['黑霧大人輸了？不可能！'],win:['我要去花蓮找老大……'],post:['宜蘭的道館館主阿蘭，游泳比魚還快……']}}]},
  spa:{name:'礁溪溫泉旅館',out:' ',rows:['WWNWWNWW','QQQffQQQ','QQQffQQQ','ffffffff','CCCfffff','ffffffff','fffmmfff'],warps:[[3,6,'route6',22,20,'down'],[4,6,'route6',22,20,'down']],
   npcs:[{id:'spalady',x:1,y:3,dir:'down',look:'woman',talk:spaTalk}]},
  yilan:{name:'宜蘭市',out:'T',rows:['TTTTTTTTTTTTTTTTTTTTT==TTTTTTTTTTTTTTTTTTTTT','T....................==....bbbbbbbbbb......T','T..rrrrr..bbbbbb.....==....bbbbbbbbbb......T','T..rrrrr..bbbbbb.....==....bbbbbbbbbb......T','T..wnDnw..wnwDnw.....==....wnwnDDnwnw......T','T....=.......=.......==........==..........T','T....=.......=.......==........==..........T','T....=.......=.......==........==..........T','T....=.......=...F...==........==..........T','T....=.......=.......==........==..........T','T....=.......=.......==........==.....F....T','T....=.......=.......==........==..........T','T....=.......=.......==........==..........T','T....=.......=.......==..S.....==.S........T','T==========================================T','T==========================================T','T....................==.....=.......=......T','T..................S.==.....=.......=......T','T.,,,,,,,,,,,,,,,,,..==...yyyyy...ppppp....T','T.,,,,,,,,,,,,,,,,,..==...yyyyy...ppppp....T','T.,,T,,,,,,,,,,,,,,..==...wnDnw...wnDnw....T','T.,,,,,,,,,,,,,T,,,..==....................T','T.,,,,,,~~~~~,,,,,,..==....................T','T.,,,,,,~~~~~,,,,,,..==....................T','T.,T,,,,~~~~~,,,,,,..==...hhhhhhhhhhhh.....T','T.,,,,,,~~~~~,,,,,,..==...hhhhhhhhhhhh.....T','T.,,,,,,,,,,,,,,,,,..==...wnwnwDDnwnwn.....T','T.,,,,T,,,,,,,,,T,,..==....................T','T.,,,,,,,,,,,,,,,,,..==....................T','T.,,,,,,,,,,,,,,,,,..==.......F............T','T....................==....................T','TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT'],
@@ -1112,7 +1122,7 @@ defTrack('evo',{bpm:220,loop:false,v:[['square','C5 E5 G5 C6 D5 F5 A5 D6 E5 G5 B
 defTrack('evofan',{bpm:150,loop:false,v:[['square','C6 - G5 C6 E6 - - - D6 C6 D6 E6 G6 - - - E6 - - - C6 - - -',.3],['square','E5 - E5 E5 G5 - - - F5 E5 F5 G5 B5 - - - G5 - - - E5 - - -',.14],['triangle','C3 . C3 . C3 . C3 . G2 . G2 . G2 . G2 . C3 - - - C2 - - -',.7],['d','k . s . k . s . k . s . k k s s k - - - k - - -',1]]});
 TRK.home={...TRK.center,bpm:92,tr:-5};TRK.gym={...TRK.route,bpm:156,tr:5};TRK.boss={...TRK.battle,bpm:192,tr:3};
 TRK.cave={...TRK.center,bpm:72,tr:-9};TRK.city={...TRK.town,bpm:128,tr:2};
-const MUS={tamsui:'town',route2:'route',beitou:'beitou',center:'center',gym:'gym',route3:'route',cave1:'cave',cave2:'cave',taipei:'city',center2:'center',gym2:'gym',route4:'route',xinyi:'city',center3:'center',gym3a:'gym',gym3b:'gym',gym3c:'gym',gym3d:'gym',route5:'route',tunnel1:'cave',tunnel2:'cave',tunnel3:'cave',toucheng:'town',route6:'route',yilan:'city',center4:'center',center5:'center',gym4:'gym',mrtst1:'center',mrtst2:'center',mrtst3:'center',hsrst:'center',ylst:'center',busst:'center'};
+const MUS={tamsui:'town',route2:'route',beitou:'beitou',center:'center',gym:'gym',route3:'route',cave1:'cave',cave2:'cave',taipei:'city',center2:'center',gym2:'gym',route4:'route',xinyi:'city',center3:'center',gym3a:'gym',gym3b:'gym',gym3c:'gym',gym3d:'gym',route5:'route',tunnel1:'cave',tunnel2:'cave',tunnel3:'cave',tunnelA:'cave',tunnelB:'cave',toucheng:'town',route6:'route',yilan:'city',center4:'center',center5:'center',gym4:'gym',mrtst1:'center',mrtst2:'center',mrtst3:'center',hsrst:'center',ylst:'center',busst:'center'};
 function mapMusic(){if(M)music(MUS[M.id]||'home')}
 try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
 function auUnlock(){const c=AU.ctx;if(!c)return;if(c.state!=='running')c.resume().catch(()=>{});try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0)}catch(e){}}
@@ -1348,7 +1358,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   list.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
   if(G&&G.flags.swim&&tileAt(player.x,player.y)==='~'&&!player.moving){const X=Math.round(px-cx),Y=Math.round(py-cy);ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(X+1,Y+12,4,1);ctx.fillRect(X+11,Y+12,4,1);ctx.fillRect(X+5,Y+13,6,1)}
   drawFishing(Math.round(px-cx),Math.round(py-cy)-3,now);
-  if(M.dark){const gx=px-cx+8,gy=py-cy+6,g=ctx.createRadialGradient(gx,gy,22,gx,gy,90);g.addColorStop(0,'rgba(4,4,12,0)');g.addColorStop(1,'rgba(4,4,12,.72)');ctx.fillStyle=g;ctx.fillRect(0,0,160,144)}
+  if(M.dark){const lv=M.dark===true?1:M.dark,gx=px-cx+8,gy=py-cy+6,g=ctx.createRadialGradient(gx,gy,26-lv*3,gx,gy,96-lv*9);g.addColorStop(0,'rgba(4,4,12,0)');g.addColorStop(1,`rgba(4,4,12,${.6+lv*.07})`);ctx.fillStyle=g;ctx.fillRect(0,0,160,144)}
   sweepTags();
   for(const b of boardEls){const X=b.x*16-cx,Y=b.y*16-cy,k=X+','+Y;if(k!==b.k){b.k=k;b.d.style.left=`calc(var(--u)*${X})`;b.d.style.top=`calc(var(--u)*${Y})`}}}
 
@@ -1571,11 +1581,11 @@ async function rival4(){const rsp=EVO2[G.flags.rivalsp||6]||21;
   await sayAll(['阿翔：你也穿過雪山隧道啦？','我搭客運……喔不對，客運停駛了，我也是用走的！','走了十二公里，我的怪獸都變強了——來一決勝負吧！']);
   const res=await battle([makeMon(4,27,'阿翔'),makeMon(43,27,'阿翔'),makeMon(28,27,'阿翔'),makeMon(rsp,29,'阿翔')],{name:'勁敵 阿翔',reward:1800,win:['阿翔：……我還是輸了。','你真的越來越強了。']});
   if(res!=='win'){despawn('rival');return}
-  G.flags.rival4=true;await sayAll(['阿翔：宜蘭的道館館主阿蘭，聽說是游泳高手。','打贏她的人，能學會「游泳」。','灰霧幫好像往龜山島去了……下次見！']);
+  G.flags.rival4=true;await sayAll(['阿翔：宜蘭的道館館主阿蘭，聽說是游泳高手。','打贏她的人，能學會「游泳」。','灰霧幫好像往花蓮去了……下次見！']);
   await entWalkTo(r,r.x,r.y+1);despawn('rival');scheduleSave(200)}
 async function statue4(){await say(G.badges>=4?`宜蘭水之道館\n館主：阿蘭\n通過者：${G.name}`:'宜蘭水之道館\n館主：阿蘭\n通過者：（還沒有）')}
 async function gymLeader4(){
-  if(G.badges>=4){await sayAll(['阿蘭：龜山島……從小我就常常游過去看海龜。','灰霧幫想抓龜山島的神龜，我絕對不允許！','你已經會游泳了，下次我們一起去吧！']);return}
+  if(G.badges>=4){await sayAll(['阿蘭：灰霧幫往花蓮去了。','蘇花公路一邊是懸崖、一邊是太平洋，路上還會掉落石。','花蓮的道館館主會教你「攀岩」，有了它才爬得上清水斷崖！']);return}
   if(G.badges<3){await say('阿蘭：先去拿到前三個徽章再來吧！');return}
   await sayAll(['阿蘭：你就是穿過雪山隧道、打倒黑霧的訓練家？','我是阿蘭，宜蘭水之道館的館主。','蘭陽平原的水，從雪山流下來，一路流進太平洋。','我的水系怪獸，就跟大海一樣——又溫柔，又可怕！']);
   if(!(await yesNo('要挑戰館主阿蘭嗎？'))){await say('阿蘭：準備好再來，海浪會等你。');return}
@@ -1585,9 +1595,9 @@ async function gymLeader4(){
   await sayAll(['阿蘭：這是打贏宜蘭水之道館的證明——','龜島徽章！']);G.badges=4;G.flags.badge4=true;sfx('badge');await say(`${G.name} 得到了 龜島徽章！`);
   await sayAll(['阿蘭：還有，我教你「游泳」吧！','把怪獸當成浮板，抱緊、踢水——就能在水面上前進了！']);G.flags.swim=true;sfx('badge');await sayAll([`${G.name} 學會了 游泳！`,'面向水面走過去，就能游泳了。','水裡也會遇到野生怪獸喔！']);scheduleSave(200);
   await chapterEnd4()}
-async function chapterEnd4(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴鈴——','是林教授打來的電話！',`林教授：${G.name}！第四個徽章！還學會了游泳！`,'我查到了……灰霧幫的老大坐船去了龜山島。','他們要找的「傳說怪獸」，好像就是龜山島的守護神——龜山神龜！','可是龜山島四周的海浪很大……我再研究一下要怎麼過去！']);
+async function chapterEnd4(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴鈴——','是林教授打來的電話！',`林教授：${G.name}！第四個徽章！還學會了游泳！`,'我查到了……灰霧幫的老大往南，沿著蘇花公路去了花蓮。','蘇花公路的清水斷崖又陡又險，路上還有落石。','走過一次之後，台鐵就會開通，以後就能坐火車來回了！']);
   G.flags.ch4=true;scheduleSave(200);
-  await sheet(s=>{const d=el('div',null,'big');d.append(el('h3','第四章　完'),el('p',`恭喜 ${G.name} 拿到龜島徽章！\n\n下一章：龜山島（製作中）\n灰霧幫的老大在等著你！\n\n現在可以游泳了，\n回去以前的地方看看水裡有什麼吧！`));s.append(d)})}
+  await sheet(s=>{const d=el('div',null,'big');d.append(el('h3','第四章　完'),el('p',`恭喜 ${G.name} 拿到龜島徽章！\n\n下一章：花蓮・蘇花公路（製作中）\n灰霧幫的老大在等著你！\n\n現在可以游泳了，\n回去以前的地方看看水裡有什麼吧！`));s.append(d)})}
 /* ---- 城鎮地圖（誠品書店買） ---- */
 async function mapShop(){if(G.flags.townmap){await sayAll(['店員：城鎮地圖好用嗎？','打開選單選「地圖」就能看喔！']);return}
   await sayAll(['店員：歡迎光臨誠品書店！','這本是最新的《寶島城鎮地圖》，','從淡水到宜蘭，每個地方都畫得清清楚楚！']);
@@ -1596,17 +1606,17 @@ async function mapShop(){if(G.flags.townmap){await sayAll(['店員：城鎮地�
 // 城鎮地圖：整座台灣（世界座標 330x610，經緯度換算後北部稍微拉開）。ch=章節，ch>4 的是還沒做的地方
 const TMAP=[{k:'tamsui',n:'淡水鎮',x:228,y:56,t:1,ch:1,d:'夕陽很美的河口小鎮'},{k:'route2',n:'2號道路',x:239,y:48,t:0,ch:1,d:'紅樹林步道'},{k:'beitou',n:'北投',x:251,y:50,t:1,ch:1,d:'冒著白煙的溫泉之鄉・第1道館'},
  {k:'route3',n:'陽明山步道',x:263,y:42,t:0,ch:2,d:'芒草和紗帽山洞'},{k:'taipei',n:'台北城',x:255,y:66,t:1,ch:2,d:'熱鬧的大城市・第2道館'},{k:'route4',n:'象山步道',x:268,y:72,t:0,ch:3,d:'迷宮一樣的山路'},
- {k:'xinyi',n:'信義區',x:280,y:68,t:1,ch:3,d:'台北101・第3道館'},{k:'route5',n:'北宜公路・坪林',x:288,y:82,t:0,ch:4,d:'茶香四溢的山路'},{k:'tunnel',n:'雪山隧道',x:296,y:93,t:0,ch:4,d:'全長12.9公里的長隧道'},
- {k:'toucheng',n:'頭城',x:306,y:80,t:1,ch:4,d:'開蘭第一城'},{k:'route6',n:'蘭陽平原・礁溪',x:302,y:100,t:0,ch:4,d:'稻田和溫泉'},{k:'yilan',n:'宜蘭市',x:298,y:112,t:1,ch:4,d:'蘭陽平原的中心・第4道館'},
- {k:'kueishan',n:'龜山島',x:328,y:90,t:2,ch:5,d:'灰霧幫老大的藏身處？'},
- {k:'taichung',n:'台中市',x:127,y:216,t:1,ch:5,d:'中部大城市・第5道館'},{k:'chungtai',n:'中台禪寺',x:172,y:236,t:2,ch:5,d:'打坐念經，能遇見舍利寶貝'},{k:'sunmoon',n:'日月潭',x:163,y:262,t:0,ch:5,d:'湖裡住著神秘的寶貝'},
- {k:'chiayi',n:'嘉義市',x:92,y:327,t:1,ch:6,d:'高鐵嘉義站・第6道館'},{k:'alishan',n:'阿里山',x:140,y:318,t:0,ch:6,d:'神木和雲海，日出很美'},
- {k:'tainan',n:'台南市',x:55,y:406,t:1,ch:7,d:'台灣最古老的城市・第7道館'},
- {k:'kaohsiung',n:'高雄市',x:70,y:467,t:1,ch:8,d:'港都・第8道館'},{k:'kenting',n:'墾丁',x:145,y:575,t:0,ch:8,d:'台灣最南端的海'},
- {k:'taitung',n:'台東',x:196,y:447,t:1,ch:9,d:'熱氣球和稻浪'},{k:'hualien',n:'花蓮・太魯閣',x:266,y:226,t:1,ch:9,d:'大理石峽谷'},
- {k:'yushan',n:'玉山冠軍之巔',x:170,y:330,t:3,ch:9,d:'台灣最高峰・最後的挑戰\n傳說中的玉山蒼龍在山頂等你'}];
-const TLINK=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[13,14],[14,15],[15,17],[16,17],[17,23],[19,20],[20,21],[21,22],[22,11]];
-const TLINK_SEA=[[9,12]],TLINK_HSR=[[6,13],[13,16],[16,18],[18,19]];
+ {k:'xinyi',n:'信義區',x:280,y:68,t:1,ch:3,d:'台北101・第3道館'},{k:'route5',n:'北宜公路・坪林',x:288,y:82,t:0,ch:4,d:'茶香四溢的山路'},{k:'tunnel',n:'雪山隧道',x:296,y:93,t:0,ch:4,d:'全長12.9公里・5段長隧道'},
+ {k:'toucheng',n:'頭城',x:306,y:80,t:1,ch:4,d:'開蘭第一城'},{k:'route6',n:'蘭陽平原・礁溪',x:302,y:100,t:0,ch:4,d:'稻田和溫泉'},{k:'yilan',n:'宜蘭市',x:298,y:112,t:1,ch:4,d:'蘭陽平原的中心・水之道館'},
+ {k:'suhua',n:'蘇花公路',x:280,y:168,t:0,ch:5,d:'清水斷崖・懸崖邊小心落石'},{k:'hualien',n:'花蓮',x:266,y:228,t:1,ch:5,d:'草之道館・學攀岩'},
+ {k:'rift',n:'花東縱谷',x:232,y:330,t:0,ch:6,d:'最長的野外迷宮'},{k:'taitung',n:'台東',x:198,y:447,t:1,ch:6,d:'池上稻田・火之道館'},
+ {k:'taoyuan',n:'桃園・機場航廈',x:208,y:66,t:2,ch:7,d:'從台東搭飛機過來・飛之道館'},
+ {k:'chiayi',n:'嘉義',x:92,y:327,t:1,ch:8,d:'高鐵嘉義站'},{k:'alishan',n:'阿里山步道',x:132,y:320,t:0,ch:8,d:'神木群和雲海'},{k:'alishan2',n:'阿里山',x:150,y:304,t:1,ch:8,d:'龍之道館'},
+ {k:'chungtai',n:'中台禪寺',x:170,y:236,t:2,ch:8,d:'打坐念經，能遇見舍利寶貝'},
+ {k:'kaohsiung',n:'高雄85大樓',x:70,y:467,t:3,ch:9,d:'四天王一層一層等你・冠軍在頂樓'},
+ {k:'yushan',n:'玉山主峰',x:168,y:332,t:3,ch:10,d:'灰霧幫的結局・玉山蒼龍在山頂'}];
+const TLINK=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[16,4],[17,18],[18,19],[19,22],[20,18]];
+const TLINK_SEA=[[15,16]],TLINK_HSR=[[6,16],[16,17],[17,21]];
 const TW=[[226,30],[248,26],[266,30],[284,40],[300,48],[314,62],[312,74],[306,90],[304,110],[300,132],[290,165],[268,210],[262,246],[248,300],[236,340],[222,380],[202,436],[180,480],[170,527],[160,560],[150,588],[132,585],[128,525],[100,503],[73,480],[57,456],[46,403],[40,345],[47,281],[72,226],[110,170],[143,129],[175,98],[205,70]];
 let tmapAt=0;
 function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M.id),n0=TMAP[tmapAt];
@@ -1614,14 +1624,14 @@ function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M
   c.fillStyle='#3a78c8';c.fillRect(0,0,160,144);c.save();c.beginPath();c.rect(0,14,160,104);c.clip();c.translate(-camX,14-camY);
   c.fillStyle='#4a88d8';for(let y=camY-8;y<camY+112;y+=8)for(let x=Math.floor(camX/12)*12+((y/8|0)%2)*6;x<camX+168;x+=12)c.fillRect(x,Math.round(y/8)*8,3,1);
   const poly=(pts,k)=>{c.fillStyle=k;c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill()};
-  poly(TW.map(([x,y])=>[x+2,y+2]),'#2a5a28');poly(TW,'#68b048');poly([[324,84],[329,80],[334,83],[333,88],[326,89]],'#68b048');
+  poly(TW.map(([x,y])=>[x+2,y+2]),'#2a5a28');poly(TW,'#68b048');
   for(let i=0;i<14;i++){const u=i/13,x=250-u*90+Math.sin(i*1.7)*8,y=140+u*330;poly([[x-7,y+6],[x,y-6],[x+7,y+6]],'#3a7a38');poly([[x-2,y-2],[x,y-6],[x+2,y-2]],'#e8f0e0')}
   [[175,98],[243,36],[150,560]].forEach(([x,y])=>poly([[x-5,y+4],[x,y-4],[x+5,y+4]],'#3a7a38'));
   poly([[218,52],[232,58],[246,56],[252,62],[244,64],[232,62],[220,56]],'#58a0e0');poly([[160,256],[168,254],[170,262],[162,266],[156,262]],'#58a0e0');
   const seg=(a,b,col,w,dash)=>{c.strokeStyle=col;c.lineWidth=w;c.setLineDash(dash||[]);c.beginPath();c.moveTo(TMAP[a].x,TMAP[a].y);c.lineTo(TMAP[b].x,TMAP[b].y);c.stroke();c.setLineDash([])};
   TLINK_HSR.forEach(([a,b])=>{seg(a,b,'#7a3a10',3);seg(a,b,'#f08030',1.4,[4,3])});
   TLINK.forEach(([a,b])=>{const open=TMAP[a].ch<=4&&TMAP[b].ch<=4;seg(a,b,open?'#f0e0a8':'#c8c0a0',2,open?null:[2,2])});
-  TLINK_SEA.forEach(([a,b])=>seg(a,b,'#e8f8ff',1,[2,2]));
+  TLINK_SEA.forEach(([a,b])=>{seg(a,b,'#ffffff',1.4,[3,3]);const A=TMAP[a],B=TMAP[b],mx=(A.x+B.x)/2+20,my=(A.y+B.y)/2;c.fillStyle='#ffffff';c.fillRect(mx-4,my,9,2);c.fillRect(mx-1,my-3,3,8)});
   TMAP.forEach((n,i)=>{const open=n.ch<=4;
     if(n.t===3){c.fillStyle='#202028';c.beginPath();c.moveTo(n.x,n.y-7);for(let k=1;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?3.5:7;c.lineTo(n.x+Math.cos(a)*r,n.y+Math.sin(a)*r)}c.fill();c.fillStyle='#ffd840';c.beginPath();c.moveTo(n.x,n.y-5.5);for(let k=1;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?2.5:5.5;c.lineTo(n.x+Math.cos(a)*r,n.y+Math.sin(a)*r)}c.fill()}
     else if(n.t===1){c.fillStyle='#202028';c.fillRect(n.x-4,n.y-4,8,8);c.fillStyle=open?'#e84848':'#9a8a8a';c.fillRect(n.x-3,n.y-3,6,6);c.fillStyle=open?'#f8a8a0':'#c8c0c0';c.fillRect(n.x-3,n.y-3,6,1)}
@@ -1635,10 +1645,10 @@ function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M
   c.strokeStyle='#ffe040';c.lineWidth=1;c.strokeRect(ox+camX*sc,oy+camY*sc,160*sc,104*sc);
   c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';c.fillText('城鎮地圖　◀▶ 移動　B 關閉',4,2);
   const n=n0,open=n.ch<=4;c.fillStyle='#f8f8f0';c.fillRect(0,118,160,26);c.fillStyle='#303848';c.fillRect(0,118,160,1);c.fillStyle='#202838';
-  c.fillText(n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`),5,121);c.fillStyle='#5a6070';c.fillText(n.d.split('\n')[0],5,132)}
+  c.fillText(n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=10?'傳說':n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`),5,121);c.fillStyle='#5a6070';c.fillText(n.d.split('\n')[0],5,132)}
 function townMap(){return new Promise(res=>{const prev=mode;menuEl.hidden=true;hideText();tmapAt=Math.max(0,TMAP.findIndex(n=>n.k===locOf(M.id)));mode='tmap';
   const hd=k=>{if(k==='left'||k==='up'){tmapAt=(tmapAt+TMAP.length-1)%TMAP.length;sfx('blip')}else if(k==='right'||k==='down'){tmapAt=(tmapAt+1)%TMAP.length;sfx('blip')}else if(k==='b'||k==='a'||k==='start'){popUI(hd);mode=prev;res()}};uiStack.push(hd)})}
-const TLOC={route3:'route3',cave1:'route3',cave2:'route3',geo:'beitou',xs1:'route4',xs2:'route4',xs3:'route4',xs4:'route4',tunnel1:'tunnel',tunnel2:'tunnel',tunnel3:'tunnel',teahouse:'route5',spa:'route6'};
+const TLOC={route3:'route3',cave1:'route3',cave2:'route3',geo:'beitou',xs1:'route4',xs2:'route4',xs3:'route4',xs4:'route4',tunnel1:'tunnel',tunnel2:'tunnel',tunnel3:'tunnel',tunnelA:'tunnel',tunnelB:'tunnel',teahouse:'route5',spa:'route6'};
 function locOf(id){for(let k=0;k<4&&id;k++){if(TLOC[id])return TLOC[id];if(TMAP.some(n=>n.k===id))return id;const w=MAPS[id]&&MAPS[id].warps&&MAPS[id].warps[0];id=w&&w[2]}return 'tamsui'}
 
 async function statue3(){await say(G.badges>=3?`台北101 摩天道館\n館主：阿鈞\n通過者：${G.name}`:'台北101 摩天道館\n館主：阿鈞\n通過者：（還沒有）')}
@@ -1695,7 +1705,7 @@ async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸',
   else return}}
 async function trainerCard(){await sheet(s=>{const C=CHARS[G.look|0];s.append(el('h3',`訓練家　${G.name}`),el('p',`樣子：${C[0]}\n錢：${G.money} 元\n圖鑑：抓到 ${G.caught.length} / 看過 ${G.seen.length}\n徽章：${G.badges?BADGES.slice(0,G.badges).join('、'):'（還沒有）'}\n\n目前任務：\n${questText()}`))});
   showText('要換造型嗎？');const c=await choose(['不用','換造型'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}}
-function questText(){const f=G.flags;if(!f.starter)return '去林教授的研究所。';if(!f.letter_done)return '到北投寶貝中心，把信交給溫醫師。';if(!f.leader_back)return '去北投的地熱谷看看。';if(!G.badges)return '挑戰北投溫泉道館！';if(G.badges<2&&!f.cave_done)return '從北投商店街往東，走陽明山步道，穿過紗帽山洞。';if(G.badges<2)return '挑戰台北電光道館！';if(G.badges<3)return '從台北城往東，走象山步道到信義區，爬上台北101道館四樓！';if(G.badges<4&&!f.tunneldone)return '從信義區往東走到坪林，穿過雪山隧道到宜蘭！';if(G.badges<4)return '穿過蘭陽平原到宜蘭市，挑戰水之道館！';return '第四章完成！繼續收集怪獸吧。'}
+function questText(){const f=G.flags;if(!f.starter)return '去林教授的研究所。';if(!f.letter_done)return '到北投寶貝中心，把信交給溫醫師。';if(!f.leader_back)return '去北投的地熱谷看看。';if(!G.badges)return '挑戰北投溫泉道館！';if(G.badges<2&&!f.cave_done)return '從北投商店街往東，走陽明山步道，穿過紗帽山洞。';if(G.badges<2)return '挑戰台北電光道館！';if(G.badges<3)return '從台北城往東，走象山步道到信義區，爬上台北101道館四樓！';if(G.badges<4&&!f.tunneldone)return '從信義區往東走到坪林，穿過雪山隧道到宜蘭！';if(G.badges<4)return '穿過蘭陽平原到宜蘭市，挑戰水之道館！';return '第四章完成！下一章：花蓮・蘇花公路（製作中）。'}
 async function dex(){let at=0;for(;;){const items=DEX_ORDER.map((id,i)=>{const s=SP[id];return `No.${String(i+1).padStart(2,'0')} ${G.seen.includes(id)?s.n:'？？？'} ${G.caught.includes(id)?'●':G.seen.includes(id)?'○':''}`});
   showText(`圖鑑　看過 ${G.seen.length}・抓到 ${G.caught.length}\n●抓到了　○看過`);const i=await choose(items,{pos:'list',start:at,vis:6});if(i<0)return;at=i;const id=DEX_ORDER[i];
   if(!G.seen.includes(id)){await say('還沒遇過這隻怪獸。');continue}
