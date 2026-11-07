@@ -24,6 +24,7 @@
     <label>帳號<input id="au" maxlength="10" autocomplete="username" placeholder="中文、英文、數字都可以"></label>
     <label>密碼<input id="ap" type="password" autocomplete="current-password" placeholder="至少 6 個字"></label>
     <label id="ap2w" hidden>再輸入一次密碼<input id="ap2" type="password" autocomplete="new-password"></label>
+    <label id="aicw" hidden>邀請碼<input id="aic" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="向凱凱拿邀請碼"></label>
     <button id="ago" class="go" type="submit">登入</button>
     <p id="amsg" class="msg" role="alert"></p>
     <p id="ahint" class="hint" hidden>帳號最多 10 個字。密碼請自己記好，忘記的話要請管理員幫忙重設。</p>
@@ -41,11 +42,13 @@ const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
 let mode='login',done=false;
 const finish=v=>{if(done)return;done=true;authEl.hidden=true;window.__resolveCloud(v)};
+const INV=new Set(["f9c10dd2f6176a09a0a758d7", "24d44fcef66c0471865b1cfd", "3f0e4a4d5e3268a0d62f99dd", "d74f4fc27457dc168a60e345", "f016be5baac232f11e4b0d59", "eb1f0fd0ccfc318b2adf13dd", "7e4ea8ae3cf1c9c333d58672", "a134bc75300e3a1742efd7a8", "d3fcdca5d5073f472af2b41e", "3ecf18f91cddd097681496ff", "520ff332c48ff6a532ede5b3", "90f37a24a9ef20883e369e0b", "a7a3632d211faa7f17917523", "3f776bccbf2a001a0d03a88e", "958de4337c8f4d58b4db2716", "4bc2e8a0824b3d5e65905be0", "0bae19055b180233f138234c", "90ea92db8ecd492433d6176b", "cf46c44aeab48770637612e8", "825094a994e884b128beda4f", "187dd4d5252a3d14b3d701f8", "456a8a28732fa0c76f658d3a", "15f26b60965c63a69729fc01", "bf29b092f97af8733697f568", "561a86a8c7baf10a85f39de0", "dc613190bb70247c7d5955c3", "843ad9615c72df406c83de70", "e90332f7308b542a3fc990fd", "39f69d8398abe26c4a241061", "1758a0b928c5c42b858a1c3b", "d2e8bd1b5eb7d8acfea961aa", "ce01c1a116f51ed0a785aa7e", "924d79b26b6d888bdb7f388f", "5bf9efa3b43e52dcd94097e7", "1100660db8a39af7f15839c1", "c31542732cd7c88cdc09e0e8", "da52fb90ed72ab25d3bb6539", "9792ffa35d2df96deab214b6", "8da20043c9f32a35b8c14380", "b8cae2d5a06746a8b8ca0149"]);
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,24);
 const toEmail=u=>'u'+[...new TextEncoder().encode(u.trim().toLowerCase())].map(b=>b.toString(16).padStart(2,'0')).join('')+'@baodao-monsters.game';
 const ERR={'auth/email-already-in-use':'這個帳號已經有人用了，換一個吧！','auth/invalid-credential':'帳號或密碼不對喔。','auth/wrong-password':'帳號或密碼不對喔。','auth/user-not-found':'帳號或密碼不對喔。','auth/invalid-email':'帳號格式不對。','auth/weak-password':'密碼至少要 6 個字。','auth/too-many-requests':'試太多次了，等一下再試。','auth/network-request-failed':'連不上網路，檢查一下網路。'};
 
 document.querySelectorAll('.auth-tabs button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.m;document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('on',x===b));
-  $('ap2w').hidden=$('ahint').hidden=mode!=='reg';$('ago').textContent=mode==='reg'?'註冊並開始':'登入';$('ap').autocomplete=mode==='reg'?'new-password':'current-password';$('amsg').textContent=''}));
+  $('ap2w').hidden=$('aicw').hidden=$('ahint').hidden=mode!=='reg';$('ago').textContent=mode==='reg'?'註冊並開始':'登入';$('ap').autocomplete=mode==='reg'?'new-password':'current-password';$('amsg').textContent=''}));
 $('aoff').addEventListener('click',()=>finish(null));
 
 let app,auth,fs;
@@ -88,8 +91,13 @@ if(auth){
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
     if(!u){msg.textContent='請輸入帳號。';return}if(p.length<6){msg.textContent='密碼至少要 6 個字。';return}
     if(mode==='reg'&&p!==$('ap2').value){msg.textContent='兩次密碼不一樣喔。';return}
+    let ic='',ih='';if(mode==='reg'){ic=$('aic').value.trim().toUpperCase().replace(/\s+/g,'');ih=ic?await sha(ic):'';if(!INV.has(ih)){msg.textContent='邀請碼不正確，請向凱凱拿邀請碼喔。';return}}
     $('ago').disabled=true;msg.textContent=mode==='reg'?'註冊中……':'登入中……';
-    try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);msg.textContent='';enter(c.user,u)}
+    try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);
+      if(mode==='reg'){const L=doc(fs,'locks','inv_'+ih);let used=false;
+        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{holder:'invite',exp:0,code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
+        if(used){try{await c.user.delete()}catch(e3){}msg.textContent='這個邀請碼已經有人用過了，請向凱凱拿新的。';$('ago').disabled=false;return}}
+      msg.textContent='';enter(c.user,u)}
     catch(err){msg.textContent=ERR[err.code]||('出了點問題：'+(err.code||err.message));$('ago').disabled=false}});
 }
 </script>

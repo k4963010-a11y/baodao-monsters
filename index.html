@@ -134,6 +134,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #roster .rk{grid-row:span 2;font-size:20px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
 #roster .nm{display:flex;justify-content:space-between;gap:8px;min-width:0}
 #roster .nm b{font-weight:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#roster .inv{color:#e8c060;font-size:11px;margin-left:4px;letter-spacing:.05em}
 #roster .on{font-style:normal;color:#6fe39a;font-size:12px}
 #roster .nm span{color:var(--muted);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .icons{display:flex;gap:3px;flex-wrap:wrap}
@@ -178,6 +179,7 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
     <label>帳號<input id="au" maxlength="10" autocomplete="username" placeholder="中文、英文、數字都可以"></label>
     <label>密碼<input id="ap" type="password" autocomplete="current-password" placeholder="至少 6 個字"></label>
     <label id="ap2w" hidden>再輸入一次密碼<input id="ap2" type="password" autocomplete="new-password"></label>
+    <label id="aicw" hidden>邀請碼<input id="aic" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="向凱凱拿邀請碼"></label>
     <button id="ago" class="go" type="submit">登入</button>
     <p id="amsg" class="msg" role="alert"></p>
     <p id="ahint" class="hint" hidden>帳號最多 10 個字。密碼請自己記好，忘記的話要請管理員幫忙重設。</p>
@@ -189,17 +191,19 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-092334';
+import CONFIG from './firebase-config.js?v=20261107-095554';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
 let mode='login',done=false;
 const finish=v=>{if(done)return;done=true;authEl.hidden=true;window.__resolveCloud(v)};
+const INV=new Set(["f9c10dd2f6176a09a0a758d7", "24d44fcef66c0471865b1cfd", "3f0e4a4d5e3268a0d62f99dd", "d74f4fc27457dc168a60e345", "f016be5baac232f11e4b0d59", "eb1f0fd0ccfc318b2adf13dd", "7e4ea8ae3cf1c9c333d58672", "a134bc75300e3a1742efd7a8", "d3fcdca5d5073f472af2b41e", "3ecf18f91cddd097681496ff", "520ff332c48ff6a532ede5b3", "90f37a24a9ef20883e369e0b", "a7a3632d211faa7f17917523", "3f776bccbf2a001a0d03a88e", "958de4337c8f4d58b4db2716", "4bc2e8a0824b3d5e65905be0", "0bae19055b180233f138234c", "90ea92db8ecd492433d6176b", "cf46c44aeab48770637612e8", "825094a994e884b128beda4f", "187dd4d5252a3d14b3d701f8", "456a8a28732fa0c76f658d3a", "15f26b60965c63a69729fc01", "bf29b092f97af8733697f568", "561a86a8c7baf10a85f39de0", "dc613190bb70247c7d5955c3", "843ad9615c72df406c83de70", "e90332f7308b542a3fc990fd", "39f69d8398abe26c4a241061", "1758a0b928c5c42b858a1c3b", "d2e8bd1b5eb7d8acfea961aa", "ce01c1a116f51ed0a785aa7e", "924d79b26b6d888bdb7f388f", "5bf9efa3b43e52dcd94097e7", "1100660db8a39af7f15839c1", "c31542732cd7c88cdc09e0e8", "da52fb90ed72ab25d3bb6539", "9792ffa35d2df96deab214b6", "8da20043c9f32a35b8c14380", "b8cae2d5a06746a8b8ca0149"]);
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,24);
 const toEmail=u=>'u'+[...new TextEncoder().encode(u.trim().toLowerCase())].map(b=>b.toString(16).padStart(2,'0')).join('')+'@baodao-monsters.game';
 const ERR={'auth/email-already-in-use':'這個帳號已經有人用了，換一個吧！','auth/invalid-credential':'帳號或密碼不對喔。','auth/wrong-password':'帳號或密碼不對喔。','auth/user-not-found':'帳號或密碼不對喔。','auth/invalid-email':'帳號格式不對。','auth/weak-password':'密碼至少要 6 個字。','auth/too-many-requests':'試太多次了，等一下再試。','auth/network-request-failed':'連不上網路，檢查一下網路。'};
 
 document.querySelectorAll('.auth-tabs button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.m;document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('on',x===b));
-  $('ap2w').hidden=$('ahint').hidden=mode!=='reg';$('ago').textContent=mode==='reg'?'註冊並開始':'登入';$('ap').autocomplete=mode==='reg'?'new-password':'current-password';$('amsg').textContent=''}));
+  $('ap2w').hidden=$('aicw').hidden=$('ahint').hidden=mode!=='reg';$('ago').textContent=mode==='reg'?'註冊並開始':'登入';$('ap').autocomplete=mode==='reg'?'new-password':'current-password';$('amsg').textContent=''}));
 $('aoff').addEventListener('click',()=>finish(null));
 
 let app,auth,fs;
@@ -242,8 +246,13 @@ if(auth){
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
     if(!u){msg.textContent='請輸入帳號。';return}if(p.length<6){msg.textContent='密碼至少要 6 個字。';return}
     if(mode==='reg'&&p!==$('ap2').value){msg.textContent='兩次密碼不一樣喔。';return}
+    let ic='',ih='';if(mode==='reg'){ic=$('aic').value.trim().toUpperCase().replace(/\s+/g,'');ih=ic?await sha(ic):'';if(!INV.has(ih)){msg.textContent='邀請碼不正確，請向凱凱拿邀請碼喔。';return}}
     $('ago').disabled=true;msg.textContent=mode==='reg'?'註冊中……':'登入中……';
-    try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);msg.textContent='';enter(c.user,u)}
+    try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);
+      if(mode==='reg'){const L=doc(fs,'locks','inv_'+ih);let used=false;
+        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{holder:'invite',exp:0,code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
+        if(used){try{await c.user.delete()}catch(e3){}msg.textContent='這個邀請碼已經有人用過了，請向凱凱拿新的。';$('ago').disabled=false;return}}
+      msg.textContent='';enter(c.user,u)}
     catch(err){msg.textContent=ERR[err.code]||('出了點問題：'+(err.code||err.message));$('ago').disabled=false}});
 }
 </script>
@@ -323,7 +332,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-092334";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-095554";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1160,7 +1169,7 @@ function scheduleSave(ms=1200){clearTimeout(saveTimer);saveTimer=setTimeout(save
 async function saveNow(){if(!G)return;if(mode==='map')snapshotPos();saveLocal();if(!db)return;if(saving){again=true;return}saving=true;
   try{if(staleStop)throw 0;const ref=db.doc('players/'+uid);const cur=await ref.get();const cr=cur.exists?((cur.data()||{}).rev|0):0;if(cr>cloudRev){staleStop=true;saving=false;await staleReload();return}const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();doc.rev=cloudRev+1;await ref.set(doc);cloudRev=doc.rev}catch(e){if(e!==0)console.warn('save failed',e)}
   saving=false;if(again){again=false;saveNow()}}
-let rosterDocs=[],swapSlots={};
+let rosterDocs=[],swapSlots={},INVMAP={};
 /* ---- 回報 bug ---- */
 function renderBugs(list){const ul=$('bugList');if(!ul)return;ul.replaceChildren();list=list.filter(b=>b&&typeof b.text==='string').sort((a,b)=>(b.t|0)-(a.t|0)).slice(0,30);
   $('bugCard').hidden=!list.length;for(const b of list){const li=document.createElement('li');const n=document.createElement('b');n.textContent=String(b.name||'訓練家').slice(0,8);const t=document.createElement('i');const d=new Date(b.t||0);t.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`+(b.where?'・'+String(b.where).slice(0,20):'');li.append(n,t,document.createTextNode('\n'+b.text.slice(0,500)));ul.append(li)}}
@@ -1178,7 +1187,7 @@ function subscribeCloud(){
   db.collection('players').onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
-  try{db.collection('locks').onSnapshot(s=>{renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>d.data()))},()=>{})}catch(e){}
+  try{db.collection('locks').onSnapshot(s=>{renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>d.data()));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
 }
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
   const list=rosterDocs.filter(({d})=>d&&d.ver===2).map(({id,d})=>({id,name:typeof d.name==='string'?d.name.slice(0,8):'訓練家',caught:Array.isArray(d.caught)?new Set(d.caught.filter(x=>SP[x|0])).size:0,badges:clamp(d.badges|0,0,8),party:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.sp|0).filter(x=>SP[x]).slice(0,6),lv:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.lv|0)}))
@@ -1187,7 +1196,7 @@ function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlin
   if(!list.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent='還沒有人。開始冒險後，你和朋友會出現在這裡。';ol.append(li);return}
   list.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
     const rk=document.createElement('span');rk.className='rk';rk.textContent=i+1;
-    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
+    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
     const ic=document.createElement('div');ic.className='icons';p.party.forEach((sp,j)=>{const im=document.createElement('img');im.src=iconURL(sp);im.alt=SP[sp].n;im.title=`${SP[sp].n} Lv${p.lv[j]||'?'}`;ic.append(im)});
     li.append(rk,row,ic);ol.append(li)})}
 const SLOTS=['s1','s2','s3'];
