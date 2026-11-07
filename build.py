@@ -18,11 +18,16 @@ rep("單機模式：要從 claude.ai 開啟並登入，才能看到朋友和使�
 rep('<meta name="claude:viewport-fit-sides" content="cover">\n', '')
 rep('  <div class="side">', '  <div class="side">\n    <section class="card acct"><span id="acctName">尚未登入</span><button type="button" id="logoutBtn" hidden>登出</button></section>')
 
+ICONS = ('<link rel="apple-touch-icon" href="apple-touch-icon.png">'
+         '<link rel="icon" type="image/png" href="favicon.png">'
+         '<link rel="manifest" href="manifest.webmanifest">'
+         '<meta name="apple-mobile-web-app-title" content="飽島怪獸">'
+         '<meta name="theme-color" content="#141a2a">')
 head, body = src.split('<div class="wrap">', 1)
 auth_html = open(os.path.join(here, 'auth.html'), encoding='utf-8').read()
 page = ('<!doctype html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
-        + head + '</head>\n<body>\n' + auth_html + '\n<div class="wrap">' + body + '\n</body>\n</html>\n')
+        + ICONS + head + '</head>\n<body>\n' + auth_html + '\n<div class="wrap">' + body + '\n</body>\n</html>\n')
 # 遊戲主程式之前先放一個「等待登入」的 promise
 import time, json
 build = time.strftime('%Y%m%d-%H%M%S')
