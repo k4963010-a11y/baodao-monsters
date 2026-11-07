@@ -82,7 +82,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #menu.title{left:calc(var(--u)*30);right:calc(var(--u)*30);bottom:calc(var(--u)*9)}
 .binfo{position:absolute;font-size:calc(var(--u)*7.5);line-height:1.2;z-index:1;color:var(--c3)}
 #eInfo{left:calc(var(--u)*4);top:calc(var(--u)*6);width:calc(var(--u)*80)}
-#pInfo{right:calc(var(--u)*4);top:calc(var(--u)*58);width:calc(var(--u)*76);text-align:right}
+#pInfo{right:calc(var(--u)*4);bottom:calc(var(--u)*60);width:calc(var(--u)*76);text-align:right}
 .binfo .row{display:flex;justify-content:space-between;gap:calc(var(--u)*3)}
 .hp{display:flex;align-items:center;gap:calc(var(--u)*2);margin-top:calc(var(--u)*1.5);font-size:.8em;color:#d08020}
 .bar{flex:1;height:calc(var(--u)*3.4);box-shadow:0 0 0 calc(var(--u)*.8) var(--c3);background:#404858;position:relative;border-radius:calc(var(--u)*1)}
@@ -191,7 +191,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-141500';
+import CONFIG from './firebase-config.js?v=20261107-143123';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -333,7 +333,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-141500";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-143123";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -916,7 +916,7 @@ const MAPS={
   signs:{'24,12':'台北101 摩天道館\n館主：阿鈞\n「要爬上四樓才見得到他」','33,27':'信義區\n「台北最高、最熱鬧的地方」','2,30':'信義公園\n晚上常有夜影貓出沒'},zone:()=>'xinyi',
   npcs:[{id:'eastguard',x:57,y:13,dir:'down',look:'clerk',lines:['東邊是北宜公路，可以走到坪林。','再過去就是很長很長的雪山隧道，通往宜蘭！']},
    {id:'xy1',x:28,y:15,dir:'down',look:'woman',lines:['台北101以前是世界最高的大樓喔！','裡面有一顆超大的阻尼球，地震時會晃來晃去保護大樓。']},
-   {id:'xy2',x:12,y:15,dir:'down',look:'boy',lines:['技能商店可以讓怪獸學新招式！','怪獸商店還有賣很稀有的霧紋豹，不過超貴……']},
+   {id:'xy2',x:12,y:15,dir:'down',look:'boy',lines:['技能商店可以讓怪獸學新招式！','怪獸商店還有賣很稀有的刺刺陽，不過超貴……']},
    {id:'gardener',x:24,y:34,dir:'down',look:'oldman',talk:async()=>{if(!G.flags.shake){await sayAll(['園丁伯伯：公園的大樹上，住了好多蟲系怪獸喔。','牠們平常躲在樹葉裡，很難發現。','我教你「搖樹」的訣竅吧！抓住樹幹……用力搖三下！']);G.flags.shake=true;sfx('badge');await sayAll([`${G.name} 學會了 搖樹！`,'面向樹木按 A，就能把躲在樹上的怪獸搖下來。']);scheduleSave(200)}else await say('園丁伯伯：竹節忍很會躲，多搖幾棵樹試試看！')}},
    {id:'xy3',x:45,y:30,dir:'left',look:'girl',lines:['晚上公園裡會出現夜影貓，眼睛會發光喔。']},
    {id:'xy4',x:33,y:22,dir:'left',look:'oldman',lines:['跨年的時候，101會放超大的煙火！','整個台北的人都會跑來看。']},
@@ -953,7 +953,7 @@ const MAPS={
   npcs:[{id:'teacher',x:1,y:2,dir:'down',look:'prof',talk:skillShop},{id:'student',x:6,y:4,dir:'left',look:'lass',lines:['我讓我的鮭寶寶學了激流衝！','現在超強的！']}]},
  monshop:{name:'怪獸商店',out:' ',rows:['WWNWWNWW','PffffffP','CCCfffff','ffffffff','jjffffjj','ffffffff','fffmmfff'],
   warps:[[3,6,'xinyi',42,5,'down'],[4,6,'xinyi',42,5,'down']],
-  npcs:[{id:'petman',x:1,y:1,dir:'down',look:'clerk',talk:monShop},{id:'petkid',x:5,y:3,dir:'left',look:'kid',lines:['我好想要那隻霧紋豹……','媽媽說要存錢存很久。']}]},
+  npcs:[{id:'petman',x:1,y:1,dir:'down',look:'clerk',talk:monShop},{id:'petkid',x:5,y:3,dir:'left',look:'kid',lines:['我好想要那隻刺刺陽……','媽媽說要存錢存很久。']}]},
  mrtst1:{name:'捷運淡水站',out:' ',rows:['WWNWWNWW','ffffffff','CCCCCCCC','ffffffff','jjffffjj','ffffffff','fffmmfff'],warps:[[3,6,'tamsui',17,13,'down'],[4,6,'tamsui',17,13,'down']],
   npcs:[{id:'tk1',x:3,y:1,dir:'down',look:'ticket',talk:()=>mrtTalk('tamsui')},{id:'tk1b',x:6,y:4,dir:'left',look:'kid',lines:['捷運好快！一下子就到台北了！']}]},
  mrtst2:{name:'捷運台北車站',out:' ',rows:['WWNWWNWW','ffffffff','CCCCCCCC','ffffffff','jjffffjj','ffffffff','fffmmfff'],warps:[[3,6,'taipei',5,16,'down'],[4,6,'taipei',5,16,'down']],
@@ -1612,12 +1612,12 @@ async function skillShop(){await sayAll(['技能老師：歡迎來到招式教�
     if(m.moves.includes(mv)){await say(`${nm(m)} 已經會這招了！`);continue}
     if(m.moves.length>=4){showText(`要忘掉哪一招？`);const f=await choose([...m.moves,'算了'],{pos:'list'});if(f<0||f===m.moves.length)continue;const old=m.moves[f];m.moves[f]=mv;if(m.pp)delete m.pp[old];G.money-=pr;moneyOn();await say(`${nm(m)} 忘掉了 ${old}……\n學會了 ${mv}！`)}
     else{m.moves.push(mv);G.money-=pr;moneyOn();await say(`${nm(m)} 學會了 ${mv}！`)}sfx('lvl');scheduleSave()}}finally{moneyOff()}}
-const MONSHOP=[[3,12,800],[32,12,900],[30,12,1200],[13,12,1200],[36,14,1500],[39,14,2500],[26,20,30000]];
+const MONSHOP=[[3,12,800],[32,12,900],[30,12,1200],[13,12,1200],[36,14,1500],[39,14,2500],[49,20,30000]];
 async function monShop(){await sayAll(['老闆：歡迎光臨信義怪獸屋！','每一隻都健康又可愛，帶回家好好照顧喔。','最後那隻……是很難得才進貨的稀有種！']);
-  try{for(;;){moneyOn();showText('要帶哪一隻回家？');const i=await choose([...MONSHOP.map(([sp,lv,pr])=>`${SP[sp].n} Lv${lv}　${pr}元${sp===26&&G.flags.boughtLeo?'（賣完了）':''}`),'只是看看'],{pos:'list',vis:6});
+  try{for(;;){moneyOn();showText('要帶哪一隻回家？');const i=await choose([...MONSHOP.map(([sp,lv,pr])=>`${SP[sp].n} Lv${lv}　${pr}元${sp===49&&G.flags.boughtSun?'（賣完了）':''}`),'只是看看'],{pos:'list',vis:6});
     if(i<0||i===MONSHOP.length){await say('老闆：歡迎再來看看！');return}const [sp,lv,pr]=MONSHOP[i];
-    if(sp===26&&G.flags.boughtLeo){await say('老闆：霧紋豹只有那一隻，已經被你帶走囉！');continue}if(G.money<pr){await say('錢不夠喔！');continue}
-    if(!(await yesNo(`${pr} 元買 ${SP[sp].n} Lv${lv}，確定嗎？`)))continue;G.money-=pr;const m=makeMon(sp,lv,G.name);const w=addMon(m);if(sp===26)G.flags.boughtLeo=true;
+    if(sp===49&&G.flags.boughtSun){await say('老闆：刺刺陽只有那一隻，已經被你帶走囉！');continue}if(G.money<pr){await say('錢不夠喔！');continue}
+    if(!(await yesNo(`${pr} 元買 ${SP[sp].n} Lv${lv}，確定嗎？`)))continue;G.money-=pr;const m=makeMon(sp,lv,G.name);const w=addMon(m);if(sp===49)G.flags.boughtSun=true;
     moneyOn();sfx('catch');await say(`${SP[sp].n} 成為你的夥伴了！${w==='box'?'（身上滿了，送進怪獸箱）':''}`);scheduleSave()}}finally{moneyOff()}}
 async function cakeTalk(){
   if(!G.flags.egg){await sayAll(['亮亮老闆：歡迎光臨，蛋願蛋糕！','我們的蛋糕，每一個都是用心做的喔。','……咦？你帶著怪獸，是訓練家吧？','烤箱旁邊有一顆蛋，保溫了好久，今天早上終於孵出來了！','牠好像很想出去看看外面的世界……','可以請你帶著牠一起去旅行嗎？']);
