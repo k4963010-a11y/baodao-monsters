@@ -87,6 +87,11 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #menu .it.off{color:var(--c1)}
 #menu .more{position:absolute;right:calc(var(--u)*6);font-size:.7em}
 #menu .more.up{top:calc(var(--u)*2)}#menu .more.dn{bottom:calc(var(--u)*2)}
+#menu.emo{left:calc(var(--u)*6);right:calc(var(--u)*6);top:calc(var(--u)*6);padding:calc(var(--u)*5);row-gap:calc(var(--u)*2);column-gap:calc(var(--u)*1)}
+#menu.emo .it{padding:calc(var(--u)*1.5) 0;text-align:center;font-size:calc(var(--u)*11);line-height:1.15;border-radius:calc(var(--u)*2);overflow:visible}
+#menu.emo .it.sel{background:rgba(216,64,64,.16);box-shadow:inset 0 0 0 calc(var(--u)*.8) #d84040}#menu.emo .it.sel::before{content:none}
+.emob{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*10);line-height:1;padding:calc(var(--u)*1.4) calc(var(--u)*1.6);background:#fff;border-radius:calc(var(--u)*4);box-shadow:0 0 0 calc(var(--u)*.7) #202838;animation:emopop .3s ease-out;z-index:1}
+@keyframes emopop{0%{transform:translate(-50%,-60%) scale(.3)}70%{transform:translate(-50%,-105%) scale(1.15)}100%{transform:translate(-50%,-100%) scale(1)}}
 #menu.right{top:0;right:0;width:calc(var(--u)*72)}
 #menu.battle{right:0;bottom:0;width:calc(var(--u)*88);height:calc(var(--u)*46);align-content:center}
 #menu.moves{left:0;right:0;bottom:0;height:calc(var(--u)*46);align-content:center}
@@ -203,7 +208,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-222639';
+import CONFIG from './firebase-config.js?v=20261107-223120';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -353,7 +358,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-222639";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-223120";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1252,7 +1257,7 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
+function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
@@ -1367,7 +1372,7 @@ function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!=
   menuEl.className='box '+(opt.pos||'right');menuEl.style.setProperty('--cols',cols);menuEl.hidden=false;
   const render=()=>{if(idx<top)top=idx;if(idx>=top+vis)top=idx-vis+1;menuEl.replaceChildren();
     items.slice(top,top+vis).forEach((t,j)=>{const d=document.createElement('div');const i=top+j;d.className='it'+(i===idx?' sel':'')+(opt.off&&opt.off(i)?' off':'');d.textContent=t;
-      d.addEventListener('click',ev=>{ev.stopPropagation();if(idx===i)close(i);else{idx=i;render()}});menuEl.append(d)});
+      d.addEventListener('click',ev=>{ev.stopPropagation();if(idx===i||opt.tap1)close(i);else{idx=i;render()}});menuEl.append(d)});
     if(top>0){const m=document.createElement('span');m.className='more up';m.textContent='▲';menuEl.append(m)}
     if(top+vis<items.length){const m=document.createElement('span');m.className='more dn';m.textContent='▼';menuEl.append(m)}};
   const close=i=>{popUI(h);menuEl.hidden=true;res(i)};
@@ -1403,8 +1408,11 @@ function otherPlayers(now){if(!room||!M)return (lastPeers=[]);let ps=[];try{ps=r
     let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
-    seen.add(q.uid);out.push({id:q.uid,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===1,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+    seen.add(q.uid);out.push({id:q.uid,emo:typeof q.emo==='string'&&EMOS.includes(q.emo)?q.emo:'',emoT:Number(q.emoT)||0,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===1,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
   for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return (lastPeers=out)}
+const EMOS=['😄','😆','🥰','😍','😎','🤩','😂','🥲','😭','😣','😡','😱','😴','🤔','😏','😳','🥺','😋','🤗','🙏','👍','👏','💪','🎉','❤️','💔','💤','❓','‼️','👋'];
+let myEmo=null;const PEMO={};
+function tagEmo(id,e,X,Y){let t=tags[id];if(!t){t=tags[id]={d:document.createElement('div'),k:''};t.d.className='emob';boardsEl.append(t.d)}if(t.d.textContent!==e)t.d.textContent=e;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
 function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
   const label=o.name+(o.fight?'・對戰中':o.eye?'・看寶貝中':'');if(t.d.textContent!==label)t.d.textContent=label;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
 function drawEye(x,y,now){x=Math.round(x);y=Math.round(y);const blink=Math.floor(now/120)%20===0;const c=ctx;
@@ -1475,11 +1483,13 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   const lead=G&&G.party[0];if(lead&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(isRareMon(lead))halo(X+8,Y+9,now);if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w);if(isRareMon(lead))sparkle(X+8,Y+8,now)}})}
   for(const o of otherPlayers(now)){
     if(o.lead){const [bx,by]=DIRS[o.dir];const fx2=(o.x-bx)*16-cx,fy2=(o.y-by)*16-cy;const im=SPRM[o.lead]||SPR16[o.lead];if(im)list.push({y:(o.y-by)*16,d:()=>{const hop=(Math.floor(now/250)%2)?1:0;if(o.leadR)halo(Math.round(fx2)+8,Math.round(fy2)-hop+8,now);if(o.dir==='right'){ctx.save();ctx.translate(Math.round(fx2)+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Math.round(fy2)-hop-1,16,16);ctx.restore()}else ctx.drawImage(im,Math.round(fx2),Math.round(fy2)-hop-1,16,16);if(o.leadR)sparkle(Math.round(fx2)+8,Math.round(fy2)-hop+7,now)}})}
-    list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now);if(o.eye)drawEye(o.x*16-cx+8,o.y*16-cy-12,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.eye?14:o.fight?6:0))}
+    list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now);if(o.eye)drawEye(o.x*16-cx+8,o.y*16-cy-12,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.eye?14:o.fight?6:0));
+    if(o.emo&&o.emoT&&Math.abs(Date.now()-o.emoT)<30000){const r=PEMO[o.id];if(!r||r.t!==o.emoT)PEMO[o.id]={t:o.emoT,at:performance.now()};if(performance.now()-PEMO[o.id].at<4000)tagEmo('pe_'+o.id,o.emo,o.x*16-cx+8,o.y*16-cy-16-(o.eye?14:o.fight?6:0))}}
   list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;if(G&&G.flags.ride){const X=Math.round(px-cx),Y=Math.round(py-cy)-3,sd=player.dir==='left'||player.dir==='right';ctx.fillStyle='#202028';ctx.fillRect(X+(sd?1:4),Y+16,sd?14:8,3);ctx.fillStyle='#e8403a';ctx.fillRect(X+(sd?2:5),Y+16,sd?12:6,1);ctx.fillStyle='#303038';ctx.fillRect(X+(sd?1:4),Y+18,3,2);ctx.fillRect(X+(sd?12:9),Y+18,3,2);ctx.fillStyle='#c8c8d0';if(sd)ctx.fillRect(player.dir==='right'?X+13:X+2,Y+6,1,10)}
     drawPerson(heroLook(),player.dir,Math.round(px-cx),Math.round(py-cy)-3,wk,player.par);
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
   list.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
+  if(myEmo&&Date.now()-myEmo.t<4000)tagEmo('me',myEmo.e,px-cx+8,py-cy-6);
   if(G&&G.flags.swim&&tileAt(player.x,player.y)==='~'&&!player.moving){const X=Math.round(px-cx),Y=Math.round(py-cy);ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(X+1,Y+12,4,1);ctx.fillRect(X+11,Y+12,4,1);ctx.fillRect(X+5,Y+13,6,1)}
   drawFishing(Math.round(px-cx),Math.round(py-cy)-3,now);
   if(M.dark){const lv=M.dark===true?1:M.dark,gx=px-cx+8,gy=py-cy+6,g=ctx.createRadialGradient(gx,gy,26-lv*3,gx,gy,96-lv*9);g.addColorStop(0,'rgba(4,4,12,0)');g.addColorStop(1,`rgba(4,4,12,${.6+lv*.07})`);ctx.fillStyle=g;ctx.fillRect(0,0,160,144)}
@@ -1924,14 +1934,15 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸','背包',G.name,'關閉']:['背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');const MI={'圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o),{pos:'right'});const o=opts[i];
+async function startMenu(){for(;;){const opts=G.party.length?['表情','圖鑑','怪獸','背包',G.name,'關閉']:['表情','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');const MI={'表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o),{pos:'right'});const o=opts[i];
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
-  else if(o==='地圖'){await townMap();return}else if(o==='任務')await questLog();
+  else if(o==='地圖'){await townMap();return}else if(o==='任務')await questLog();else if(o==='表情'){const k=await choose(EMOS,{cols:6,pos:'emo',tap1:true});if(k>=0){myEmo={e:EMOS[k],t:Date.now()};updatePresence();scheduleSave(300);return}}
   else if(o==='滑板車'||o==='下滑板車'){G.flags.ride=o==='滑板車';sfx(G.flags.ride?'ball':'bump');menuEl.hidden=true;await say(G.flags.ride?`${G.name} 騎上了滑板車！咻——`:`${G.name} 從滑板車下來了。`);scheduleSave(300);return}
   else{scheduleSave(300);return}}}
 async function trainerCard(){await sheet(s=>{const C=CHARS[G.look|0];s.append(el('h3',`訓練家　${G.name}`),el('p',`樣子：${C[0]}\n錢：${G.money} 元\n圖鑑：抓到 ${G.caught.length} / 看過 ${G.seen.length}\n徽章：${G.badges?BADGES.slice(0,G.badges).join('、'):'（還沒有）'}\n\n目前任務：\n${questText()}`))});
-  showText('要換造型嗎？');const c=await choose(['不用','換造型'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}}
+  showText('要做什麼？');const c=await choose(['不用','換造型','改名字'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}
+  if(c===2){const h=()=>{};uiStack.push(h);let v;try{v=await askName()}finally{popUI(h)}if(v&&v!==G.name){const old=G.name;for(const m of [...G.party,...G.box])if(m.ot===old)m.ot=v;G.name=v;updatePresence();scheduleSave(200);await say(`好的！從今天起，你的名字是 ${v}！`)}}}
 /* ================= 支線任務 ================= */
 /* 每個任務一筆資料；要加新任務只要在 QUESTS 加一筆。
    種類 need：show(帶某屬性怪獸給他看) / deliver(幫忙送東西) / catch(圖鑑抓到幾種) / battle(跟他對戰) / types(隊伍有幾種屬性)
