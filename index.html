@@ -36,6 +36,17 @@ button{touch-action:manipulation}
 #bugDlg .row span{margin-right:auto;font-size:13px;color:var(--muted)}
 #bugDlg button{font:inherit;border:0;border-radius:8px;padding:8px 16px;cursor:pointer}
 #bugDlg .go{background:#3cb4a6;color:#062a26}#bugDlg .no{background:#3a4462;color:var(--ink)}
+.leftcol{display:flex;flex-direction:column;gap:22px;min-width:0}
+#chatList{list-style:none;margin:0 0 10px;padding:0;height:220px;overflow:auto;overscroll-behavior:contain}
+#chatList li{padding:6px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.5;word-break:break-word}
+#chatList li b{color:var(--shell-hi);font-weight:normal}#chatList li.me b{color:#f0c040}
+#chatList li i{color:var(--muted);font-style:normal;font-size:11px;margin-left:6px}
+#chatList li span{display:block;white-space:pre-wrap}#chatList li.empty{color:var(--muted);border:0}
+.chatrow{display:flex;gap:8px}
+#chatIn{flex:1;min-width:0;background:#10162a;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;font-size:16px}
+#chatGo{background:#3cb4a6;color:#062a26;border:0;border-radius:8px;padding:0 16px;font:inherit;font-size:15px;cursor:pointer}
+#chatGo:disabled{opacity:.5}
+#chatMsg{margin:6px 0 0;min-height:1em}
 #bugList{list-style:none;margin:0;padding:0;max-height:260px;overflow:auto}
 #bugList li{border-top:1px solid var(--line);padding:8px 0;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-all}
 #bugList li b{color:var(--shell-hi);font-weight:normal}#bugList li i{color:var(--muted);font-style:normal;font-size:12px;margin-left:6px}
@@ -191,7 +202,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-210545';
+import CONFIG from './firebase-config.js?v=20261107-214406';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -259,6 +270,7 @@ if(auth){
 </script>
 
 <div class="wrap">
+  <div class="leftcol">
   <div class="device">
     <div class="bezel">
       <div class="led"><i></i>POWER<button class="bugbtn" id="bugBtn" type="button">回報bug</button></div>
@@ -307,6 +319,13 @@ if(auth){
       <div id="resetWrap" class="far"><button id="resetBtn" aria-label="更新"></button><span id="resetLbl">更新</span></div>
     </div>
   </div>
+  <section class="card" id="chatCard" hidden>
+    <h2>聊天室</h2>
+    <ul id="chatList" aria-live="polite"></ul>
+    <div class="chatrow"><input id="chatIn" maxlength="120" autocomplete="off" enterkeyhint="send" placeholder="說點什麼……"><button id="chatGo" type="button">送出</button></div>
+    <p class="sub" id="chatMsg"></p>
+  </section>
+  </div>
 
   <div class="side">
     <section class="card acct"><span id="acctName">尚未登入</span><button type="button" id="logoutBtn" hidden>登出</button></section>
@@ -333,7 +352,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-210545";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-214406";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1255,12 +1274,35 @@ function bugReport(){if($('bugDlg'))return;const w=document.createElement('div')
       msg.textContent='';w.querySelector('.in').innerHTML='<h3>謝謝你的回報！</h3><p>我們收到了，會盡快處理。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
     catch(e){msg.textContent='送出失敗，請稍後再試一次。'}}}
 $('bugBtn').addEventListener('click',bugReport);
+/* ---- 聊天室（存在 locks/chat_<時間>_<uid>） ---- */
+let chatLast=0,chatSeen=new Set(),chatReady=false;
+function renderChat(list){const box=$('chatList');if(!box)return;$('chatCard').hidden=false;chatReady=true;
+  list=list.filter(c=>c&&typeof c.text==='string').sort((a,b)=>(a.t|0)-(b.t|0)).slice(-60);
+  const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<40;box.replaceChildren();
+  if(!list.length){const p=document.createElement('li');p.className='empty';p.textContent='還沒有人說話，來打聲招呼吧！';box.append(p)}
+  for(const c of list){const li=document.createElement('li');if(c.uid===uid)li.className='me';const n=document.createElement('b');n.textContent=String(c.name||'訓練家').slice(0,8);
+    const t=document.createElement('i');const d=new Date(c.t||0);t.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const m=document.createElement('span');m.textContent=c.text.slice(0,120);li.append(n,t,m);box.append(li)}
+  if(atBottom||!chatSeen.size)box.scrollTop=box.scrollHeight;list.forEach(c=>chatSeen.add(c.t+'_'+c.uid))}
+async function chatSend(){const inp=$('chatIn'),msg=$('chatMsg');const text=inp.value.replace(/\s+/g,' ').trim();if(!text)return;
+  if(!db||!uid){msg.textContent='要先登入才能聊天喔！';return}if(!G){msg.textContent='先開始冒險，取好名字再聊天喔！';return}
+  const now=Date.now();if(now-chatLast<3000){msg.textContent='講太快了，休息一下再說～';return}chatLast=now;
+  msg.textContent='';$('chatGo').disabled=true;
+  try{await db.doc('locks/chat_'+now+'_'+String(uid).slice(0,40)).set({holder:'chat',exp:0,uid,name:G.name||'訓練家',text:text.slice(0,120),t:now});inp.value='';chatPrune()}
+  catch(e){msg.textContent='送出失敗，請稍後再試。'}$('chatGo').disabled=false;inp.focus()}
+let chatDocs=[];
+function chatPrune(){/* 只留最新 150 則、7 天內 */const old=chatDocs.sort((a,b)=>b.t-a.t).filter((c,i)=>i>=150||Date.now()-c.t>7*864e5).slice(0,20);
+  for(const c of old){try{db.doc('locks/'+c.id).delete()}catch(e){}}}
+$('chatGo').addEventListener('click',chatSend);
+$('chatIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.isComposing){e.preventDefault();chatSend()}});
+$('chatIn').addEventListener('keyup',e=>e.stopPropagation());
+
 function subscribeCloud(){
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   db.collection('players').onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
-  try{db.collection('locks').onSnapshot(s=>{renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>d.data()));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
+  try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>d.data()));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
 }
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
   const list=rosterDocs.filter(({d})=>d&&d.ver===2).map(({id,d})=>({id,name:typeof d.name==='string'?d.name.slice(0,8):'訓練家',caught:Array.isArray(d.caught)?new Set(d.caught.filter(x=>SP[x|0])).size:0,badges:clamp(d.badges|0,0,8),party:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.sp|0).filter(x=>SP[x]).slice(0,6),lv:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.lv|0)}))
