@@ -191,7 +191,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-143123';
+import CONFIG from './firebase-config.js?v=20261107-210246';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -333,7 +333,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-143123";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-210246";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -370,7 +370,7 @@ const TYPES_EFF={
  '光':{'格鬥':2,'龍':2,'暗':2,'火':.5,'毒':.5,'鋼':.5},
  '佛':{'幽靈':2,'暗':2,'格鬥':2,'佛':.5,'鋼':.5}};
 TYPES_EFF['蟲']['佛']=2;TYPES_EFF['暗']['佛']=2;TYPES_EFF['幽靈']['佛']=.5;TYPES_EFF['格鬥']['佛']=.5;
-const MOVES={'衝撞':{t:'一般',p:40},'亂抓':{t:'一般',p:45},'猛力壓':{t:'一般',p:70},'鉗夾':{t:'一般',p:55},'齜牙':{t:'一般',p:0,fx:'atkdown'},'變硬':{t:'岩',p:0,fx:'defup'},
+const MOVES={'芒花旋風':{t:'草',p:80},'夕陽餘暉':{t:'光',p:90,ef:'conf',ch:.2},'蘭陽大浪':{t:'水',p:95,acc:.9},'三星蔥爆':{t:'草',p:90,ef:'atkdown',ch:.3},'衝撞':{t:'一般',p:40},'亂抓':{t:'一般',p:45},'猛力壓':{t:'一般',p:70},'鉗夾':{t:'一般',p:55},'齜牙':{t:'一般',p:0,fx:'atkdown'},'變硬':{t:'岩',p:0,fx:'defup'},
  '靜電彈':{t:'電',p:40},'雷爪':{t:'電',p:65},'羽毛刺':{t:'飛',p:40},'俯衝':{t:'飛',p:65},'茶葉鏢':{t:'草',p:40},'藤鞭甩':{t:'草',p:65},
  '螢火':{t:'火',p:40},'烈焰衝':{t:'火',p:65},'泡泡噴':{t:'水',p:40},'浪花擊':{t:'水',p:65},'碎石丟':{t:'岩',p:40},'岩盾撞':{t:'岩',p:65},
  '太陽球':{t:'光',p:40},'愛心飛飛':{t:'光',p:0,fx:'atkdown'},'日光爆發':{t:'光',p:70},'撒嬌':{t:'一般',p:0,fx:'atkdown'},'蛋殼滾':{t:'一般',p:50},'許願星':{t:'光',p:60},'葉刃斬':{t:'草',p:80},'炎螢衝':{t:'火',p:80},'激流衝':{t:'水',p:80},'吸血咬':{t:'飛',p:55},'暗夜翼擊':{t:'飛',p:75},'芒花飛舞':{t:'草',p:50},'鐘乳落':{t:'岩',p:75},'霓虹閃':{t:'電',p:75},'松果砲':{t:'草',p:55},'蒼龍吐息':{t:'龍',p:95},'蟲咬':{t:'蟲',p:60},'鱗粉舞':{t:'蟲',p:0,fx:'atkdown'},'暗影爪':{t:'暗',p:70},'齒輪轉':{t:'鋼',p:55},'鐵頭撞':{t:'鋼',p:80},'鋼鐵重擊':{t:'鋼',p:90},'山脊碾壓':{t:'岩',p:85},'雲霧棍':{t:'一般',p:80},'潮汐巨鉗':{t:'水',p:85},'風獅咆哮':{t:'草',p:85},'晶洞崩落':{t:'岩',p:95},'願星審判':{t:'光',p:100},'聖雲爪':{t:'光',p:95},'天雲聖光':{t:'光',p:110},'飛撲':{t:'一般',p:60},'頭槌':{t:'一般',p:70,ef:'conf',ch:.2},'神速突擊':{t:'一般',p:85},'全力衝撞':{t:'一般',p:100},'終極破壞':{t:'一般',p:120,acc:.9},'搖籃曲':{t:'一般',p:0,fx:'sleep',acc:.6},'落石雨':{t:'岩',p:55},'大地震動':{t:'岩',p:100},'岩崩天降':{t:'岩',p:110,acc:.9},'電光石火':{t:'電',p:55},'電磁波':{t:'電',p:0,fx:'para',acc:.9},'十萬伏雷':{t:'電',p:90,ef:'para',ch:.2},'雷霆萬鈞':{t:'電',p:110,ef:'para',ch:.3,acc:.85},'旋風翅':{t:'飛',p:85},'暴風':{t:'飛',p:95,ef:'conf',ch:.3,acc:.85},'天空神擊':{t:'飛',p:110},'麻痺花粉':{t:'草',p:0,fx:'para',acc:.75},'安眠花粉':{t:'草',p:0,fx:'sleep',acc:.75},'森林之怒':{t:'草',p:95},'神木衝擊':{t:'草',p:110,acc:.9},'火花彈':{t:'火',p:55},'鬼火迷魂':{t:'火',p:0,fx:'conf',acc:.85},'烈火輪':{t:'火',p:90},'火山爆發':{t:'火',p:110,acc:.9},'水槍':{t:'水',p:55},'漩渦迷陣':{t:'水',p:0,fx:'conf',acc:.8},'海嘯':{t:'水',p:95},'怒濤巨浪':{t:'水',p:110,acc:.9},'閃光彈':{t:'光',p:50},'曙光砲':{t:'光',p:110,acc:.9},'眩光':{t:'光',p:0,fx:'conf',acc:.85},'聖光之劍':{t:'光',p:85,ef:'conf',ch:.2},'搖籃光':{t:'光',p:0,fx:'sleep',acc:.7},'龍爪':{t:'龍',p:60},'龍之怒':{t:'龍',p:80},'神龍天降':{t:'龍',p:120,acc:.9},'刺針':{t:'蟲',p:40},'麻痺針':{t:'蟲',p:45,ef:'para',ch:.3},'催眠鱗粉':{t:'蟲',p:0,fx:'sleep',acc:.75},'蟲鳴震':{t:'蟲',p:80,ef:'conf',ch:.2},'百蟲大軍':{t:'蟲',p:100},'偷襲':{t:'暗',p:40},'黑夜催眠':{t:'暗',p:0,fx:'sleep',acc:.7},'詭異舞步':{t:'暗',p:0,fx:'conf',acc:.85},'暗黑波':{t:'暗',p:85},'午夜惡夢':{t:'暗',p:105,acc:.9},'金屬爪':{t:'鋼',p:45},'鐵壁':{t:'鋼',p:0,fx:'defup'},'磁力波':{t:'鋼',p:0,fx:'para',acc:.85},'鋼鐵加農砲':{t:'鋼',p:110,acc:.9},'太陽刺擊':{t:'火',p:75},'日冕爆裂':{t:'火',p:120,acc:.9},'燈河流火':{t:'火',p:95},'月光催眠':{t:'暗',p:0,fx:'sleep',acc:.8},'新月爪':{t:'暗',p:90},'象鼻重擊':{t:'岩',p:90},'叩叩啄':{t:'飛',p:70,ef:'conf',ch:.3},'竹影刺':{t:'暗',p:75},'黃泉象踏':{t:'暗',p:120,acc:.9},'閻羅凝視':{t:'暗',p:0,fx:'para',acc:.9},'晨鐘震':{t:'飛',p:95,ef:'conf',ch:.3},'竹刃連斬':{t:'暗',p:95}};
@@ -1161,7 +1161,7 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const flags={};if(d.flags&&typeof d.flags==='object')for(const k in d.flags){if(/^[a-z0-9_]{1,24}$/i.test(k)){const v=d.flags[k];if(typeof v==='boolean'||(typeof v==='number'&&isFinite(v)))flags[k]=v}}
   if(flags.starter&&!party.length)return null;
   const g={ver:2,look:clamp(d.look|0,0,CHARS.length-1),name:(typeof d.name==='string'&&d.name.trim()?d.name.trim():'訓練家').slice(0,8),money:clamp(d.money|0,0,999999),
-   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
+   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
    seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,NEW_POS),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
@@ -1410,6 +1410,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   for(const e of ents){const [ex,ey,wk]=entPos(e,now);
     if(e.kind==='item'||e.ball){list.push({y:ey-1,d:()=>ctx.drawImage(BALLIMG,ex-cx,ey-cy-(e.ball?4:0))});continue}
     list.push({y:ey,d:()=>{drawPerson(e.look,e.dir,Math.round(ex-cx),Math.round(ey-cy)-3,wk,e.par);
+      if(e.qmark&&!e.alert&&e.qmark()){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17-(Math.floor(now/400)%2);ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#f8d040';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#181820';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}
       if(e.alert){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17;ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#fff';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#e03030';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}}})}
   const lead=G&&G.party[0];if(lead&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(isRareMon(lead))halo(X+8,Y+9,now);if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w);if(isRareMon(lead))sparkle(X+8,Y+8,now)}})}
   for(const o of otherPlayers(now)){
@@ -1801,15 +1802,107 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸','背包',G.name,'存檔','關閉']:['背包',G.name,'存檔','關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');const i=await choose(opts,{pos:'right'});const o=opts[i];
+async function startMenu(){for(;;){const opts=G.party.length?['圖鑑','怪獸','背包',G.name,'存檔','關閉']:['背包',G.name,'存檔','關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');const i=await choose(opts,{pos:'right'});const o=opts[i];
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
-  else if(o==='地圖'){await townMap();return}
+  else if(o==='地圖'){await townMap();return}else if(o==='任務')await questLog();
   else if(o==='滑板車'||o==='下滑板車'){G.flags.ride=o==='滑板車';sfx(G.flags.ride?'ball':'bump');menuEl.hidden=true;await say(G.flags.ride?`${G.name} 騎上了滑板車！咻——`:`${G.name} 從滑板車下來了。`);scheduleSave(300);return}
   else if(o==='存檔'){await saveNow();await say(db?'已存檔！進度存在雲端了。':'已存檔！（單機模式，只存在這台裝置）')}
   else return}}
 async function trainerCard(){await sheet(s=>{const C=CHARS[G.look|0];s.append(el('h3',`訓練家　${G.name}`),el('p',`樣子：${C[0]}\n錢：${G.money} 元\n圖鑑：抓到 ${G.caught.length} / 看過 ${G.seen.length}\n徽章：${G.badges?BADGES.slice(0,G.badges).join('、'):'（還沒有）'}\n\n目前任務：\n${questText()}`))});
   showText('要換造型嗎？');const c=await choose(['不用','換造型'],{pos:'list'});hideText();if(c===1){G.look=await chooseLook();scheduleSave(200)}}
+/* ================= 支線任務 ================= */
+/* 每個任務一筆資料；要加新任務只要在 QUESTS 加一筆。
+   種類 need：show(帶某屬性怪獸給他看) / deliver(幫忙送東西) / catch(圖鑑抓到幾種) / battle(跟他對戰) / types(隊伍有幾種屬性)
+   獎勵 give：items{道具:數量} / money / tutor{招式,屬性[]} / mon{怪獸名,等級,招式[]}  */
+const SPN=n=>SP.findIndex(s=>s&&s.n===n);
+const QUESTS=[
+ {id:'fish',ch:1,map:'tamsui',x:17,y:6,dir:'down',look:'fisher',who:'漁夫阿忠',name:'河口的水怪獸',
+  ask:['漁夫阿忠：少年仔，我在淡水河口抓魚抓了四十年。','聽說最近的小朋友都帶著水屬性的怪獸……','可以帶一隻水屬性的怪獸給我看看嗎？'],
+  hint:'帶一隻水屬性怪獸給淡水的漁夫阿忠看。',need:{type:'show',t:['水']},
+  done:['漁夫阿忠：哇！真的是水怪獸！游得比我的船還快！','這些球我留著也沒用，送你！'],give:{items:{ball2:5}}},
+ {id:'egg',ch:1,map:'beitou',x:21,y:7,dir:'down',look:'oldman',who:'溫泉阿伯',name:'溫泉蛋外送',
+  ask:['溫泉阿伯：我用地熱谷的泉水煮了溫泉蛋。','我在淡水的老伴最愛吃了，可是我腳不好走不過去……','可以幫我送去給淡水的阿嬤嗎？'],
+  hint:'把溫泉蛋送去給淡水的阿嬤。',need:{type:'deliver',item:'溫泉蛋',to:{map:'tamsui',x:3,y:6,dir:'right',look:'granny',who:'阿嬤'}},
+  done:['阿嬤：哎唷！是老伴煮的溫泉蛋！還熱熱的！','謝謝你跑這麼遠。這碗豆花請你，給怪獸吃會變強喔！'],give:{items:{douhua:2}}},
+ {id:'grass',ch:2,map:'route3',x:12,y:12,dir:'left',look:'youth',who:'攝影師小林',name:'芒花季攝影',
+  ask:['攝影師小林：陽明山的芒花開了，好美！','可是只拍芒花有點單調……','你可以帶一隻草屬性怪獸來當模特兒嗎？'],
+  hint:'帶一隻草屬性怪獸給陽明山的攝影師小林拍照。',need:{type:'show',t:['草']},
+  done:['攝影師小林：完美！芒花配上草怪獸，這張可以得獎了！','謝謝你，我教你的怪獸一招陽明山的祕傳招式！'],give:{tutor:{m:'芒花旋風',t:['草']}}},
+ {id:'dex15',ch:2,map:'taipei',x:15,y:14,dir:'down',look:'lass',who:'研究生小芸',name:'圖鑑調查',
+  ask:['研究生小芸：我在幫林教授做怪獸調查。','如果你的圖鑑抓到 15 種以上，就來告訴我好嗎？'],
+  hint:'圖鑑抓到 15 種怪獸，回台北城找研究生小芸。',need:{type:'catch',n:15},
+  done:['研究生小芸：15 種！你好厲害！','這隻霓虹喵是我在西門町撿到的，牠一直想跟著強的訓練家。','牠會特別的招式「霓虹閃」喔！'],give:{mon:{n:'霓虹喵',lv:18,moves:['霓虹閃','電光石火','亂抓','衝撞']}}},
+ {id:'deliv',ch:3,map:'xinyi',x:36,y:25,dir:'left',look:'youth',who:'外送員阿飛',name:'101 外送王',
+  ask:['外送員阿飛：我是信義區跑最快的外送員！','聽說你很會打？跟我比一場，贏了就給你好東西！'],
+  hint:'在信義區打贏外送員阿飛。',need:{type:'battle',party:[['皮皮猴',27],['螢火郎',27],['霓虹喵',28]]},
+  done:['外送員阿飛：輸了……你比我的機車還快！','這些是客人給的小費，分你一半！'],give:{items:{ball3:3},money:1000}},
+ {id:'sunset',ch:3,map:'route4',x:14,y:7,dir:'down',look:'oldman',who:'登山老伯',name:'象山看夕陽',
+  ask:['登山老伯：我每天都爬象山看夕陽。','以前有一隻會發光的怪獸陪我一起看……','可以帶一隻光屬性或火屬性的怪獸陪我看一次嗎？'],
+  hint:'帶光或火屬性怪獸給象山步道的登山老伯看。',need:{type:'show',t:['光','火']},
+  done:['登山老伯：……好溫暖的光，跟夕陽一樣。','謝謝你。我把當年那隻怪獸的招式教給你的夥伴吧。'],give:{tutor:{m:'夕陽餘暉',t:['光','火']}}},
+ {id:'surf',ch:4,map:'toucheng',x:26,y:20,dir:'down',look:'swimlead',who:'衝浪教練阿浪',name:'龜山島的浪',
+  ask:['衝浪教練阿浪：頭城的浪是全台灣最棒的！','可是浪太大，普通的怪獸撐不住。','帶一隻 Lv30 以上的水屬性怪獸來，我教牠衝浪！'],
+  hint:'帶一隻 Lv30 以上的水屬性怪獸給頭城的衝浪教練阿浪。',need:{type:'show',t:['水'],lv:30},
+  done:['衝浪教練阿浪：好樣的！牠站上浪頭了！','這招「蘭陽大浪」，只有頭城的浪練得出來！'],give:{tutor:{m:'蘭陽大浪',t:['水']}}},
+ {id:'onion',ch:4,map:'yilan',x:25,y:22,dir:'left',look:'oldman',who:'三星蔥農阿伯',name:'蔥田小偷',
+  ask:['三星蔥農阿伯：唉……我的蔥田又被偷了！','是灰霧幫的人！他們躲在田邊……','你可以幫我把他趕走嗎？'],
+  hint:'在宜蘭市打贏偷蔥的灰霧幫手下。',need:{type:'battle',foe:'灰霧幫 偷蔥手下',party:[['幽燈狸',31],['夜影貓',32],['隱竹蜥',33]]},
+  done:['三星蔥農阿伯：太好了！蔥田保住了！','這隻蔥尾鼬一直在幫我顧田，牠說想跟你去冒險。','牠會三星蔥的祕密招式「三星蔥爆」！'],give:{mon:{n:'蔥尾鼬',lv:30,moves:['三星蔥爆','亂抓','衝撞']}}},
+ {id:'harvest',ch:5,map:'hualien',x:22,y:19,dir:'down',look:'woman',who:'阿美族阿姨',name:'豐年祭',
+  ask:['阿美族阿姨：豐年祭要到了，大家都要一起跳舞！','如果你的隊伍裡有 4 種不同屬性的怪獸，','就能跳出最漂亮的圓圈舞喔！'],
+  hint:'隊伍裡帶 4 種不同屬性的怪獸，去找花蓮市的阿美族阿姨。',need:{type:'types',n:4},
+  done:['阿美族阿姨：哇～大家手牽手，跳得好開心！','這些是豐年祭的好料，帶著路上吃！'],give:{items:{douhua:3,youtiao:5}}},
+ {id:'climb',ch:5,map:'hualien',x:7,y:12,dir:'down',look:'youth',who:'攀岩教練阿岳',name:'清水斷崖挑戰',
+  ask:['攀岩教練阿岳：我帶的怪獸，是在清水斷崖練出來的！','敢跟我打一場嗎？'],
+  hint:'在花蓮市打贏攀岩教練阿岳。',need:{type:'battle',party:[['雨燕疾',40],['紋石靈',41],['斷崖山羊王',43]]},
+  done:['攀岩教練阿岳：你的怪獸……比斷崖還硬！','這隻崖角羊是在斷崖上出生的，帶牠去看更高的山吧！'],give:{mon:{n:'崖角羊',lv:35,moves:['斷崖飛踢','崖角衝','頭槌']}}},
+];
+const qst=q=>G.flags['q_'+q.id]|0; /* 0 沒接 1 進行中 2 已送達 9 完成 */
+function questOk(q){const n=q.need;
+  if(n.type==='show')return G.party.some(m=>n.t.includes(SP[m.sp].t)&&m.lv>=(n.lv||1));
+  if(n.type==='catch')return G.caught.length>=n.n;
+  if(n.type==='types')return new Set(G.party.map(m=>SP[m.sp].t)).size>=n.n;
+  if(n.type==='deliver')return qst(q)===2;return false}
+async function giveReward(q){const g=q.give;sfx('badge');
+  for(const k in g.items||{}){G.items[k]=Math.min(99,(G.items[k]|0)+g.items[k]);await say(`得到了 ${itemName(k)} ×${g.items[k]}！`)}
+  if(g.money){G.money+=g.money;await say(`得到了 ${g.money} 元！`)}
+  if(g.mon){const m=makeMon(SPN(g.mon.n),g.mon.lv,G.name);m.moves=g.mon.moves.filter(x=>MOVES[x]).slice(0,4);const w=addMon(m);await say(`${G.name} 得到了 ${SP[m.sp].n}！${w==='box'?'（身上滿了，送進怪獸箱）':''}`)}
+  if(g.tutor){const ok=j=>g.tutor.t.includes(SP[G.party[j].sp].t);
+    if(!G.party.some((m,j)=>ok(j))){await say(`（身上沒有${g.tutor.t.join('或')}屬性的怪獸……之後帶來再找我學吧！）`);return false}
+    for(;;){const j=await partyPick(`要讓哪一隻學「${g.tutor.m}」？`,ok);if(j<0){if(await yesNo('不學了嗎？之後還可以回來找我。'))return false;continue}
+      const m=G.party[j];const had=m.moves.includes(g.tutor.m);if(had){await say(`${nm(m)} 已經會了！`);continue}await learnMove(m,g.tutor.m);if(m.moves.includes(g.tutor.m))break;if(await yesNo('不學了嗎？之後還可以回來找我。'))return false}}
+  return true}
+async function questFinish(q,lines){await sayAll(lines||q.done);if(!(await giveReward(q))){G.flags['q_'+q.id]=Math.max(qst(q),1);G.flags['qr_'+q.id]=true;scheduleSave(200);return}
+  G.flags['q_'+q.id]=9;delete G.flags['qr_'+q.id];sfx('badge');await say(`支線任務「${q.name}」完成！`);scheduleSave(200)}
+async function questTalk(q){const s=qst(q);
+  if(s===9){await say(`${q.who}：謝謝你的幫忙！`);return}
+  if(G.flags['qr_'+q.id]){await say(`${q.who}：你回來了！`);if(await giveReward(q)){G.flags['q_'+q.id]=9;delete G.flags['qr_'+q.id];sfx('badge');await say(`支線任務「${q.name}」完成！`);scheduleSave(200)}return}
+  if(s===0){await sayAll(q.ask);if(!(await yesNo('要幫忙嗎？'))){await say(`${q.who}：好吧……改天再來找我。`);return}
+    G.flags['q_'+q.id]=1;sfx('ball');await say(`接下了支線任務「${q.name}」！\n（選單的「任務」可以查看）`);
+    if(q.need.type==='deliver')await say(`拿到了 ${q.need.item}！`);scheduleSave(200)}
+  const n=q.need;
+  if(n.type==='battle'){if(qst(q)!==1)return;if(!(await yesNo(`${q.who}：準備好了嗎？`)))return;
+    const tn=n.foe||q.who;const res=await battle(n.party.map(([s,l])=>makeMon(SPN(s),l,tn)),{name:tn,reward:0,noLose:true,lose:[`${q.who}：哈！再練練再來吧！`]});
+    if(res==='win')await questFinish(q);return}
+  if(n.type==='deliver'){await say(`${q.who}：${n.to.who}就在淡水，麻煩你了！`);return}
+  if(questOk(q))await questFinish(q);else await say(`${q.who}：${q.hint.replace(/。$/,'')}，拜託你了！`)}
+async function questDeliver(q){const s=qst(q);if(s===1){await say(`${G.name} 把${q.need.item}交給了${q.need.to.who}。`);G.flags['q_'+q.id]=2;await questFinish(q);return}
+  if(s===9){await say(`${q.need.to.who}：老伴煮的溫泉蛋，還是一樣好吃。`);return}
+  if(G.flags['qr_'+q.id]){await questTalk(q);return}await say(`${q.need.to.who}：我老伴在北投泡溫泉，好久沒看到他了……`)}
+for(const q of QUESTS){const M0=MAPS[q.map];if(!M0)continue;M0.npcs=M0.npcs||[];M0.npcs.push({id:'q_'+q.id,x:q.x,y:q.y,dir:q.dir,look:q.look,talk:()=>questTalk(q),qmark:()=>!qst(q)||!!G.flags['qr_'+q.id]||(qst(q)===1&&questOk(q))});
+  const t=q.need.to;if(t&&MAPS[t.map]){MAPS[t.map].npcs=MAPS[t.map].npcs||[];MAPS[t.map].npcs.push({id:'qt_'+q.id,x:t.x,y:t.y,dir:t.dir,look:t.look,talk:()=>questDeliver(q)})}}
+async function questLog(){const L=QUESTS.filter(q=>qst(q)||G.flags['qr_'+q.id]).sort((a,b)=>(qst(a)===9)-(qst(b)===9)||a.ch-b.ch);const PER=3,pages=Math.max(1,Math.ceil(L.length/PER));
+  for(let pg=0;pg<pages;pg++)await sheet(s=>{s.append(el('h3',`支線任務　完成 ${QUESTS.filter(q=>qst(q)===9).length} / ${QUESTS.length}${pages>1?`　（${pg+1}/${pages}）`:''}`));
+    if(!L.length)s.append(el('p','還沒有接任何任務。\n跟頭上有「！」的人說話，就能接任務喔。'));
+    for(const q of L.slice(pg*PER,pg*PER+PER)){const d=qst(q)===9;s.append(el('p',`${d?'✔':'▶'} 第${q.ch}章　${q.name}\n${d?'（完成）':G.flags['qr_'+q.id]?'回去找'+q.who+'領獎勵。':q.hint}`))}})}
+async function useDouhua(){if(!G.items.douhua){await say('豆花吃完了！');return false}
+  const t=await partyPick('要給哪一隻吃豆花？',j=>G.party[j].lv<100);if(t<0)return false;const m=G.party[t];G.items.douhua--;
+  const old=maxhp(m);m.lv++;m.exp=Math.max(m.exp|0,lvExp(m.lv));m.hp+=maxhp(m)-old;sfx('lvl');await say(`${nm(m)} 吃了豆花，升到了 Lv${m.lv}！`);
+  for(const [l,mv] of SP[m.sp].l){if(l===m.lv)await learnMove(m,mv)}
+  const ev=SP[m.sp].evo;if(ev&&m.lv>=ev[0]){const o=nm(m);await say(`咦？${o} 的樣子……`);sfx('badge');const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);await say(`恭喜！${o} 進化成 ${SP[m.sp].n} 了！`)}
+  scheduleSave();return true}
+
 function questText(){const f=G.flags;if(!f.starter)return '去林教授的研究所。';if(!f.letter_done)return '到北投寶貝中心，把信交給溫醫師。';if(!f.leader_back)return '去北投的地熱谷看看。';if(!G.badges)return '挑戰北投溫泉道館！';if(G.badges<2&&!f.cave_done)return '從北投商店街往東，走陽明山步道，穿過紗帽山洞。';if(G.badges<2)return '挑戰台北電光道館！';if(G.badges<3)return '從台北城往東，走象山步道到信義區，爬上台北101道館四樓！';if(G.badges<4&&!f.tunneldone)return '從信義區往東走到坪林，穿過雪山隧道到宜蘭！';if(G.badges<4)return '穿過蘭陽平原到宜蘭市，挑戰水之道館！';if(G.badges<5&&!f.hualien)return '從宜蘭市往南，走蘇花公路到花蓮！';if(G.badges<5)return '挑戰花蓮的草之道館！';return '第五章完成！下一章：台東・花東縱谷（製作中）。'}
 async function dex(){let at=0;for(;;){const items=DEX_ORDER.map((id,i)=>{const s=SP[id];return `No.${String(i+1).padStart(2,'0')} ${G.seen.includes(id)?s.n:'？？？'} ${G.caught.includes(id)?'●':G.seen.includes(id)?'○':''}`});
   showText(`圖鑑　看過 ${G.seen.length}・抓到 ${G.caught.length}\n●抓到了　○看過`);const i=await choose(items,{pos:'list',start:at,vis:6});if(i<0)return;at=i;const id=DEX_ORDER[i];
@@ -1844,9 +1937,9 @@ async function takeBackSwap(ids){for(const id of ids){const cur=slotMon(id);if(!
 async function partyPick(prompt,ok,cancel=true){for(;;){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list',cancel,start:Math.max(0,G.party.findIndex((m,j)=>ok(j)))});if(i<0)return -1;if(ok(i))return i;await say('不能選這一隻。')}}
 const HEALS=[['potion','傷藥',20,'用了'],['soy','豆漿',30,'喝了'],['rice','米漿',50,'喝了'],['youtiao','燒餅油條',999,'吃了']];
 async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.items.ball}`}];if(G.items.ball2)rows.push({k:'ball2',t:`高級球 ×${G.items.ball2}・好抓1.5倍`});if(G.items.ball3)rows.push({k:'ball3',t:`超級球 ×${G.items.ball3}・好抓2倍`});HEALS.forEach(([k,n,h])=>{if(k==='potion'||G.items[k])rows.push({k,t:`${n} ×${G.items[k]|0}・${h>=999?'全滿':'回'+h}`})});
-  if(!inBattle&&G.flags.letter_has&&!G.flags.letter_done)rows.push({k:'letter',t:'林教授的信'});if(!inBattle&&G.badges)rows.push({k:'badge',t:`徽章（${G.badges} 個）`});
+  if(G.items.douhua)rows.push({k:'douhua',t:`豆花 ×${G.items.douhua}・升1級`});if(!inBattle&&G.flags.letter_has&&!G.flags.letter_done)rows.push({k:'letter',t:'林教授的信'});if(!inBattle&&G.flags.q_egg===1)rows.push({k:'qegg',t:'溫泉蛋'});if(!inBattle&&G.badges)rows.push({k:'badge',t:`徽章（${G.badges} 個）`});
   showText('背包');const i=await choose(rows.map(r=>r.t),{pos:'list'});if(i<0)return null;const k=rows[i].k;
-  if(k==='letter'){await say('要交給北投寶貝中心溫醫師的信。封得好好的。');continue}
+  if(k==='letter'){await say('要交給北投寶貝中心溫醫師的信。封得好好的。');continue}if(k==='qegg'){await say('溫泉阿伯煮的溫泉蛋，要送給淡水的阿嬤。');continue}if(k==='douhua'){if(inBattle){await say('對戰中不能吃豆花！');continue}await useDouhua();continue}
   if(k==='badge'){await say(BADGES.slice(0,G.badges).join('、')+'\n都好好地收在徽章盒裡。');continue}
   if(k==='ball'||k==='ball2'||k==='ball3'){if(!inBattle){await say('在對戰中才能丟球！');continue}if(!G.items[k]){await say('用完了！');continue}if(B.trainer){await say('不能抓別人的怪獸！');continue}return {type:'ball',k}}
   const H=HEALS.find(h=>h[0]===k);if(!G.items[k]){await say(`${H[1]}用完了！`);continue}if(!G.party.length)continue;
@@ -1895,7 +1988,7 @@ function drawEvo(now){const E=B.evo;const cx=80,cy=58;ctx.fillStyle='rgba(16,20,
     for(let i=0;i<10;i++){const a=i*0.628+t*3,r=40-((t*30+i*7)%36);ctx.fillStyle=i%2?'#fff8b0':'#a8e8ff';ctx.fillRect(Math.round(cx+Math.cos(a)*r),Math.round(cy+Math.sin(a)*r),2,2)}}
   else if(t<3.1){const k=(t-2.6)/.5;ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);ctx.fillStyle=`rgba(255,255,255,${1-k})`;ctx.fillRect(0,0,160,144)}
   else{ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*2,r=36+Math.sin(t*4+i)*4;const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;ctx.fillStyle='#fff6a0';ctx.fillRect(Math.round(x)-1,Math.round(y)-3,2,6);ctx.fillRect(Math.round(x)-3,Math.round(y)-1,6,2)}}}
-const FXOF={'雷鰻甩尾':'bolt','空手劈':'ram','爆裂拳':'ram','崖角衝':'rock','斷崖飛踢':'ram','飛魚躍':'wave','燕返':'feather','峽谷疾風':'feather','念力':'shine','催眠紋':'glare','心靈波':'burst','石神預知':'burst','焰冠爪':'blaze','金針花舞':'leaf','花后綻放':'leaf','檜木香':'heart','神木之心':'whip','佛光普照':'holy','禪定':'shine','念珠連擊':'beads','梵音震心':'holy','蓮花座':'holy','金剛怒目':'glare','降魔杵':'ram','法輪轉':'wheel','大悲光':'holy','萬佛朝宗':'holy','茶香催眠':'heart','茶壺熱泉':'wave','泥巴彈':'rock','挖洞衝':'ram','鑽地撞':'ram','大地裂':'rock','潛盾突破':'rock','驚嚇':'glare','鬼影撞':'tclaw','燈火迷魂':'glare','幽冥燈':'fire','冥界之光':'burst','稻浪拍':'wave','稻穗長槍':'claw','熱泉噴':'bubble','龜山怒濤':'wave','蔥香辣擊':'leaf','冰礫':'rock','冷泉噴':'bubble','冰晶束縛':'shine','冰雹':'rock','暴風雪':'wave','衝撞':'ram','猛力壓':'ram','岩盾撞':'ram','俯衝':'dive','亂抓':'claw','雷爪':'tclaw','鉗夾':'pinch','齜牙':'glare','變硬':'shine','靜電彈':'bolt','羽毛刺':'feather','茶葉鏢':'leaf','藤鞭甩':'whip','螢火':'fire','烈焰衝':'blaze','泡泡噴':'bubble','浪花擊':'wave','碎石丟':'rock','太陽球':'sun','愛心飛飛':'heart','日光爆發':'burst','撒嬌':'heart','蛋殼滾':'ram','許願星':'sun','拚命一擊':'ram','葉刃斬':'leaf','炎螢衝':'blaze','激流衝':'wave','吸血咬':'claw','暗夜翼擊':'dive','芒花飛舞':'leaf','鐘乳落':'rock','霓虹閃':'bolt','松果砲':'leaf','蒼龍吐息':'burst','蟲咬':'claw','鱗粉舞':'shine','暗影爪':'tclaw','齒輪轉':'pinch','鐵頭撞':'ram','鋼鐵重擊':'rock','山脊碾壓':'rock','雲霧棍':'ram','潮汐巨鉗':'pinch','風獅咆哮':'leaf','晶洞崩落':'rock','願星審判':'burst','聖雲爪':'tclaw','天雲聖光':'burst','飛撲':'ram','頭槌':'ram','神速突擊':'ram','全力衝撞':'ram','終極破壞':'burst','搖籃曲':'heart','落石雨':'rock','大地震動':'rock','岩崩天降':'rock','電光石火':'bolt','電磁波':'bolt','十萬伏雷':'bolt','雷霆萬鈞':'bolt','旋風翅':'feather','暴風':'dive','天空神擊':'dive','麻痺花粉':'leaf','安眠花粉':'leaf','森林之怒':'leaf','神木衝擊':'whip','火花彈':'fire','鬼火迷魂':'fire','烈火輪':'blaze','火山爆發':'blaze','水槍':'bubble','漩渦迷陣':'wave','海嘯':'wave','怒濤巨浪':'wave','閃光彈':'sun','曙光砲':'burst','眩光':'shine','聖光之劍':'burst','搖籃光':'heart','龍爪':'tclaw','龍之怒':'burst','神龍天降':'burst','刺針':'claw','麻痺針':'claw','催眠鱗粉':'shine','蟲鳴震':'shine','百蟲大軍':'claw','偷襲':'tclaw','黑夜催眠':'glare','詭異舞步':'glare','暗黑波':'tclaw','午夜惡夢':'tclaw','金屬爪':'claw','鐵壁':'shine','磁力波':'bolt','鋼鐵加農砲':'rock','太陽刺擊':'blaze','日冕爆裂':'burst','燈河流火':'blaze','月光催眠':'glare','新月爪':'tclaw','象鼻重擊':'rock','叩叩啄':'feather','竹影刺':'tclaw','黃泉象踏':'rock','閻羅凝視':'glare','晨鐘震':'shine','竹刃連斬':'tclaw'};
+const FXOF={'芒花旋風':'leaf','夕陽餘暉':'sun','蘭陽大浪':'wave','三星蔥爆':'burst','雷鰻甩尾':'bolt','空手劈':'ram','爆裂拳':'ram','崖角衝':'rock','斷崖飛踢':'ram','飛魚躍':'wave','燕返':'feather','峽谷疾風':'feather','念力':'shine','催眠紋':'glare','心靈波':'burst','石神預知':'burst','焰冠爪':'blaze','金針花舞':'leaf','花后綻放':'leaf','檜木香':'heart','神木之心':'whip','佛光普照':'holy','禪定':'shine','念珠連擊':'beads','梵音震心':'holy','蓮花座':'holy','金剛怒目':'glare','降魔杵':'ram','法輪轉':'wheel','大悲光':'holy','萬佛朝宗':'holy','茶香催眠':'heart','茶壺熱泉':'wave','泥巴彈':'rock','挖洞衝':'ram','鑽地撞':'ram','大地裂':'rock','潛盾突破':'rock','驚嚇':'glare','鬼影撞':'tclaw','燈火迷魂':'glare','幽冥燈':'fire','冥界之光':'burst','稻浪拍':'wave','稻穗長槍':'claw','熱泉噴':'bubble','龜山怒濤':'wave','蔥香辣擊':'leaf','冰礫':'rock','冷泉噴':'bubble','冰晶束縛':'shine','冰雹':'rock','暴風雪':'wave','衝撞':'ram','猛力壓':'ram','岩盾撞':'ram','俯衝':'dive','亂抓':'claw','雷爪':'tclaw','鉗夾':'pinch','齜牙':'glare','變硬':'shine','靜電彈':'bolt','羽毛刺':'feather','茶葉鏢':'leaf','藤鞭甩':'whip','螢火':'fire','烈焰衝':'blaze','泡泡噴':'bubble','浪花擊':'wave','碎石丟':'rock','太陽球':'sun','愛心飛飛':'heart','日光爆發':'burst','撒嬌':'heart','蛋殼滾':'ram','許願星':'sun','拚命一擊':'ram','葉刃斬':'leaf','炎螢衝':'blaze','激流衝':'wave','吸血咬':'claw','暗夜翼擊':'dive','芒花飛舞':'leaf','鐘乳落':'rock','霓虹閃':'bolt','松果砲':'leaf','蒼龍吐息':'burst','蟲咬':'claw','鱗粉舞':'shine','暗影爪':'tclaw','齒輪轉':'pinch','鐵頭撞':'ram','鋼鐵重擊':'rock','山脊碾壓':'rock','雲霧棍':'ram','潮汐巨鉗':'pinch','風獅咆哮':'leaf','晶洞崩落':'rock','願星審判':'burst','聖雲爪':'tclaw','天雲聖光':'burst','飛撲':'ram','頭槌':'ram','神速突擊':'ram','全力衝撞':'ram','終極破壞':'burst','搖籃曲':'heart','落石雨':'rock','大地震動':'rock','岩崩天降':'rock','電光石火':'bolt','電磁波':'bolt','十萬伏雷':'bolt','雷霆萬鈞':'bolt','旋風翅':'feather','暴風':'dive','天空神擊':'dive','麻痺花粉':'leaf','安眠花粉':'leaf','森林之怒':'leaf','神木衝擊':'whip','火花彈':'fire','鬼火迷魂':'fire','烈火輪':'blaze','火山爆發':'blaze','水槍':'bubble','漩渦迷陣':'wave','海嘯':'wave','怒濤巨浪':'wave','閃光彈':'sun','曙光砲':'burst','眩光':'shine','聖光之劍':'burst','搖籃光':'heart','龍爪':'tclaw','龍之怒':'burst','神龍天降':'burst','刺針':'claw','麻痺針':'claw','催眠鱗粉':'shine','蟲鳴震':'shine','百蟲大軍':'claw','偷襲':'tclaw','黑夜催眠':'glare','詭異舞步':'glare','暗黑波':'tclaw','午夜惡夢':'tclaw','金屬爪':'claw','鐵壁':'shine','磁力波':'bolt','鋼鐵加農砲':'rock','太陽刺擊':'blaze','日冕爆裂':'burst','燈河流火':'blaze','月光催眠':'glare','新月爪':'tclaw','象鼻重擊':'rock','叩叩啄':'feather','竹影刺':'tclaw','黃泉象踏':'rock','閻羅凝視':'glare','晨鐘震':'shine','竹刃連斬':'tclaw'};
 const FXSND={holy:'sparkle',beads:'slash',wheel:'zap',ram:'bump',dive:'bump',claw:'slash',tclaw:'zap',pinch:'slash',glare:'bump',shine:'sparkle',bolt:'zap',feather:'slash',leaf:'slash',whip:'slash',fire:'fire',blaze:'fire',bubble:'water',wave:'water',rock:'bump',sun:'sparkle',heart:'sparkle',burst:'sparkle'};
 async function playFx(mv,side){const k=FXOF[mv]||'ram';const now=performance.now();const P0=(MOVES[mv]&&MOVES[mv].p)|0,tier=P0>=100?3:P0>=80?2:1;const dur=({ram:460,dive:520,blaze:1000,burst:1050,bolt:800,rock:1150,wave:950,fire:950,holy:1000,beads:900,wheel:950}[k]||800)+(tier===3?450:tier===2?200:0);
   if(k==='ram'||k==='dive'||k==='blaze')B.lunge={side,t0:now,dur:360};B.fx={k,side,t0:now+(k==='ram'||k==='dive'?160:0),dur,tier};sfx(FXSND[k]);
@@ -2151,7 +2244,7 @@ async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);cons
   if(!r||r.type!=='tradedone'){await say('交換取消了。');return}
   if(G.party[i]!==mine){await say('交換失敗了。');return}await doSwap(i,theirs,nm2)}
 /* ---- 給予寶貝 / 給予道具：對方先答應 → 送出方扣掉 → 通知對方收下 ---- */
-const itemName=k=>BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
+const itemName=k=>k==='douhua'?'豆花':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
 const giftWait=(pe,id)=>waitMsg(m=>m.id===id&&m.from===pe.id&&['giftok','decline','busy'].includes(m.type),60000);
 async function giftReply(pe,r){if(!r){await say(`${pe.name} 沒有回應。`);return false}if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return false}if(r.type==='decline'){await say(`${pe.name} 說不用了，謝謝！`);return false}return true}
 async function giftOffer(pe){
