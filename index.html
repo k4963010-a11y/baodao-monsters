@@ -189,7 +189,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-085412';
+import CONFIG from './firebase-config.js?v=20261107-091304';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -323,7 +323,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-085412";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-091304";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1067,7 +1067,12 @@ function sanMon(m){if(!m||typeof m!=='object')return null;const sp=m.sp|0;if(!SP
 /* ================= game state ================= */
 let G=null;
 function newGame(name,look=0){G={ver:2,look:clamp(look|0,0,CHARS.length-1),name,money:500,items:{ball:0,ball2:0,ball3:0,potion:0,soy:0,rice:0,youtiao:0},party:[],box:[],seen:[],caught:[],badges:0,flags:{},pos:{...NEW_POS},lastHeal:{...HOME_HEAL},steps:0}}
-function sanPos(p,def){if(!p||!MAPS[p.map])return {...def};const M=MAPS[p.map];const x=p.x|0,y=p.y|0;if(x<0||y<0||x>=M.w||y>=M.h||!WALK.has(M.grid[y][x]))return {...def};return {map:p.map,x,y,dir:['up','down','left','right'].includes(p.dir)?p.dir:'down'}}
+function sanPos(p,def){if(!p||!MAPS[p.map])return {...def};const M=MAPS[p.map];const x0=clamp(p.x|0,0,M.w-1),y0=clamp(p.y|0,0,M.h-1);const dir=['up','down','left','right'].includes(p.dir)?p.dir:'down';
+  // 地圖改版後原本站的格子可能變成牆/建築：就近找一格能走的地方，不要把人送回出生地
+  const ok=(x,y)=>x>=0&&y>=0&&x<M.w&&y<M.h&&WALK.has(M.grid[y][x])&&!(M.warps||[]).some(w=>w[0]===x&&w[1]===y)&&!(M.npcs||[]).some(n=>n.x===x&&n.y===y&&!n.cond);
+  if(WALK.has(M.grid[y0][x0])&&x0===(p.x|0)&&y0===(p.y|0))return {map:p.map,x:x0,y:y0,dir};
+  for(let r=1;r<=12;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;if(ok(x0+dx,y0+dy))return {map:p.map,x:x0+dx,y:y0+dy,dir}}
+  return {...def}}
 function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const party=(Array.isArray(d.party)?d.party:[]).map(sanMon).filter(Boolean).slice(0,6);
   const ids=a=>[...new Set((Array.isArray(a)?a:[]).map(x=>x|0).filter(x=>x>=1&&x<=N_SP))];
