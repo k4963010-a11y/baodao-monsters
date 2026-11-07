@@ -59,7 +59,7 @@ button{touch-action:manipulation}
 .ss div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:#0d3d38;letter-spacing:.1em}
 .ss button{width:56px;height:14px;border-radius:8px;border:0;background:#4c5058;box-shadow:0 2px 0 #2d2f35;transform:rotate(-20deg);touch-action:none;cursor:pointer}
 @keyframes upd{50%{transform:scale(1.18)}}
-.ss.updrow{justify-content:flex-end;margin-top:14px;padding-right:30px}.ss.updrow button{width:44px;height:11px}
+.ss div.far{margin-left:26px}
 .ss div.upd{position:relative}
 .ss div.upd::after{content:'!';position:absolute;top:-12px;right:-4px;width:20px;height:20px;border-radius:50%;background:#e02020;color:#fff;font-size:14px;line-height:20px;text-align:center;box-shadow:0 0 0 2px #fff;animation:upd .9s steps(2) infinite}
 button:focus-visible{outline:3px solid #fff;outline-offset:2px}
@@ -189,7 +189,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-083553';
+import CONFIG from './firebase-config.js?v=20261107-083903';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -294,8 +294,8 @@ if(auth){
     <div class="ss">
       <div><button id="sndBtn" aria-label="音樂開關"></button><span id="sndLbl">音樂 開</span></div>
       <div><button data-k="start" aria-label="選單"></button>選單</div>
+      <div id="resetWrap" class="far"><button id="resetBtn" aria-label="更新"></button><span id="resetLbl">更新</span></div>
     </div>
-    <div class="ss updrow"><div id="resetWrap"><button id="resetBtn" aria-label="更新"></button><span id="resetLbl">更新</span></div></div>
   </div>
 
   <div class="side">
@@ -323,7 +323,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-083553";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-083903";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
