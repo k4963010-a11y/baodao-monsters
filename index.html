@@ -191,7 +191,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-210246';
+import CONFIG from './firebase-config.js?v=20261107-210545';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -333,7 +333,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-210246";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-210545";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1604,7 +1604,7 @@ async function doctorTalk(){
   if(!G.flags.leader_back)await say('溫醫師：地熱谷在鎮上的左上方，過了橋往左走。小心灰霧幫！');
   else await say('溫醫師：灰霧幫在找什麼呢……我得再研究一下林教授的資料。')}
 
-const SKILLS=[['猛力壓',1500],['雷爪',1200],['烈焰衝',1200],['浪花擊',1200],['藤鞭甩',1200],['俯衝',1200],['岩盾撞',1200],['蟲咬',1200],['暗影爪',1800],['鐵頭撞',2000],['日光爆發',3000],['霓虹閃',3000],['葉刃斬',3000],['炎螢衝',3000],['激流衝',3000],['鐘乳落',3000]];
+const SKILLS=[['猛力壓',1500],['雷爪',1200],['烈焰衝',1200],['浪花擊',1200],['藤鞭甩',1200],['俯衝',1200],['岩盾撞',1200],['蟲咬',1200],['暗影爪',1800],['鐵頭撞',2000],['日光爆發',3000],['霓虹閃',3000],['葉刃斬',3000],['炎螢衝',3000],['激流衝',3000],['鐘乳落',3000],['十萬伏雷',6000],['烈火輪',6000],['冰雹',6000]];
 async function skillShop(){await sayAll(['技能老師：歡迎來到招式教室！','付學費，我就教你的怪獸新招式。','不過只能學「跟自己同屬性」或「一般系」的招式喔！']);
   try{for(;;){moneyOn();showText('要學哪一招？');const i=await choose([...SKILLS.map(([mv,pr])=>`${mv}（${MOVES[mv].t}・威力${MOVES[mv].p}）${pr}元`),'不學了'],{pos:'list',vis:6});
     if(i<0||i===SKILLS.length){await say('技能老師：歡迎再來！');return}const [mv,pr]=SKILLS[i];if(G.money<pr){await say('學費不夠喔！');continue}
