@@ -188,7 +188,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-081754';
+import CONFIG from './firebase-config.js?v=20261107-082200';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -322,7 +322,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-081754";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-082200";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1140,7 +1140,7 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle'}).catch(()=>{})}
+function updatePresence(){if(!room||!G)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
@@ -1251,10 +1251,13 @@ function otherPlayers(now){if(!room||!M)return (lastPeers=[]);let ps=[];try{ps=r
     let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
-    seen.add(q.uid);out.push({id:q.uid,lead:SP[q.lead|0]?q.lead|0:0,leadR:q.leadR===1,fight:q.fight===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+    seen.add(q.uid);out.push({id:q.uid,lead:SP[q.lead|0]?q.lead|0:0,leadR:q.leadR===1,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
   for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return (lastPeers=out)}
 function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
-  const label=o.name+(o.fight?'・對戰中':'');if(t.d.textContent!==label)t.d.textContent=label;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+  const label=o.name+(o.fight?'・對戰中':o.eye?'・看寶貝中':'');if(t.d.textContent!==label)t.d.textContent=label;t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+function drawEye(x,y,now){x=Math.round(x);y=Math.round(y);const blink=Math.floor(now/120)%20===0;const c=ctx;
+  c.fillStyle='#181820';c.fillRect(x-6,y-2,12,5);c.fillRect(x-4,y-3,8,7);if(blink){c.fillStyle='#f8f8f8';c.fillRect(x-5,y,10,1);return}
+  c.fillStyle='#f8f8f8';c.fillRect(x-5,y-1,10,3);c.fillRect(x-3,y-2,6,5);c.fillStyle='#3878d8';c.fillRect(x-2,y-2,4,5);c.fillStyle='#181820';c.fillRect(x-1,y-1,2,3);c.fillStyle='#ffffff';c.fillRect(x,y-1,1,1)}
 function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+Math.sin(now/120+i)*2;const px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.55;
   ctx.fillStyle=i%2?'rgba(255,255,255,.9)':'rgba(200,210,225,.9)';ctx.beginPath();ctx.arc(px,py,2.6,0,7);ctx.fill()}
   if(Math.floor(now/150)%2){ctx.fillStyle='#ffe040';ctx.fillRect(Math.round(x)-1,Math.round(y)-16,2,2);ctx.fillRect(Math.round(x)+5,Math.round(y)-13,2,2)}}
@@ -1319,7 +1322,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   const lead=G&&G.party[0];if(lead&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(isRareMon(lead))halo(X+8,Y+9,now);if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w);if(isRareMon(lead))sparkle(X+8,Y+8,now)}})}
   for(const o of otherPlayers(now)){
     if(o.lead){const [bx,by]=DIRS[o.dir];const fx2=(o.x-bx)*16-cx,fy2=(o.y-by)*16-cy;const im=SPRM[o.lead]||SPR16[o.lead];if(im)list.push({y:(o.y-by)*16,d:()=>{const hop=(Math.floor(now/250)%2)?1:0;if(o.leadR)halo(Math.round(fx2)+8,Math.round(fy2)-hop+8,now);if(o.dir==='right'){ctx.save();ctx.translate(Math.round(fx2)+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Math.round(fy2)-hop-1,16,16);ctx.restore()}else ctx.drawImage(im,Math.round(fx2),Math.round(fy2)-hop-1,16,16);if(o.leadR)sparkle(Math.round(fx2)+8,Math.round(fy2)-hop+7,now)}})}
-    list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.fight?6:0))}
+    list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now);if(o.eye)drawEye(o.x*16-cx+8,o.y*16-cy-12,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.eye?14:o.fight?6:0))}
   list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;if(G&&G.flags.ride){const X=Math.round(px-cx),Y=Math.round(py-cy)-3,sd=player.dir==='left'||player.dir==='right';ctx.fillStyle='#202028';ctx.fillRect(X+(sd?1:4),Y+16,sd?14:8,3);ctx.fillStyle='#e8403a';ctx.fillRect(X+(sd?2:5),Y+16,sd?12:6,1);ctx.fillStyle='#303038';ctx.fillRect(X+(sd?1:4),Y+18,3,2);ctx.fillRect(X+(sd?12:9),Y+18,3,2);ctx.fillStyle='#c8c8d0';if(sd)ctx.fillRect(player.dir==='right'?X+13:X+2,Y+6,1,10)}
     drawPerson(heroLook(),player.dir,Math.round(px-cx),Math.round(py-cy)-3,wk,player.par);
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
@@ -1916,18 +1919,27 @@ async function peerTalk(pe){
   const opp=teamOf(r.team);if(!opp.length){await say('對方沒有可以戰鬥的怪獸。');return}
   await pvpBattle(true,pe.id,pe.name,opp,id)}
 
+let VIEWING=false;
 async function showOffer(pe){
-  const i=await pickMine(`要給 ${pe.name} 看哪一隻？`);if(i<0)return;const mine=G.party[i];
+  if(!(await yesNo(`要把身上的 ${G.party.length} 隻寶貝
+全部秀給 ${pe.name} 看嗎？`)))return;
   const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
-  DUEL().send(pe.id,{type:'show',id,name:G.name,mon:JSON.parse(JSON.stringify(mine))});showText(`把 ${nm(mine)} 秀給 ${pe.name} 看……`);
-  const r=await waitMsg(m=>m.id===id&&m.from===pe.id&&['showok','busy','decline'].includes(m.type),30000);hideText();
+  DUEL().send(pe.id,{type:'show',id,name:G.name,team:JSON.parse(JSON.stringify(G.party.slice(0,6)))});showText(`把寶貝秀給 ${pe.name} 看……`);
+  const r=await waitMsg(m=>m.id===id&&m.from===pe.id&&['showok','busy','decline'].includes(m.type),20000);hideText();
   if(!r){await say(`${pe.name} 好像沒看到。`);return}
   if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return}
-  await say(`${pe.name}：哇！你的 ${nm(mine)} 好帥！`)}
-async function gotShow(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);
-  if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');if(m.mon&&m.mon.rare)theirs.rare=1;
-  await say(`${nm2} 拿出了 ${monTxt(theirs)} 給你看！`);markSeen(theirs.sp);await monSheet(theirs);
-  DUEL().send(m.from,{type:'showok',id:m.id});scheduleSave()}
+  await say(`${pe.name} 正在看你的寶貝！
+頭上有眼睛的時候，就是還在看喔。`)}
+async function gotShow(m){const nm2=String(m.name||'訓練家').slice(0,8);const raw=Array.isArray(m.team)?m.team.slice(0,6):[m.mon];
+  const team=raw.map(x=>{const q=sanMon(x);if(q&&x&&x.rare)q.rare=1;return q}).filter(Boolean);
+  if(!team.length){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');DUEL().send(m.from,{type:'showok',id:m.id});
+  VIEWING=true;updatePresence();
+  try{await say(`${nm2} 把身上的寶貝秀給你看！`);let at=0;
+    for(;;){showText(`${nm2} 的寶貝（${team.length} 隻）
+選一隻來看看，按 B 結束`);
+      const i=await choose(team.map(q=>`${monTxt(q)}${q.rare?'★':''}`),{pos:'list',start:at});if(i<0)break;at=i;markSeen(team[i].sp);await monSheet(team[i])}}
+  finally{VIEWING=false;updatePresence();hideText()}
+  await say(`看完 ${nm2} 的寶貝了！`);scheduleSave()}
 async function pickMine(prompt){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list'});hideText();return i}
 const monTxt=m=>`${nm(m)} Lv${m.lv}`;
 async function tradeOffer(pe){
