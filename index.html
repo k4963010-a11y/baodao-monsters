@@ -189,7 +189,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261107-091304';
+import CONFIG from './firebase-config.js?v=20261107-092334';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -323,7 +323,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261107-091304";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261107-092334";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1584,32 +1584,54 @@ async function mapShop(){if(G.flags.townmap){await sayAll(['店員：城鎮地�
   await sayAll(['店員：歡迎光臨誠品書店！','這本是最新的《寶島城鎮地圖》，','從淡水到宜蘭，每個地方都畫得清清楚楚！']);
   try{moneyOn();if(!(await yesNo('城鎮地圖 500 元，要買嗎？'))){await say('店員：歡迎再來看看！');return}
     if(G.money<500){await say('錢不夠喔！');return}G.money-=500;moneyOn();sfx('badge');G.flags.townmap=true;await say(`${G.name} 買了 城鎮地圖！`);await say('打開選單選「地圖」，就能看到自己在哪裡！');scheduleSave(200)}finally{moneyOff()}}
-const TMAP=[{k:'tamsui',n:'淡水鎮',x:26,y:40,t:1,d:'夕陽很美的河口小鎮'},{k:'route2',n:'2號道路',x:37,y:38,t:0,d:'紅樹林步道'},{k:'beitou',n:'北投',x:46,y:34,t:1,d:'冒著白煙的溫泉之鄉'},
- {k:'route3',n:'陽明山步道',x:58,y:30,t:0,d:'芒草和紗帽山洞'},{k:'taipei',n:'台北城',x:58,y:54,t:1,d:'熱鬧的大城市'},{k:'route4',n:'象山步道',x:72,y:58,t:0,d:'迷宮一樣的山路'},
- {k:'xinyi',n:'信義區',x:80,y:66,t:1,d:'台北101聳立的地方'},{k:'route5',n:'北宜公路・坪林',x:96,y:74,t:0,d:'茶香四溢的山路'},{k:'tunnel',n:'雪山隧道',x:110,y:66,t:0,d:'全長12.9公里的長隧道'},
- {k:'toucheng',n:'頭城',x:122,y:50,t:1,d:'開蘭第一城'},{k:'route6',n:'蘭陽平原・礁溪',x:122,y:66,t:0,d:'稻田和溫泉'},{k:'yilan',n:'宜蘭市',x:120,y:82,t:1,d:'蘭陽平原的中心'},
- {k:'kueishan',n:'龜山島',x:148,y:56,t:2,d:'？？？'}];
-const TLINK=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]];
-const TLOC={route3:'route3',cave1:'route3',cave2:'route3',geo:'beitou',xs1:'route4',xs2:'route4',xs3:'route4',xs4:'route4',tunnel1:'tunnel',tunnel2:'tunnel',tunnel3:'tunnel',teahouse:'route5',spa:'route6'};
-function locOf(id){for(let k=0;k<4&&id;k++){if(TLOC[id])return TLOC[id];if(TMAP.some(n=>n.k===id))return id;const w=MAPS[id]&&MAPS[id].warps&&MAPS[id].warps[0];id=w&&w[2]}return 'tamsui'}
+// 城鎮地圖：整座台灣（世界座標 330x610，經緯度換算後北部稍微拉開）。ch=章節，ch>4 的是還沒做的地方
+const TMAP=[{k:'tamsui',n:'淡水鎮',x:228,y:56,t:1,ch:1,d:'夕陽很美的河口小鎮'},{k:'route2',n:'2號道路',x:239,y:48,t:0,ch:1,d:'紅樹林步道'},{k:'beitou',n:'北投',x:251,y:50,t:1,ch:1,d:'冒著白煙的溫泉之鄉・第1道館'},
+ {k:'route3',n:'陽明山步道',x:263,y:42,t:0,ch:2,d:'芒草和紗帽山洞'},{k:'taipei',n:'台北城',x:255,y:66,t:1,ch:2,d:'熱鬧的大城市・第2道館'},{k:'route4',n:'象山步道',x:268,y:72,t:0,ch:3,d:'迷宮一樣的山路'},
+ {k:'xinyi',n:'信義區',x:280,y:68,t:1,ch:3,d:'台北101・第3道館'},{k:'route5',n:'北宜公路・坪林',x:288,y:82,t:0,ch:4,d:'茶香四溢的山路'},{k:'tunnel',n:'雪山隧道',x:296,y:93,t:0,ch:4,d:'全長12.9公里的長隧道'},
+ {k:'toucheng',n:'頭城',x:306,y:80,t:1,ch:4,d:'開蘭第一城'},{k:'route6',n:'蘭陽平原・礁溪',x:302,y:100,t:0,ch:4,d:'稻田和溫泉'},{k:'yilan',n:'宜蘭市',x:298,y:112,t:1,ch:4,d:'蘭陽平原的中心・第4道館'},
+ {k:'kueishan',n:'龜山島',x:328,y:90,t:2,ch:5,d:'灰霧幫老大的藏身處？'},
+ {k:'taichung',n:'台中市',x:127,y:216,t:1,ch:5,d:'中部大城市・第5道館'},{k:'chungtai',n:'中台禪寺',x:172,y:236,t:2,ch:5,d:'打坐念經，能遇見舍利寶貝'},{k:'sunmoon',n:'日月潭',x:163,y:262,t:0,ch:5,d:'湖裡住著神秘的寶貝'},
+ {k:'chiayi',n:'嘉義市',x:92,y:327,t:1,ch:6,d:'高鐵嘉義站・第6道館'},{k:'alishan',n:'阿里山',x:140,y:318,t:0,ch:6,d:'神木和雲海，日出很美'},
+ {k:'tainan',n:'台南市',x:55,y:406,t:1,ch:7,d:'台灣最古老的城市・第7道館'},
+ {k:'kaohsiung',n:'高雄市',x:70,y:467,t:1,ch:8,d:'港都・第8道館'},{k:'kenting',n:'墾丁',x:145,y:575,t:0,ch:8,d:'台灣最南端的海'},
+ {k:'taitung',n:'台東',x:196,y:447,t:1,ch:9,d:'熱氣球和稻浪'},{k:'hualien',n:'花蓮・太魯閣',x:266,y:226,t:1,ch:9,d:'大理石峽谷'},
+ {k:'yushan',n:'玉山冠軍之巔',x:170,y:330,t:3,ch:9,d:'台灣最高峰・最後的挑戰\n傳說中的玉山蒼龍在山頂等你'}];
+const TLINK=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[13,14],[14,15],[15,17],[16,17],[17,23],[19,20],[20,21],[21,22],[22,11]];
+const TLINK_SEA=[[9,12]],TLINK_HSR=[[6,13],[13,16],[16,18],[18,19]];
+const TW=[[226,30],[248,26],[266,30],[284,40],[300,48],[314,62],[312,74],[306,90],[304,110],[300,132],[290,165],[268,210],[262,246],[248,300],[236,340],[222,380],[202,436],[180,480],[170,527],[160,560],[150,588],[132,585],[128,525],[100,503],[73,480],[57,456],[46,403],[40,345],[47,281],[72,226],[110,170],[143,129],[175,98],[205,70]];
 let tmapAt=0;
-function drawTownMap(now){const c=ctx;c.fillStyle='#3a78c8';c.fillRect(0,0,160,144);c.fillStyle='#4a88d8';for(let y=4;y<144;y+=8)for(let x=(y/8%2)*6;x<160;x+=12)c.fillRect(x,y,3,1);
-  const land=[[0,62],[8,52],[18,40],[30,30],[46,20],[64,14],[84,16],[100,24],[114,32],[126,38],[134,42],[132,54],[134,66],[136,80],[134,96],[128,112],[120,144],[0,144]];
+function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M.id),n0=TMAP[tmapAt];
+  const camX=clamp(Math.round(n0.x-80),0,350-160),camY=clamp(Math.round(n0.y-58),0,610-104);
+  c.fillStyle='#3a78c8';c.fillRect(0,0,160,144);c.save();c.beginPath();c.rect(0,14,160,104);c.clip();c.translate(-camX,14-camY);
+  c.fillStyle='#4a88d8';for(let y=camY-8;y<camY+112;y+=8)for(let x=Math.floor(camX/12)*12+((y/8|0)%2)*6;x<camX+168;x+=12)c.fillRect(x,Math.round(y/8)*8,3,1);
   const poly=(pts,k)=>{c.fillStyle=k;c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill()};
-  poly(land.map(([x,y])=>[x+1,y+1]),'#2a5a28');poly(land,'#68b048');
-  [[60,22],[88,28],[100,44],[96,96],[108,104],[76,100],[84,116],[60,110]].forEach(([x,y])=>{poly([[x-6,y+5],[x,y-4],[x+6,y+5]],'#3a7a38');poly([[x-2,y-1],[x,y-4],[x+2,y-1]],'#e8f0e0')});
-  poly([[24,40],[40,44],[52,40],[60,46],[62,54],[56,56],[50,48],[40,48],[26,44]],'#58a0e0');
-  poly([[142,58],[146,52],[152,53],[155,57],[150,60]],'#68b048');c.fillStyle='#e8f0f0';c.fillRect(148,49,2,3);
-  c.strokeStyle='#f0e0a8';c.lineWidth=2;TLINK.forEach(([a,b])=>{c.beginPath();c.moveTo(TMAP[a].x,TMAP[a].y);c.lineTo(TMAP[b].x,TMAP[b].y);c.stroke()});
-  const cur=locOf(M&&M.id),blink=Math.floor(now/300)%2;
-  TMAP.forEach((n,i)=>{if(n.t===1){c.fillStyle='#202028';c.fillRect(n.x-4,n.y-4,8,8);c.fillStyle='#e84848';c.fillRect(n.x-3,n.y-3,6,6);c.fillStyle='#f8a8a0';c.fillRect(n.x-3,n.y-3,6,1)}
-    else if(n.t===0){c.fillStyle='#202028';c.fillRect(n.x-2,n.y-2,4,4);c.fillStyle='#f8e070';c.fillRect(n.x-1,n.y-1,2,2)}
+  poly(TW.map(([x,y])=>[x+2,y+2]),'#2a5a28');poly(TW,'#68b048');poly([[324,84],[329,80],[334,83],[333,88],[326,89]],'#68b048');
+  for(let i=0;i<14;i++){const u=i/13,x=250-u*90+Math.sin(i*1.7)*8,y=140+u*330;poly([[x-7,y+6],[x,y-6],[x+7,y+6]],'#3a7a38');poly([[x-2,y-2],[x,y-6],[x+2,y-2]],'#e8f0e0')}
+  [[175,98],[243,36],[150,560]].forEach(([x,y])=>poly([[x-5,y+4],[x,y-4],[x+5,y+4]],'#3a7a38'));
+  poly([[218,52],[232,58],[246,56],[252,62],[244,64],[232,62],[220,56]],'#58a0e0');poly([[160,256],[168,254],[170,262],[162,266],[156,262]],'#58a0e0');
+  const seg=(a,b,col,w,dash)=>{c.strokeStyle=col;c.lineWidth=w;c.setLineDash(dash||[]);c.beginPath();c.moveTo(TMAP[a].x,TMAP[a].y);c.lineTo(TMAP[b].x,TMAP[b].y);c.stroke();c.setLineDash([])};
+  TLINK_HSR.forEach(([a,b])=>{seg(a,b,'#7a3a10',3);seg(a,b,'#f08030',1.4,[4,3])});
+  TLINK.forEach(([a,b])=>{const open=TMAP[a].ch<=4&&TMAP[b].ch<=4;seg(a,b,open?'#f0e0a8':'#c8c0a0',2,open?null:[2,2])});
+  TLINK_SEA.forEach(([a,b])=>seg(a,b,'#e8f8ff',1,[2,2]));
+  TMAP.forEach((n,i)=>{const open=n.ch<=4;
+    if(n.t===3){c.fillStyle='#202028';c.beginPath();c.moveTo(n.x,n.y-7);for(let k=1;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?3.5:7;c.lineTo(n.x+Math.cos(a)*r,n.y+Math.sin(a)*r)}c.fill();c.fillStyle='#ffd840';c.beginPath();c.moveTo(n.x,n.y-5.5);for(let k=1;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?2.5:5.5;c.lineTo(n.x+Math.cos(a)*r,n.y+Math.sin(a)*r)}c.fill()}
+    else if(n.t===1){c.fillStyle='#202028';c.fillRect(n.x-4,n.y-4,8,8);c.fillStyle=open?'#e84848':'#9a8a8a';c.fillRect(n.x-3,n.y-3,6,6);c.fillStyle=open?'#f8a8a0':'#c8c0c0';c.fillRect(n.x-3,n.y-3,6,1)}
+    else if(n.t===2){c.fillStyle='#202028';c.beginPath();c.arc(n.x,n.y,4,0,7);c.fill();c.fillStyle=open?'#58c8f0':'#a0b0b8';c.beginPath();c.arc(n.x,n.y,3,0,7);c.fill()}
+    else{c.fillStyle='#202028';c.fillRect(n.x-2,n.y-2,4,4);c.fillStyle=open?'#f8e070':'#c8c0a0';c.fillRect(n.x-1,n.y-1,2,2)}
     if(n.k===cur&&blink){const S=sprites(heroLook()).down[0];c.drawImage(S,n.x-8,n.y-14)}
     if(i===tmapAt){c.strokeStyle=blink?'#ffe040':'#ffffff';c.lineWidth=1;c.strokeRect(n.x-6.5,n.y-6.5,13,13)}});
+  c.restore();
+  // 右上小地圖：整座台灣＋目前看的範圍
+  const ox=4,oy=16,sc=.07;c.fillStyle='rgba(20,26,42,.55)';c.fillRect(ox-2,oy-1,27,45);c.fillStyle='#68b048';c.beginPath();TW.forEach(([x,y],i)=>i?c.lineTo(ox+x*sc,oy+y*sc):c.moveTo(ox+x*sc,oy+y*sc));c.closePath();c.fill();
+  c.strokeStyle='#ffe040';c.lineWidth=1;c.strokeRect(ox+camX*sc,oy+camY*sc,160*sc,104*sc);
   c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';c.fillText('城鎮地圖　◀▶ 移動　B 關閉',4,2);
-  const n=TMAP[tmapAt];c.fillStyle='#f8f8f0';c.fillRect(0,118,160,26);c.fillStyle='#303848';c.fillRect(0,118,160,1);c.fillStyle='#202838';c.fillText(n.n+(n.k===cur?'　← 你在這裡':''),5,121);c.fillStyle='#5a6070';c.fillText(n.d,5,132)}
+  const n=n0,open=n.ch<=4;c.fillStyle='#f8f8f0';c.fillRect(0,118,160,26);c.fillStyle='#303848';c.fillRect(0,118,160,1);c.fillStyle='#202838';
+  c.fillText(n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`),5,121);c.fillStyle='#5a6070';c.fillText(n.d.split('\n')[0],5,132)}
 function townMap(){return new Promise(res=>{const prev=mode;menuEl.hidden=true;hideText();tmapAt=Math.max(0,TMAP.findIndex(n=>n.k===locOf(M.id)));mode='tmap';
   const hd=k=>{if(k==='left'||k==='up'){tmapAt=(tmapAt+TMAP.length-1)%TMAP.length;sfx('blip')}else if(k==='right'||k==='down'){tmapAt=(tmapAt+1)%TMAP.length;sfx('blip')}else if(k==='b'||k==='a'||k==='start'){popUI(hd);mode=prev;res()}};uiStack.push(hd)})}
+const TLOC={route3:'route3',cave1:'route3',cave2:'route3',geo:'beitou',xs1:'route4',xs2:'route4',xs3:'route4',xs4:'route4',tunnel1:'tunnel',tunnel2:'tunnel',tunnel3:'tunnel',teahouse:'route5',spa:'route6'};
+function locOf(id){for(let k=0;k<4&&id;k++){if(TLOC[id])return TLOC[id];if(TMAP.some(n=>n.k===id))return id;const w=MAPS[id]&&MAPS[id].warps&&MAPS[id].warps[0];id=w&&w[2]}return 'tamsui'}
+
 async function statue3(){await say(G.badges>=3?`台北101 摩天道館\n館主：阿鈞\n通過者：${G.name}`:'台北101 摩天道館\n館主：阿鈞\n通過者：（還沒有）')}
 async function gymLeader3(){
   if(G.badges>=3){await sayAll(['阿鈞：從這裡看，整座城市都好小。','聽說灰霧幫往東邊去了，要穿過雪山隧道到宜蘭……','信義區東邊的北宜公路，可以走到坪林。']);return}
