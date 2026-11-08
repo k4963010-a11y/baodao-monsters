@@ -34,7 +34,7 @@
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
@@ -63,7 +63,7 @@ function makeDb(){return {
     set:v=>setDoc(r,v),delete:()=>deleteDoc(r),
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
-  collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
+  collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)},async get(){const s=await getDocs(collection(fs,name));return {docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}}}}}}
 function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
   onDisconnect(me).remove().catch(()=>{});

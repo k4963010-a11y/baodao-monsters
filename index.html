@@ -235,9 +235,9 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-215302';
+import CONFIG from './firebase-config.js?v=20261108-215845';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -264,7 +264,7 @@ function makeDb(){return {
     set:v=>setDoc(r,v),delete:()=>deleteDoc(r),
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
-  collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)}}}}}
+  collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)},async get(){const s=await getDocs(collection(fs,name));return {docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}}}}}}
 function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
   onDisconnect(me).remove().catch(()=>{});
@@ -389,7 +389,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-215302";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-215845";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1382,7 +1382,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109b',d:'11/9',items:['「回報bug及遊戲建議」改成私下回報：只有 GM 看得到，GM 會直接回信到你的遊戲信箱 📮']},
+const NEWS=[{v:'1109c',d:'11/9 公告',items:['今天玩家太多，雲端暫時讀不到存檔，有些人被送回出生地。你的進度都還在雲端、沒有不見！','如果標題畫面出現「雲端暫時連不上」，請晚一點再按「重新連線」，不要開新的冒險喔']},
+ {v:'1109b',d:'11/9',items:['「回報bug及遊戲建議」改成私下回報：只有 GM 看得到，GM 會直接回信到你的遊戲信箱 📮']},
  {v:'1109',d:'龜山島更新',items:['🐢 新地圖：頭城往東 → 外澳沙灘 → 頭城海岸・漁港 → 龜山島外海 → 龜山島！','游泳改成怪獸技能：用「游泳技能書」教水系、冰系或龍系怪獸學會游泳，就能騎著牠在海上前進','面向水按 A，可以選「釣魚」或「游泳」','深海（深藍色）有更強的怪獸：盾月翻車、銀鞭帶魚（Lv50 進化成皇帶海龍王），還有超稀有的深淵鯨艦','龜島靈搬家了，現在只住在龜山島','宜蘭市新增 2 個要去龜山島才能完成的支線任務']},
  {v:'1108g',d:'11/8 新增',items:['台灣街景裝飾登場！土地公廟、檳榔攤、機車、挖土機、辦桌、垃圾車、砂石車、藍白拖……走過去按 A 調查看看，裡面藏了小東西喔！']},
  {v:'1108f',d:'11/8 調整',items:['愛歹丸的招式換成科技招式：雷射光刻、病毒入侵、防火牆、晶圓旋斬、超頻重拳、奈米光束、電路過載、量子爆發（保留招牌肉圓炸彈）','GM 的名字旁邊會顯示紅色「遊戲GM」標籤','GM 稀有「愛歹丸」換新造型：台灣晶片打造的機械戰士！','愛歹丸變強了！能力值大幅提升，肉圓炸彈威力 90（還可能讓對手混亂）、珍奶砲彈 80，後面的招式也全部加強']},
@@ -1480,7 +1481,7 @@ $('chatTabLobby').addEventListener('click',()=>setChatView('lobby'));$('chatTabF
 
 function subscribeCloud(){
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
-  db.collection('players').onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
+  const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
   try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());friendsFromLocks(s.docs);mailsFromLocks(s.docs);renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>({...d.data(),id:d.id})));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
@@ -1603,7 +1604,7 @@ function spotter(){for(const e of ents){if(!e.trainer||!e.sight||G.flags['t_'+e.
 async function spotted(e){e.alert=true;await wait(650);e.alert=false;const sx=e.x,sy=e.y,sd=e.dir,mid=M.id;
   while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e);
   if(M.id===mid&&ents.includes(e)&&(e.x!==sx||e.y!==sy)){const bd=BACK[sd];let n=0;while((e.x!==sx||e.y!==sy)&&n++<12)await stepEnt(e,bd);e.dir=sd}}
-function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;updatePresence();if(G.steps%25===0)scheduleSave(300);
+function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;updatePresence();if(G.steps%120===0)scheduleSave(300);
   const w=warpAt(player.x,player.y);if(w){event(()=>doWarp(w));return}
   const tr=(M.triggers||[]).find(t=>t.at.some(([x,y])=>x===player.x&&y===player.y)&&t.cond());if(tr){event(tr.run);return}
   const sp=spotter();if(sp){event(()=>spotted(sp));return}
@@ -2902,10 +2903,10 @@ async function dreamFix(){if(!G)return;const isDream=m=>m&&m.sp===SPN('玉山蒼
   if(G.name==='你'){await say('對了，你還沒告訴大家你的名字呢！');const h=()=>{};uiStack.push(h);let v;try{v=await askName()}finally{popUI(h)}if(v){for(const m of [...G.party,...G.box])if(m.ot==='你')m.ot=v;G.name=v;updatePresence();scheduleSave(200);await say(`好的！你的名字是 ${v}！`)}}}
 async function staleReload(){try{mode='blank';await say('這個帳號在別的地方玩過了，雲端有比較新的進度。\n馬上幫你載入最新進度！')}catch(e){}location.reload()}
 const sumG=g=>`最高Lv${Math.max(0,...g.party.map(m=>m.lv))}・${g.steps|0}步`;
-async function getSaved(){let saved=null,oldVer=false,localNewer=null;
-  if(db){try{const s=await db.doc('players/'+uid).get();if(s.exists){const d=s.data();cloudRev=d.rev|0;saved=sanG(d);if(!saved&&d&&d.ver===1)oldVer=true}}catch(e){}}
+async function getSaved(){let saved=null,oldVer=false,localNewer=null,cloudErr=false;
+  if(db){try{const s=await db.doc('players/'+uid).get();if(s.exists){const d=s.data();cloudRev=d.rev|0;saved=sanG(d);if(!saved&&d&&d.ver===1)oldVer=true}}catch(e){cloudErr=true;staleStop=true}}
   const loc=loadLocal();if(db&&saved&&loc&&loc.name===saved.name&&(loc.steps|0)>(saved.steps|0))localNewer=loc;
-  if(!saved)saved=loc;return {saved,oldVer,localNewer}}
+  if(!saved)saved=loc;return {saved,oldVer,localNewer,cloudErr}}
 async function boot(){requestAnimationFrame(frame);music('town');
   await initCloud();
   if(db){subscribeCloud();initDuel();$('cloudStatus').textContent='已連上雲端。朋友打開這一頁並開始冒險後，就會出現在這裡。';$('titleStatus').textContent='已連上雲端・進度會自動存檔'}
@@ -2915,7 +2916,8 @@ function decodeCode(t){try{t=String(t||'').trim().replace(/\s+/g,'');if(!t.start
 async function importCode(hasSave){let t=null;try{t=window.prompt('貼上搬家碼（BD1: 開頭的那一串）')}catch(e){}
   if(!t){await event(()=>say('沒有輸入搬家碼。'));return null}const g=decodeCode(t);if(!g){await event(()=>say('這個搬家碼看不懂，確認有沒有複製完整喔。'));return null}
   if(hasSave){let ok=false;await event(async()=>{ok=await yesNo(`要用「${g.name}」的進度，蓋掉現在的存檔嗎？`)});if(!ok)return null}return g}
-async function titleFlow(){const ep=EPOCH;const {saved,oldVer,localNewer}=await getSaved();if(ep!==EPOCH)return;if(oldVer)$('titleStatus').textContent='彩色版是新冒險，舊的簡易版存檔不能延用';
+async function titleFlow(){const ep=EPOCH;const {saved,oldVer,localNewer,cloudErr}=await getSaved();if(ep!==EPOCH)return;
+  if(cloudErr){$('titleStatus').textContent='⚠ 雲端暫時連不上（你的進度沒有不見）';const o2=['重新連線'];const i2=await choose(o2,{pos:'title',cancel:false});location.reload();return}if(oldVer)$('titleStatus').textContent='彩色版是新冒險，舊的簡易版存檔不能延用';
   const opts=saved?[`繼續冒險（${saved.name}）`,'新的冒險']:['新的冒險'];
   let pick=await choose(opts,{pos:'title',cancel:false});
   if(opts[pick]==='輸入搬家碼'){const g=await importCode(!!saved);if(ep!==EPOCH)return;if(g){G=g;enterWorld();await saveNow();await event(()=>say(`搬家成功！歡迎回來，${G.name}！`));return}titleFlow();return}
