@@ -235,7 +235,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-201748';
+import CONFIG from './firebase-config.js?v=20261108-201941';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -387,7 +387,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-201748";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-201941";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -518,11 +518,11 @@ const SP=[null,
  {n:'月面靈貍',t:'暗',b:[70,92,65,108],c:20,x:190,l:[[1,'偷襲'],[1,'齜牙'],[9,'暗影爪'],[17,'月光催眠'],[25,'新月爪'],[33,'月影夜襲'],[43,'暗黑波'],[55,'午夜惡夢'],[68,'神速突擊'],[82,'月影夜襲']],d:'白鼻心之中的傳說。臉上的白紋會發出月光，只在象山的深夜出現。看過牠的人，都說那一晚的月亮特別亮。'},
  {n:'霧林山椒魚',t:'冰',b:[98,78,92,58],c:20,x:190,l:[[1,'衝撞'],[1,'冰礫'],[8,'泡泡噴'],[15,'冰晶束縛'],[23,'冷泉噴'],[32,'冰河記憶'],[42,'冰雹'],[54,'頭槌'],[66,'暴風雪'],[80,'冰河記憶']],d:'從冰河時期就住在太平山霧林裡的山椒魚。身上的冰晶記得一萬年前的寒冷，吐一口氣就會起霧。'},
  {n:'峽谷金貂',t:'格鬥',b:[75,108,62,112],c:20,x:190,l:[[1,'亂抓'],[1,'空手劈'],[9,'電光石火'],[17,'爆裂拳'],[26,'金喉疾襲'],[35,'神速突擊'],[45,'斷崖飛踢'],[58,'全力衝撞'],[72,'金喉疾襲']],d:'太魯閣峽谷裡最快的獵手。胸前的金色毛像一面盾牌，在峽谷間跳躍時只看得到一道金光。'},
- {n:'愛歹丸',t:'一般',b:[88,86,84,88],c:3,x:150,l:[[1,'肉圓炸彈'],[1,'珍奶砲彈'],[1,'臭豆腐毒霧'],[1,'鳳梨酥盾'],[22,'蚵仔煎旋風'],[30,'雞排鐵掌'],[40,'刈包夾擊'],[52,'牛肉麵怒濤'],[66,'夜市大爆發']],d:'GM 送給玩家的稀有怪獸。最愛逛夜市，吃什麼就會變出什麼招式。身體軟Q軟Q，捏一下會發出「啵」的聲音。'},
+ {n:'愛歹丸',t:'一般',b:[112,118,104,112],c:3,x:150,l:[[1,'肉圓炸彈'],[1,'珍奶砲彈'],[1,'臭豆腐毒霧'],[1,'鳳梨酥盾'],[22,'蚵仔煎旋風'],[30,'雞排鐵掌'],[40,'刈包夾擊'],[52,'牛肉麵怒濤'],[66,'夜市大爆發']],d:'GM 送給玩家的稀有怪獸。最愛逛夜市，吃什麼就會變出什麼招式。身體軟Q軟Q，捏一下會發出「啵」的聲音。'},
 ];
 const N_SP=SP.length-1;
 MOVES['拚命一擊']={t:'一般',p:50};
-MOVES['茶香催眠']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['茶壺熱泉']={t:'草',p:95};MOVES['泥巴彈']={t:'地面',p:40};MOVES['挖洞衝']={t:'地面',p:60};MOVES['鑽地撞']={t:'地面',p:75};MOVES['大地裂']={t:'地面',p:95};MOVES['潛盾突破']={t:'地面',p:110,acc:.9};MOVES['驚嚇']={t:'幽靈',p:40};MOVES['鬼影撞']={t:'幽靈',p:60};MOVES['燈火迷魂']={t:'幽靈',p:0,fx:'conf',acc:.8};MOVES['幽冥燈']={t:'幽靈',p:80};MOVES['冥界之光']={t:'幽靈',p:100,acc:.95};MOVES['稻浪拍']={t:'水',p:60};MOVES['稻穗長槍']={t:'水',p:90};MOVES['熱泉噴']={t:'水',p:70};MOVES['龜山怒濤']={t:'水',p:120,acc:.9};MOVES['蔥香辣擊']={t:'草',p:60};MOVES['冰礫']={t:'冰',p:40};MOVES['冷泉噴']={t:'冰',p:65};MOVES['冰晶束縛']={t:'冰',p:0,fx:'para',acc:.75};MOVES['冰雹']={t:'冰',p:90};MOVES['暴風雪']={t:'冰',p:110,acc:.9};MOVES['雷鰻甩尾']={t:'電',p:95};MOVES['空手劈']={t:'格鬥',p:50};MOVES['爆裂拳']={t:'格鬥',p:75};MOVES['崖角衝']={t:'岩',p:75};MOVES['斷崖飛踢']={t:'格鬥',p:105,acc:.9};MOVES['飛魚躍']={t:'水',p:70};MOVES['燕返']={t:'飛',p:60};MOVES['峽谷疾風']={t:'飛',p:95,ef:'conf',ch:.2};MOVES['念力']={t:'超能力',p:50};MOVES['催眠紋']={t:'超能力',p:0,fx:'sleep',acc:.7};MOVES['心靈波']={t:'超能力',p:80};MOVES['石神預知']={t:'超能力',p:110,acc:.9};MOVES['焰冠爪']={t:'火',p:80};MOVES['金針花舞']={t:'草',p:70};MOVES['肉圓炸彈']={t:'一般',p:70};MOVES['珍奶砲彈']={t:'水',p:60};MOVES['臭豆腐毒霧']={t:'毒',p:0,fx:'conf',acc:.85};MOVES['鳳梨酥盾']={t:'一般',p:0,fx:'defup'};MOVES['蚵仔煎旋風']={t:'水',p:75};MOVES['雞排鐵掌']={t:'格鬥',p:80};MOVES['刈包夾擊']={t:'一般',p:85};MOVES['牛肉麵怒濤']={t:'水',p:95};MOVES['夜市大爆發']={t:'一般',p:110,acc:.9};MOVES['硫火巨盾']={t:'火',p:95};MOVES['月影夜襲']={t:'暗',p:100,ef:'sleep',ch:.15};MOVES['冰河記憶']={t:'冰',p:100,ef:'para',ch:.2};MOVES['金喉疾襲']={t:'格鬥',p:100,acc:1};MOVES['花后綻放']={t:'草',p:110,acc:.9};MOVES['檜木香']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['神木之心']={t:'草',p:90};MOVES['佛光普照']={t:'佛',p:40};MOVES['禪定']={t:'佛',p:0,fx:'defup'};MOVES['念珠連擊']={t:'佛',p:55};MOVES['梵音震心']={t:'佛',p:0,fx:'conf',acc:.8};MOVES['蓮花座']={t:'佛',p:70};MOVES['金剛怒目']={t:'佛',p:0,fx:'atkdown'};MOVES['降魔杵']={t:'佛',p:85,ef:'conf',ch:.2};MOVES['法輪轉']={t:'佛',p:95};MOVES['大悲光']={t:'佛',p:110,acc:.9};MOVES['萬佛朝宗']={t:'佛',p:120,acc:.9};
+MOVES['茶香催眠']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['茶壺熱泉']={t:'草',p:95};MOVES['泥巴彈']={t:'地面',p:40};MOVES['挖洞衝']={t:'地面',p:60};MOVES['鑽地撞']={t:'地面',p:75};MOVES['大地裂']={t:'地面',p:95};MOVES['潛盾突破']={t:'地面',p:110,acc:.9};MOVES['驚嚇']={t:'幽靈',p:40};MOVES['鬼影撞']={t:'幽靈',p:60};MOVES['燈火迷魂']={t:'幽靈',p:0,fx:'conf',acc:.8};MOVES['幽冥燈']={t:'幽靈',p:80};MOVES['冥界之光']={t:'幽靈',p:100,acc:.95};MOVES['稻浪拍']={t:'水',p:60};MOVES['稻穗長槍']={t:'水',p:90};MOVES['熱泉噴']={t:'水',p:70};MOVES['龜山怒濤']={t:'水',p:120,acc:.9};MOVES['蔥香辣擊']={t:'草',p:60};MOVES['冰礫']={t:'冰',p:40};MOVES['冷泉噴']={t:'冰',p:65};MOVES['冰晶束縛']={t:'冰',p:0,fx:'para',acc:.75};MOVES['冰雹']={t:'冰',p:90};MOVES['暴風雪']={t:'冰',p:110,acc:.9};MOVES['雷鰻甩尾']={t:'電',p:95};MOVES['空手劈']={t:'格鬥',p:50};MOVES['爆裂拳']={t:'格鬥',p:75};MOVES['崖角衝']={t:'岩',p:75};MOVES['斷崖飛踢']={t:'格鬥',p:105,acc:.9};MOVES['飛魚躍']={t:'水',p:70};MOVES['燕返']={t:'飛',p:60};MOVES['峽谷疾風']={t:'飛',p:95,ef:'conf',ch:.2};MOVES['念力']={t:'超能力',p:50};MOVES['催眠紋']={t:'超能力',p:0,fx:'sleep',acc:.7};MOVES['心靈波']={t:'超能力',p:80};MOVES['石神預知']={t:'超能力',p:110,acc:.9};MOVES['焰冠爪']={t:'火',p:80};MOVES['金針花舞']={t:'草',p:70};MOVES['肉圓炸彈']={t:'一般',p:90,ef:'conf',ch:.2};MOVES['珍奶砲彈']={t:'水',p:80};MOVES['臭豆腐毒霧']={t:'毒',p:0,fx:'conf',acc:1};MOVES['鳳梨酥盾']={t:'一般',p:0,fx:'defup'};MOVES['蚵仔煎旋風']={t:'水',p:90};MOVES['雞排鐵掌']={t:'格鬥',p:95};MOVES['刈包夾擊']={t:'一般',p:100};MOVES['牛肉麵怒濤']={t:'水',p:110};MOVES['夜市大爆發']={t:'一般',p:130,acc:.9};MOVES['硫火巨盾']={t:'火',p:95};MOVES['月影夜襲']={t:'暗',p:100,ef:'sleep',ch:.15};MOVES['冰河記憶']={t:'冰',p:100,ef:'para',ch:.2};MOVES['金喉疾襲']={t:'格鬥',p:100,acc:1};MOVES['花后綻放']={t:'草',p:110,acc:.9};MOVES['檜木香']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['神木之心']={t:'草',p:90};MOVES['佛光普照']={t:'佛',p:40};MOVES['禪定']={t:'佛',p:0,fx:'defup'};MOVES['念珠連擊']={t:'佛',p:55};MOVES['梵音震心']={t:'佛',p:0,fx:'conf',acc:.8};MOVES['蓮花座']={t:'佛',p:70};MOVES['金剛怒目']={t:'佛',p:0,fx:'atkdown'};MOVES['降魔杵']={t:'佛',p:85,ef:'conf',ch:.2};MOVES['法輪轉']={t:'佛',p:95};MOVES['大悲光']={t:'佛',p:110,acc:.9};MOVES['萬佛朝宗']={t:'佛',p:120,acc:.9};
 const maxPP=mv=>{const m=MOVES[mv];if(!m)return 10;if(mv==='衝撞')return 35;if(!m.p)return m.fx==='sleep'?10:(m.fx==='para'||m.fx==='conf')?15:30;return m.p<=45?30:m.p<=55?25:m.p<=65?20:m.p<=70?15:10};
 const ppOf=(m,mv)=>{const v=m.pp&&m.pp[mv];return Number.isFinite(v)?clamp(v,0,maxPP(mv)):maxPP(mv)};
 const PAL=[null,
@@ -1329,7 +1329,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1108c',d:'11/8 修正',items:['修正：開場夢境時切換 App，夢裡的玉山蒼龍會被存進存檔、名字變成「你」。重新進遊戲時，蒼龍會飛回玉山，並請你補取名字']},
+const NEWS=[{v:'1108d',d:'11/8 調整',items:['GM 稀有「愛歹丸」變強了！能力值大幅提升，肉圓炸彈威力 90（還可能讓對手混亂）、珍奶砲彈 80，後面的招式也全部加強']},
+ {v:'1108c',d:'11/8 修正',items:['修正：開場夢境時切換 App，夢裡的玉山蒼龍會被存進存檔、名字變成「你」。重新進遊戲時，蒼龍會飛回玉山，並請你補取名字']},
  {v:'1108b',d:'11/8 晚上',items:['📮 選單新增「信箱」：GM 的信，第一封是「超稀有怪獸情報」','好友頁可以搜尋玩家名稱加好友','選單-怪獸-「設定技能」：自己排招式順序','選單-怪獸-「查看」重新排版，還能看到下兩招會在幾級學會','選單會顯示身上有多少錢','怪獸商店的商品不會賣完了','進化後不會再補學舊招式','右上角改成「回報bug及遊戲建議」','GM 稀有怪獸「愛歹丸」登場！遇到 GM 就有機會拿到']},
  {v:'1108',d:'11/8',items:['新手保護：拿到第 2 個徽章前，戰敗不會掉錢','第一次走進 2 號道路的草叢，會有一隻啾啾鵲在等你，打贏牠就跟你走','勁敵阿翔第一戰：超級爆擊！','超稀有怪獸出現機率提高到 0.3%','新增好友：加好友、看好友在哪裡、私訊聊天','晶洞巨人換新造型：硫磺盾衛（專屬招式硫火巨盾）']},
  {v:'1107',d:'11/7',items:['每章都有超稀有：月面靈貍、霧林山椒魚、峽谷金貂（各有專屬招式和特效）','選單新增「表情」：30 個表情，頭上冒泡泡給大家看','選單點自己可以改名字','Game Boy 下方新增聊天室','新遊戲開場：玉山蒼龍夢境對戰','支線任務（第 1～5 章各 2 個）、豆花道具、技能商店高級招式']}];
