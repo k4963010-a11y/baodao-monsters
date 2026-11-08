@@ -256,7 +256,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-234416';
+import CONFIG from './firebase-config.js?v=20261108-235303';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -410,7 +410,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-234416";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-235303";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1529,7 +1529,7 @@ function friendsFromLocks(docs){if(!uid)return;const L=[],R=[],D={};
     if(/^fr_/.test(id)&&(v.a===uid||v.b===uid)){const o=v.a===uid?v.b:v.a;if(typeof o==='string')L.push({id:o,name:String((v.a===uid?v.bn:v.an)||'訓練家').slice(0,8),pair:pairKey(uid,o)})}
     else if(/^freq_/.test(id)&&v.to===uid&&typeof v.from==='string'&&v.from!==uid)R.push({id:v.from,name:String(v.fromName||'訓練家').slice(0,8),doc:id});
     else if(/^dm_/.test(id)&&typeof v.pair==='string'&&v.pair.split('_').includes(uid)&&typeof v.text==='string'&&typeof v.t==='number'){(D[v.pair]=D[v.pair]||[]).push({id,from:v.from,name:String(v.name||'').slice(0,8),text:v.text.slice(0,120),t:v.t})}}
-  const seen=new Set();FR.list=L.filter(f=>!seen.has(f.id)&&seen.add(f.id));FR.reqs=R.filter(r=>!isFriend(r.id));for(const k in D)D[k].sort((a,b)=>a.t-b.t);FR.dms=D;renderFriends()}
+  FR.ready=true;const seen=new Set();FR.list=L.filter(f=>!seen.has(f.id)&&seen.add(f.id));FR.reqs=R.filter(r=>!isFriend(r.id));for(const k in D)D[k].sort((a,b)=>a.t-b.t);FR.dms=D;renderFriends()}
 function friendName(id){const r=rosterDocs.find(x=>x.id===id);return (r&&r.d&&typeof r.d.name==='string'&&r.d.name.slice(0,8))||(FR.list.find(f=>f.id===id)||{}).name||'訓練家'}
 function friendWhere(id){const on=onlineMap();if(on[id]!==undefined)return {on:true,at:on[id]||'冒險中'};const r=rosterDocs.find(x=>x.id===id);const mp=r&&r.d&&r.d.pos&&r.d.pos.map;return {on:false,at:(MAPS[mp]&&MAPS[mp].name)||'不明'}}
 const unreadOf=f=>(FR.dms[f.pair]||[]).filter(m=>m.from!==uid&&m.t>(FR.seen[f.pair]||0)).length;
@@ -3058,10 +3058,16 @@ function drawTitle(now){const g=tbg,t=now/1000;
   for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7);drawMist(g,t,1)}
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
-function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600)}
+function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600)}
 /* 每位玩家自動跟 GM 成為好友（只做一次） */
 async function gmFriend(){const gm=[...GM_UIDS][0];if(!gm||!db||!uid||!G)return;const k=pairKey(uid,gm),[a,b]=k.split('_');
   try{await db.doc('locks/fr_'+k).set({holder:'fr',exp:0,a,b,an:a===gm?'凱凱':G.name,bn:b===gm?'凱凱':G.name,t:Date.now()});G.flags.gmfr=true;scheduleSave(500)}catch(e){}}
+/* GM 登入時：名冊上還不是好友的玩家，全部加成好友 */
+let gmAllRun=false;
+async function gmFriendAll(){if(gmAllRun)return;gmAllRun=true;for(let i=0;i<40&&!(FR.ready&&rosterDocs.length);i++)await wait(3000);if(!(FR.ready&&rosterDocs.length&&db&&G))return;
+  let n=0;for(const {id,d} of rosterDocs){if(id===uid||!d||d.ver!==2||isFriend(id))continue;const k=pairKey(uid,id),[a,b]=k.split('_'),nm=typeof d.name==='string'?d.name.slice(0,8):'訓練家';
+    try{await db.doc('locks/fr_'+k).set({holder:'fr',exp:0,a,b,an:a===uid?G.name:nm,bn:b===uid?G.name:nm,t:Date.now()});n++}catch(e){}}
+  if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已經跟 ${n} 位玩家成為好友`;document.body.append(t);setTimeout(()=>t.remove(),4000)}}
 async function gmFly1(){if(G.flags.gm_fly1)return;const m=[...G.party,...G.box].find(x=>x.sp===18);G.flags.gm_fly1=true;G.flags.flybook=true;
   if(m){m.sp=47;if(m.lv<36){m.lv=36;m.exp=lvExp(36)}m.moves=['願星審判','飛天','日光爆發','許願星'];delete m.pp;m.hp=maxhp(m);markCaught(47);sfx('badge');await sayAll(['咦？蛋願天使的身體發出耀眼的光芒……','蛋願天使 進化成了 蛋願神皇！',`蛋願神皇 Lv${m.lv} 學會了 願星審判、飛天、日光爆發、許願星！`,'打開選單選「飛天」就能出發！'])}
   await saveNow()}
