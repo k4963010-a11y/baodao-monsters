@@ -55,6 +55,7 @@ button{touch-action:manipulation}
 .cball{display:inline-block;width:calc(var(--u)*5);height:calc(var(--u)*5);margin-left:calc(var(--u)*1.5);vertical-align:middle;border-radius:50%;background:linear-gradient(#e84040 45%,#202838 45% 55%,#f8f8f8 55%);box-shadow:0 0 0 calc(var(--u)*.6) #202838}
 #sheet .dexnext{position:absolute;left:calc(var(--u)*8);bottom:calc(var(--u)*6);font-size:.85em;color:var(--c2)}
 #cvtxt{position:absolute;inset:0;pointer-events:none;z-index:1}#cvtxt span{position:absolute;white-space:nowrap;line-height:1.1;font-family:var(--f-game,DotGothic16),sans-serif}
+.rtabs{margin:8px 0 10px}.rtabs button{font-size:13px;padding:6px 0}
 #news{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #newsBtn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;text-align:left}
 #newsBtn span{font-size:18px}#newsBtn b{font-weight:normal;color:var(--shell-hi);white-space:nowrap}#newsBtn em{font-style:normal;color:var(--muted);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -241,7 +242,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-225102';
+import CONFIG from './firebase-config.js?v=20261108-225643';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -374,6 +375,7 @@ if(auth){
     <section class="card">
       <h2>訓練家名冊</h2>
       <p class="sub" id="cloudStatus">連線中……</p>
+      <div class="chattabs rtabs"><button type="button" data-rt="on" class="on">🟢 在線上</button><button type="button" data-rt="off">未上線</button><button type="button" data-rt="all">全部</button></div>
       <ol id="roster"></ol>
     </section>
     <section class="card" id="bugCard" hidden>
@@ -394,7 +396,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-225102";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-225643";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1397,7 +1399,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109g',d:'11/9 調整',items:['地圖、圖鑑分布、搭車畫面的字變清楚了','閃線鰻、蘭陽雷鰻改成水屬性，升級時水系、電系招式輪流學']},
+const NEWS=[{v:'1109h',d:'11/9 調整',items:['訓練家名冊分成「在線上／未上線／全部」三個分頁','游泳時不會再出現滑板車，游泳速度跟滑板車一樣快']},
+ {v:'1109g',d:'11/9 調整',items:['地圖、圖鑑分布、搭車畫面的字變清楚了','閃線鰻、蘭陽雷鰻改成水屬性，升級時水系、電系招式輪流學']},
  {v:'1109f',d:'11/9 新功能',items:['圖鑑新增「分布地圖」：看完怪獸介紹按 A，台灣地圖上會標出牠出現的地方（還沒去過的地方顯示 ?），就知道後面還遇不遇得到','戰鬥時遇到已經抓過的怪獸，名字旁邊會出現小寶貝球']},
  {v:'1109e',d:'11/9 修正',items:['修正：在海上游泳時更新，會被送回家裡。現在會留在原地，繼續騎著怪獸','修正：按「更新」時會等存檔完成才重新載入，位置不會跑掉']},
  {v:'1109d',d:'11/9 更新',items:['雲端已經升級，存檔恢復正常！大家的進度都回來了','對戰中不能按「更新」，避免打到一半跳出去','滑板車的桿子換成黑色粗桿子，比較清楚','深海怪獸的經驗值調整成跟淺海差不多','GM 可以寄信附送怪獸到大家的信箱 🎁']},
@@ -1505,13 +1508,17 @@ function subscribeCloud(){
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
   try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());friendsFromLocks(s.docs);mailsFromLocks(s.docs);renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>({...d.data(),id:d.id})));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
 }
+let RTAB='on';document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.rtabs button');if(b){RTAB=b.dataset.rt;renderRoster()}});
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
   const list=rosterDocs.filter(({d})=>d&&d.ver===2).map(({id,d})=>({id,name:typeof d.name==='string'?d.name.slice(0,8):'訓練家',caught:Array.isArray(d.caught)?new Set(d.caught.filter(x=>SP[x|0])).size:0,badges:clamp(d.badges|0,0,8),party:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.sp|0).filter(x=>SP[x]).slice(0,6),lv:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.lv|0)}))
    .sort((a,b)=>b.badges-a.badges||b.caught-a.caught);
   const nOn=list.filter(p=>on[p.id]!==undefined).length;if(db)$('cloudStatus').textContent=nOn?`現在有 ${nOn} 人在線上。`:'已連上雲端。朋友打開這一頁並開始冒險後，就會出現在這裡。';
   if(!list.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent='還沒有人。開始冒險後，你和朋友會出現在這裡。';ol.append(li);return}
-  list.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
-    const rk=document.createElement('span');rk.className='rk';rk.textContent=i+1;
+  list.forEach((p,i)=>p.rank=i+1);document.querySelectorAll('.rtabs button').forEach(b=>{const k=b.dataset.rt,n=k==='on'?list.filter(p=>on[p.id]!==undefined).length:k==='off'?list.filter(p=>on[p.id]===undefined).length:list.length;b.textContent=(k==='on'?'🟢 在線上':k==='off'?'未上線':'全部')+` ${n}`;b.classList.toggle('on',k===RTAB)});
+  const shown=list.filter(p=>RTAB==='all'||(RTAB==='on')===(on[p.id]!==undefined));
+  if(!shown.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent=RTAB==='on'?'現在沒有人在線上。':'大家都在線上！';ol.append(li);return}
+  shown.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
+    const rk=document.createElement('span');rk.className='rk';rk.textContent=p.rank;
     const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)&&p.id!==uid){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
     const ic=document.createElement('div');ic.className='icons';p.party.forEach((sp,j)=>{const im=document.createElement('img');im.src=iconURL(sp);im.alt=SP[sp].n;im.title=`${SP[sp].n} Lv${p.lv[j]||'?'}`;ic.append(im)});
     li.append(rk,row,ic);ol.append(li)});renderFriends()}
@@ -1637,7 +1644,7 @@ let CVT=[],CVTK='';const cvT=(x,y,t,col,sz)=>CVT.push([x,y,t,col||'#202838',sz||
 function cvFlush(){const k=JSON.stringify(CVT);CVT=[];if(k===CVTK)return;CVTK=k;const box=$('cvtxt');box.replaceChildren();for(const [x,y,t,col,sz] of JSON.parse(k)){const e=document.createElement('span');e.textContent=t;e.style.left=`calc(var(--u)*${x})`;e.style.top=`calc(var(--u)*${y})`;e.style.color=col;e.style.fontSize=`calc(var(--u)*${sz})`;box.append(e)}}
 function frame(now){requestAnimationFrame(frame);if(mode!=='tmap'&&mode!=='ride'&&CVTK){CVT=[];cvFlush()}boardsEl.hidden=mode!=='map';boardsEl.style.opacity=1-fadeA;const dt=Math.min(50,now-last);last=now;
   if(mode==='map'&&M){
-    if(player.moving){player.t+=dt/(G&&G.flags.ride?95:170);if(player.t>=1){player.moving=false;player.x=player.tx;player.y=player.ty;follower.x=follower.tx;follower.y=follower.ty;
+    if(player.moving){player.t+=dt/(G&&(G.flags.ride||G.flags.surf)?95:170);if(player.t>=1){player.moving=false;player.x=player.tx;player.y=player.ty;follower.x=follower.tx;follower.y=follower.ty;
       if(player.scripted){const r=player.scripted;player.scripted=null;r()}else onStep()}}
     if(!player.moving&&!uiStack.length&&!busy){const d=['up','down','left','right'].find(k=>held[k]);if(d)tryMove(d)}
     drawMap(now)}
@@ -1669,7 +1676,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
     if(o.lead){const [bx,by]=DIRS[o.dir];const fx2=(o.x-bx)*16-cx,fy2=(o.y-by)*16-cy;const im=SPRM[o.lead]||SPR16[o.lead];if(im)list.push({y:(o.y-by)*16,d:()=>{const hop=(Math.floor(now/250)%2)?1:0;if(o.leadR)halo(Math.round(fx2)+8,Math.round(fy2)-hop+8,now);if(o.dir==='right'){ctx.save();ctx.translate(Math.round(fx2)+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Math.round(fy2)-hop-1,16,16);ctx.restore()}else ctx.drawImage(im,Math.round(fx2),Math.round(fy2)-hop-1,16,16);if(o.leadR)sparkle(Math.round(fx2)+8,Math.round(fy2)-hop+7,now)}})}
     list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now);if(o.eye)drawEye(o.x*16-cx+8,o.y*16-cy-12,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.eye?14:o.fight?6:0));
     if(o.emo&&o.emoT&&Math.abs(Date.now()-o.emoT)<30000){const r=PEMO[o.id];if(!r||r.t!==o.emoT)PEMO[o.id]={t:o.emoT,at:performance.now()};if(performance.now()-PEMO[o.id].at<4000)tagEmo('pe_'+o.id,o.emo,o.x*16-cx+8,o.y*16-cy-16-(o.eye?14:o.fight?6:0))}}
-  list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;if(G&&G.flags.ride){const X=Math.round(px-cx),Y=Math.round(py-cy)-3,sd=player.dir==='left'||player.dir==='right';ctx.fillStyle='#202028';ctx.fillRect(X+(sd?1:4),Y+16,sd?14:8,3);ctx.fillStyle='#e8403a';ctx.fillRect(X+(sd?2:5),Y+16,sd?12:6,1);ctx.fillStyle='#303038';ctx.fillRect(X+(sd?1:4),Y+18,3,2);ctx.fillRect(X+(sd?12:9),Y+18,3,2);ctx.fillStyle='#14141c';if(sd){const px2=player.dir==='right'?X+12:X+2;ctx.fillRect(px2,Y+5,2,12);ctx.fillRect(px2-1,Y+4,4,2)}else{ctx.fillRect(X+7,Y+5,2,12);ctx.fillRect(X+3,Y+5,10,2)}}
+  list.push({y:py+.5,d:()=>{const wk=player.moving&&t>.25&&t<.75;if(G&&G.flags.ride&&!G.flags.surf){const X=Math.round(px-cx),Y=Math.round(py-cy)-3,sd=player.dir==='left'||player.dir==='right';ctx.fillStyle='#202028';ctx.fillRect(X+(sd?1:4),Y+16,sd?14:8,3);ctx.fillStyle='#e8403a';ctx.fillRect(X+(sd?2:5),Y+16,sd?12:6,1);ctx.fillStyle='#303038';ctx.fillRect(X+(sd?1:4),Y+18,3,2);ctx.fillRect(X+(sd?12:9),Y+18,3,2);ctx.fillStyle='#14141c';if(sd){const px2=player.dir==='right'?X+12:X+2;ctx.fillRect(px2,Y+5,2,12);ctx.fillRect(px2-1,Y+4,4,2)}else{ctx.fillRect(X+7,Y+5,2,12);ctx.fillRect(X+3,Y+5,10,2)}}
     const sfm=G&&G.flags.surf;if(sfm){const im=SPRM[G.flags.surfsp|0]||SPR16[G.flags.surfsp|0];const X=Math.round(px-cx),Y=Math.round(py-cy),bob=Math.floor(now/300)%2;if(im){if(player.dir==='right'){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Y+3+bob,16,16);ctx.restore()}else ctx.drawImage(im,X,Y+3+bob,16,16)}ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(X-2,Y+15,4,1);ctx.fillRect(X+14,Y+15,4,1)}
     drawPerson(heroLook(),player.dir,Math.round(px-cx),Math.round(py-cy)-3-(sfm?7:0),wk,player.par);
     const gx=player.moving?player.tx:player.x,gy=player.moving?player.ty:player.y;if(tileAt(gx,gy)===','&&(!player.moving||t>.5))ctx.drawImage(TILES[','][0],0,10,16,6,gx*16-cx,gy*16-cy+10,16,6)}});
