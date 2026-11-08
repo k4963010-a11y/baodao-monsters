@@ -54,6 +54,7 @@ button{touch-action:manipulation}
 .toastmsg{position:fixed;left:50%;bottom:22%;transform:translateX(-50%);background:rgba(20,26,42,.95);color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 .cball{display:inline-block;width:calc(var(--u)*5);height:calc(var(--u)*5);margin-left:calc(var(--u)*1.5);vertical-align:middle;border-radius:50%;background:linear-gradient(#e84040 45%,#202838 45% 55%,#f8f8f8 55%);box-shadow:0 0 0 calc(var(--u)*.6) #202838}
 #sheet .dexnext{position:absolute;left:calc(var(--u)*8);bottom:calc(var(--u)*6);font-size:.85em;color:var(--c2)}
+#cvtxt{position:absolute;inset:0;pointer-events:none;z-index:1}#cvtxt span{position:absolute;white-space:nowrap;line-height:1.1;font-family:var(--f-game,DotGothic16),sans-serif}
 #news{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #newsBtn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;text-align:left}
 #newsBtn span{font-size:18px}#newsBtn b{font-weight:normal;color:var(--shell-hi);white-space:nowrap}#newsBtn em{font-style:normal;color:var(--muted);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -240,7 +241,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-223703';
+import CONFIG from './firebase-config.js?v=20261108-224938';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -315,6 +316,7 @@ if(auth){
       <div class="led"><i></i>POWER<button class="bugbtn" id="bugBtn" type="button">回報bug及遊戲建議</button></div>
       <div class="screen" id="screen" tabindex="0" aria-label="遊戲畫面">
         <canvas id="cv" width="160" height="144"></canvas>
+        <div id="cvtxt"></div>
         <div id="boards"></div>
         <div id="mapName" class="box" hidden></div>
         <div id="moneyBox" class="box" hidden></div>
@@ -392,7 +394,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-223703";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-224938";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -505,8 +507,8 @@ const SP=[null,
  {n:'龜山神龜',t:'水',b:[115, 110, 125, 60],c:3,x:290,l:[[1,'熱泉噴'],[1,'激流衝'],[1,'變硬'],[1,'龜山怒濤'],[52,'鐘乳落'],[62,'海嘯'],[76,'大地震動'],[88,'怒濤巨浪'],[99,'龜山怒濤']],d:'傳說守護宜蘭外海的神龜。有人說，龜山島其實就是牠在海上睡覺的背殼。'},
  {n:'蔥尾鼬',t:'草',b:[50, 62, 45, 85],c:170,x:64,l:[[1,'亂抓'],[1,'齜牙'],[7,'茶葉鏢'],[13,'蔥香辣擊'],[21,'飛撲'],[29,'藤鞭甩'],[37,'麻痺花粉'],[46,'暗影爪'],[55,'葉刃斬'],[66,'神速突擊'],[78,'森林之怒'],[90,'全力衝撞'],[99,'神木衝擊']],d:'常常溜進三星蔥田的鼬獾。尾巴是一大把青蔥，跑過的地方都香香的。'},
  {n:'冷泉獺',t:'冰',b:[70, 75, 65, 80],c:120,x:120,l:[[1,'衝撞'],[1,'泡泡噴'],[8,'冰礫'],[15,'水槍'],[22,'冷泉噴'],[30,'冰晶束縛'],[38,'頭槌'],[46,'冰雹'],[56,'激流衝'],[66,'神速突擊'],[78,'暴風雪'],[90,'全力衝撞'],[99,'暴風雪']],d:'住在宜蘭冷泉裡的水獺。泡過的泉水會變得冰冰涼涼、冒出氣泡，夏天大家都搶著跟牠玩。'},
- {n:'閃線鰻',t:'電',b:[48,58,42,78],c:160,x:62,evo:[28,73],l:[[1,'衝撞'],[1,'靜電彈'],[7,'泡泡噴'],[12,'電光石火'],[18,'雷爪'],[24,'電磁波'],[30,'水槍'],[38,'霓虹閃'],[47,'頭槌'],[57,'十萬伏雷'],[68,'神速突擊'],[80,'雷霆萬鈞'],[92,'全力衝撞']],d:'宜蘭蘭陽溪口的鰻線變成的怪獸。冬天的晚上，河口會亮起一閃一閃的小電光。'},
- {n:'蘭陽雷鰻',t:'電',b:[80,98,72,102],c:45,x:172,l:[[1,'靜電彈'],[1,'電光石火'],[1,'雷爪'],[1,'雷鰻甩尾'],[24,'電磁波'],[30,'水槍'],[38,'霓虹閃'],[47,'頭槌'],[57,'十萬伏雷'],[68,'神速突擊'],[80,'雷霆萬鈞'],[92,'全力衝撞'],[99,'雷鰻甩尾']],d:'閃線鰻長大後的雷之鰻王。盤在雷雲裡，一甩尾巴，整條蘭陽溪都會被電光照亮。'},
+ {n:'閃線鰻',t:'水',b:[48,58,42,78],c:160,x:62,evo:[28,73],l:[[1,'衝撞'],[1,'靜電彈'],[7,'泡泡噴'],[12,'電光石火'],[18,'水槍'],[24,'雷爪'],[30,'浪花擊'],[36,'電磁波'],[42,'激流衝'],[50,'霓虹閃'],[57,'海嘯'],[66,'十萬伏雷'],[80,'怒濤巨浪'],[92,'雷霆萬鈞']],d:'宜蘭蘭陽溪口的鰻線變成的怪獸。冬天的晚上，河口會亮起一閃一閃的小電光。'},
+ {n:'蘭陽雷鰻',t:'水',b:[80,98,72,102],c:45,x:172,l:[[1,'靜電彈'],[1,'電光石火'],[1,'雷爪'],[1,'雷鰻甩尾'],[30,'浪花擊'],[36,'電磁波'],[42,'激流衝'],[50,'霓虹閃'],[57,'海嘯'],[66,'十萬伏雷'],[80,'怒濤巨浪'],[92,'雷霆萬鈞'],[99,'雷鰻甩尾']],d:'閃線鰻長大後的雷之鰻王。盤在雷雲裡，一甩尾巴，整條蘭陽溪都會被電光照亮。'},
  {n:'靈光舍利',t:'佛',b:[62,55,72,60],c:45,x:90,evo:[36,75],l:[[1,'佛光普照'],[1,'禪定'],[8,'念珠連擊'],[15,'梵音震心'],[22,'蓮花座'],[30,'金剛怒目'],[38,'降魔杵'],[50,'法輪轉'],[64,'大悲光'],[80,'萬佛朝宗']],d:'在中台禪寺的禪堂裡，聽了千年誦經聲而生的舍利寶貝。身上的光暖暖的，靠近牠心就會靜下來。'},
  {n:'金剛舍利尊',t:'佛',b:[102,112,108,96],c:20,x:270,l:[[1,'念珠連擊'],[1,'蓮花座'],[1,'降魔杵'],[1,'萬佛朝宗'],[15,'梵音震心'],[30,'金剛怒目'],[38,'降魔杵'],[50,'法輪轉'],[64,'大悲光'],[80,'萬佛朝宗']],d:'靈光舍利修行圓滿後化身的護法尊者。胸前的舍利寶珠一亮，背後的法輪就會轉動，守護一方平安。'},
  {n:'崖角羊',t:'岩',b:[70, 72, 78, 48],c:170,x:70,evo:[32,77],l:[[1,'衝撞'],[1,'變硬'],[7,'碎石丟'],[14,'空手劈'],[21,'岩盾撞'],[28,'崖角衝'],[36,'頭槌'],[45,'爆裂拳'],[55,'鐘乳落'],[66,'神速突擊'],[78,'大地震動'],[90,'岩崩天降']],d:'住在清水斷崖岩壁上的山羊。再陡的懸崖，牠都能一蹦一蹦地跳上去。'},
@@ -1395,7 +1397,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109f',d:'11/9 新功能',items:['圖鑑新增「分布地圖」：看完怪獸介紹按 A，台灣地圖上會標出牠出現的地方（還沒去過的地方顯示 ?），就知道後面還遇不遇得到','戰鬥時遇到已經抓過的怪獸，名字旁邊會出現小寶貝球']},
+const NEWS=[{v:'1109g',d:'11/9 調整',items:['地圖、圖鑑分布、搭車畫面的字變清楚了','閃線鰻、蘭陽雷鰻改成水屬性，升級時水系、電系招式輪流學']},
+ {v:'1109f',d:'11/9 新功能',items:['圖鑑新增「分布地圖」：看完怪獸介紹按 A，台灣地圖上會標出牠出現的地方（還沒去過的地方顯示 ?），就知道後面還遇不遇得到','戰鬥時遇到已經抓過的怪獸，名字旁邊會出現小寶貝球']},
  {v:'1109e',d:'11/9 修正',items:['修正：在海上游泳時更新，會被送回家裡。現在會留在原地，繼續騎著怪獸','修正：按「更新」時會等存檔完成才重新載入，位置不會跑掉']},
  {v:'1109d',d:'11/9 更新',items:['雲端已經升級，存檔恢復正常！大家的進度都回來了','對戰中不能按「更新」，避免打到一半跳出去','滑板車的桿子換成黑色粗桿子，比較清楚','深海怪獸的經驗值調整成跟淺海差不多','GM 可以寄信附送怪獸到大家的信箱 🎁']},
  {v:'1109c',d:'11/9 公告',items:['今天玩家太多，雲端暫時讀不到存檔，有些人被送回出生地。你的進度都還在雲端、沒有不見！','如果標題畫面出現「雲端暫時連不上」，請晚一點再按「重新連線」，不要開新的冒險喔']},
@@ -1630,7 +1633,9 @@ function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.
 function swimStep(){const tl=tileAt(player.x,player.y);if(G.flags.surf&&'~8'.includes(tl)&&Math.random()<(tl==='8'?0.07:0.05)&&G.party.some(m=>m.hp>0)){const z=M.seaZone&&M.seaZone(tl);if(z&&ZONES[z]){event(()=>wildEncounter(z));return true}ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T};event(()=>wildEncounter('fish'));return true}return false}
 function mapPress(k){if(k==='a'){const [dx,dy]=DIRS[player.dir];event(()=>interact(player.x+dx,player.y+dy))}else if(k==='start')event(startMenu)}
 let last=performance.now();
-function frame(now){requestAnimationFrame(frame);boardsEl.hidden=mode!=='map';boardsEl.style.opacity=1-fadeA;const dt=Math.min(50,now-last);last=now;
+let CVT=[],CVTK='';const cvT=(x,y,t,col,sz)=>CVT.push([x,y,t,col||'#202838',sz||10]);
+function cvFlush(){const k=JSON.stringify(CVT);CVT=[];if(k===CVTK)return;CVTK=k;const box=$('cvtxt');box.replaceChildren();for(const [x,y,t,col,sz] of JSON.parse(k)){const e=document.createElement('span');e.textContent=t;e.style.left=`calc(var(--u)*${x})`;e.style.top=`calc(var(--u)*${y})`;e.style.color=col;e.style.fontSize=`calc(var(--u)*${sz})`;box.append(e)}}
+function frame(now){requestAnimationFrame(frame);if(mode!=='tmap'&&mode!=='ride'&&CVTK){CVT=[];cvFlush()}boardsEl.hidden=mode!=='map';boardsEl.style.opacity=1-fadeA;const dt=Math.min(50,now-last);last=now;
   if(mode==='map'&&M){
     if(player.moving){player.t+=dt/(G&&G.flags.ride?95:170);if(player.t>=1){player.moving=false;player.x=player.tx;player.y=player.ty;follower.x=follower.tx;follower.y=follower.ty;
       if(player.scripted){const r=player.scripted;player.scripted=null;r()}else onStep()}}
@@ -1905,7 +1910,7 @@ function drawRide(now){if(!RIDE)return;const c=ctx,t=(now-RIDE.t0)/1000,p=Math.m
     for(const wx of [x+16,x+68]){c.fillStyle='#202028';c.beginPath();c.arc(wx,y+31,6,0,7);c.fill();c.fillStyle='#a8a8b0';c.beginPath();c.arc(wx,y+31,2.5,0,7);c.fill();const a=t*12;R(wx+Math.cos(a)*4-1,y+31+Math.sin(a)*4-1,2,2,'#e8e8f0')}
     c.font='10px DotGothic16,sans-serif';c.textBaseline='top';for(let i=0;i<4;i++){const q=((t*.8+i*.27)%1);c.fillStyle=`rgba(255,255,255,${1-q})`;c.fillText(i%2?'♪':'♫',x+10+i*20-q*22,y-6-q*30)}}
   const label=RIDE.k==='mrt'?'捷運 淡水信義線':RIDE.k==='hsr'?'台灣高鐵':RIDE.k==='tra'?'台鐵 自強號':'國道客運';c.font='10px DotGothic16,sans-serif';c.textBaseline='top';const tw=c.measureText(label+'　往 '+RIDE.dest).width+10;
-  c.fillStyle='rgba(20,26,42,.78)';c.fillRect(4,4,tw,15);c.fillStyle='#ffffff';c.fillText(label+'　往 '+RIDE.dest,9,6)}
+  c.fillStyle='rgba(20,26,42,.78)';c.fillRect(4,4,tw,15);cvT(9,6,label+'　往 '+RIDE.dest,'#ffffff');cvFlush()}
 const TRA=[['yilan','宜蘭站','ylst',5],['hualien','花蓮站','hlst',3]],TRA_FARE=150;
 async function trainTalk(here){
   if(!G.flags.hualien){await sayAll(['售票小姐：這裡是台鐵的售票口。','往花蓮的鐵路，要等你自己走過一次蘇花公路才會開通喔！']);return}
@@ -2141,10 +2146,10 @@ function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M
   // 右上小地圖：整座台灣＋目前看的範圍
   const ox=4,oy=16,sc=.07;c.fillStyle='rgba(20,26,42,.55)';c.fillRect(ox-2,oy-1,27,45);c.fillStyle='#68b048';c.beginPath();TW.forEach(([x,y],i)=>i?c.lineTo(ox+x*sc,oy+y*sc):c.moveTo(ox+x*sc,oy+y*sc));c.closePath();c.fill();
   c.strokeStyle='#ffe040';c.lineWidth=1;c.strokeRect(ox+camX*sc,oy+camY*sc,160*sc,104*sc);
-  c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';c.fillText(DEXV?`${SP[DEXV.sp].n} 分布　◀▶ B關閉`:'城鎮地圖　◀▶ 移動　B 關閉',4,2);
+  c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';cvT(4,2,DEXV?`${SP[DEXV.sp].n} 分布　◀▶ B關閉`:'城鎮地圖　◀▶ 移動　B 關閉');
   const n=n0,open=n.ch<=OPEN_CH;c.fillStyle='#f8f8f0';c.fillRect(0,118,160,26);c.fillStyle='#303848';c.fillRect(0,118,160,1);c.fillStyle='#202838';
-  if(DEXV){const d=DEXV.nodes[DEXV.at];c.fillText(n.n+`　（${DEXV.at+1}/${DEXV.nodes.length}）`,5,121);c.fillStyle='#5a6070';c.fillText((d.known?[...d.how].join('・'):'？？？（還沒去過）')+(DEXV.extra.length?'　'+DEXV.extra.join('・'):''),5,132);return}
-  c.fillText(n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=10?'傳說':n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`),5,121);c.fillStyle='#5a6070';c.fillText(n.d.split('\n')[0],5,132)}
+  if(DEXV){const d=DEXV.nodes[DEXV.at];cvT(5,121,n.n+`　（${DEXV.at+1}/${DEXV.nodes.length}）`);cvT(5,132,(d.known?[...d.how].join('・'):'？？？（還沒去過）')+(DEXV.extra.length?'　'+DEXV.extra.join('・'):''),'#5a6070');cvFlush();return}
+  cvT(5,121,n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=10?'傳說':n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`));cvT(5,132,n.d.split('\n')[0],'#5a6070');cvFlush()}
 function townMap(){return new Promise(res=>{const prev=mode;menuEl.hidden=true;hideText();tmapAt=Math.max(0,TMAP.findIndex(n=>n.k===locOf(M.id)));mode='tmap';
   const hd=k=>{if(k==='left'||k==='up'){tmapAt=(tmapAt+TMAP.length-1)%TMAP.length;sfx('blip')}else if(k==='right'||k==='down'){tmapAt=(tmapAt+1)%TMAP.length;sfx('blip')}else if(k==='b'||k==='a'||k==='start'){popUI(hd);mode=prev;res()}};uiStack.push(hd)})}
 const TLOC={waiao:'toucheng',coast:'toucheng',sea:'guishan',guishan:'guishan',suhua1:'suhua',suhua2:'suhua',suhua3:'suhua',suhua4:'suhua',suhua5:'suhua',hlst:'hualien',route3:'route3',cave1:'route3',cave2:'route3',geo:'beitou',xs1:'route4',xs2:'route4',xs3:'route4',xs4:'route4',tunnel1:'tunnel',tunnel2:'tunnel',tunnel3:'tunnel',tunnelA:'tunnel',tunnelB:'tunnel',teahouse:'route5',spa:'route6'};
