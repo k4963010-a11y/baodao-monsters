@@ -256,7 +256,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-235303';
+import CONFIG from './firebase-config.js?v=20261109-000204';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -410,7 +410,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-235303";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-000204";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1344,7 +1344,7 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
+function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING,flyD:FLYW?FLYW.d:'',flyT:FLYW?FLYW.t:0,flySp:FLYW?FLYW.sp:0}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 function saveLocal(){if(!G||G.dream)return;try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
@@ -1656,7 +1656,8 @@ function otherPlayers(now){if(!room||!M)return (lastPeers=[]);let ps=[];try{ps=r
     let g=ghosts[q.uid];if(!g||g.map!==q.map||Math.abs(g.x-x)+Math.abs(g.y-y)>3)g=ghosts[q.uid]={x,y,map:q.map,t:now,walk:false};
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
-    seen.add(q.uid);out.push({id:q.uid,emo:typeof q.emo==='string'&&EMOS.includes(q.emo)?q.emo:'',emoT:Number(q.emoT)||0,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===1,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+    const fd=['up','down','wait'].includes(q.flyD)?q.flyD:'',ft=Number(q.flyT)||0;let fa=null;if(fd){let r=PFLY[q.uid];if(!r||r.t!==ft||r.d!==fd)r=PFLY[q.uid]={t:ft,d:fd,at:now};const age=now-r.at;if(fd==='down'?age<FLY_DUR+200:age<6000)fa={dir:fd,t0:r.at,dur:FLY_DUR,sp:SP[q.flySp|0]?q.flySp|0:0}}else delete PFLY[q.uid];
+    seen.add(q.uid);out.push({fa,id:q.uid,emo:typeof q.emo==='string'&&EMOS.includes(q.emo)?q.emo:'',emoT:Number(q.emoT)||0,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===1,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
   for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return (lastPeers=out)}
 const EMOS=['😄','😆','🥰','😍','😎','🤩','😂','🥲','😭','😣','😡','😱','😴','🤔','😏','😳','🥺','😋','🤗','🙏','👍','👏','💪','🎉','❤️','💔','💤','❓','‼️','👋'];
 let myEmo=null;const PEMO={};
@@ -1736,6 +1737,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
       if(e.alert){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17;ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#fff';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#e03030';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}}})}
   const lead=G&&G.party[0];if(lead&&!(G.flags.surf)&&!FLYA&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;if(isRareMon(lead))halo(X+8,Y+9,now);if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w);if(isRareMon(lead))sparkle(X+8,Y+8,now)}})}
   for(const o of otherPlayers(now)){
+    if(o.fa){if(o.fa.dir!=='wait')list.push({y:o.y*16,d:()=>drawFly(Math.round(o.x*16-cx),Math.round(o.y*16-cy),now,o.fa,'p'+o.look)});continue}
     if(o.lead){const [bx,by]=DIRS[o.dir];const fx2=(o.x-bx)*16-cx,fy2=(o.y-by)*16-cy;const im=SPRM[o.lead]||SPR16[o.lead];if(im)list.push({y:(o.y-by)*16,d:()=>{const hop=(Math.floor(now/250)%2)?1:0;if(o.leadR)halo(Math.round(fx2)+8,Math.round(fy2)-hop+8,now);if(o.dir==='right'){ctx.save();ctx.translate(Math.round(fx2)+16,0);ctx.scale(-1,1);ctx.drawImage(im,0,Math.round(fy2)-hop-1,16,16);ctx.restore()}else ctx.drawImage(im,Math.round(fx2),Math.round(fy2)-hop-1,16,16);if(o.leadR)sparkle(Math.round(fx2)+8,Math.round(fy2)-hop+7,now)}})}
     list.push({y:o.y*16,d:()=>{drawPerson('p'+o.look,o.dir,Math.round(o.x*16-cx),Math.round(o.y*16-cy)-3,o.walk,false);if(o.fight)drawSwirl(o.x*16-cx+8,o.y*16-cy+4,now);if(o.eye)drawEye(o.x*16-cx+8,o.y*16-cy-12,now)}});tagPeer(o,o.x*16-cx+8,o.y*16-cy-4-(o.eye?14:o.fight?6:0));
     if(o.emo&&o.emoT&&Math.abs(Date.now()-o.emoT)<30000){const r=PEMO[o.id];if(!r||r.t!==o.emoT)PEMO[o.id]={t:o.emoT,at:performance.now()};if(performance.now()-PEMO[o.id].at<4000)tagEmo('pe_'+o.id,o.emo,o.x*16-cx+8,o.y*16-cy-16-(o.eye?14:o.fight?6:0))}}
@@ -1893,18 +1895,18 @@ function flySpot(id,x,y){const Mx=MAPS[id];if(!Mx)return null;const ok=(a,b)=>a>
 function flyTown(k){const Mx=MAPS[k];const w=(Mx.warps||[]).find(w=>/^center\d*$/.test(w[2]));return (w&&flySpot(k,w[0],w[1]))||flySpot(k,Mx.w>>1,Mx.h>>1)}
 function flyPeers(){const out=[],seen=new Set();if(!room)return out;let ps=[];try{ps=room.peers()}catch(e){return out}
   for(const p of ps){const q=p.presence||{};if(typeof q.uid!=='string'||q.uid===uid||seen.has(q.uid)||!MAPS[q.map]||!isFriend(q.uid))continue;const x=q.x|0,y=q.y|0;seen.add(q.uid);out.push({uid:q.uid,name:String(q.name||'訓練家').slice(0,8),map:q.map,x,y,fight:!!q.fight})}return out}
-let FLYA=null;
-function drawFly(X,Y,now){const f=FLYA,p=clamp((now-f.t0)/f.dur,0,1),q=f.dir==='up'?p:1-p;
+let FLYA=null,FLYW=null;const FLY_DUR=1300,PFLY={};
+function drawFly(X,Y,now,f=FLYA,look=heroLook()){const p=clamp((now-f.t0)/f.dur,0,1),q=f.dir==='up'?p:1-p;
   const lift=q*q*175,amp=12*Math.min(1,q*4),sway=Math.sin(q*Math.PI*5)*amp,vx=Math.cos(q*Math.PI*5)*(f.dir==='up'?1:-1);const flap=Math.floor(now/(q>0?90:200))%2;
   if(q<.9){const r=7*(1-q);ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(X+8,Y+14,r+1,r*.4+.6,0,0,7);ctx.fill()}
   if(q>0&&q<.25){ctx.fillStyle='rgba(255,255,255,.75)';for(let i=0;i<5;i++){const a=i*1.26+now/200,d=10+q*30;ctx.fillRect(X+8+Math.cos(a)*d,Y+12+Math.sin(a)*d*.35,2,2)}}
   const im=SPRM[f.sp]||SPR16[f.sp],bx=Math.round(X+sway),by=Math.round(Y-lift),W=flap?24:20,H=flap?18:22;
   if(im){ctx.save();ctx.translate(bx+8,by+10);if(vx>0)ctx.scale(-1,1);ctx.drawImage(im,-W/2,-H/2+2,W,H);ctx.restore()}
-  drawPerson(heroLook(),'down',bx,by-11,false,false)}
+  drawPerson(look,'down',bx,by-11,false,false)}
 async function flyGo(dest,label){const f=flyer();menuEl.hidden=true;await say(`${G.name} 坐上了 ${nm(f)}，飛上天空！`);
-  sfx('ball');FLYA={dir:'up',t0:performance.now(),dur:1300,sp:f.sp};await wait(1350);
-  await fade(1);G.flags.surf=false;G.flags.ride=false;loadMap(dest.map);placePlayer(dest);FLYA={dir:'down',t0:performance.now()+1e9,dur:1300,sp:f.sp};await wait(150);await fade(0);
-  FLYA.t0=performance.now();await wait(1350);FLYA=null;sfx('badge');await say(`飛到了 ${label}！`);scheduleSave(300)}
+  const fid=Date.now();sfx('ball');FLYA={dir:'up',t0:performance.now(),dur:FLY_DUR,sp:f.sp};FLYW={d:'up',t:fid,sp:f.sp};updatePresence();await wait(FLY_DUR+50);
+  await fade(1);G.flags.surf=false;G.flags.ride=false;FLYW={d:'wait',t:fid,sp:f.sp};loadMap(dest.map);placePlayer(dest);FLYA={dir:'down',t0:performance.now()+1e9,dur:FLY_DUR,sp:f.sp};await wait(150);await fade(0);
+  FLYA.t0=performance.now();FLYW={d:'down',t:fid,sp:f.sp};updatePresence();await wait(FLY_DUR+50);FLYA=null;FLYW=null;updatePresence();sfx('badge');await say(`飛到了 ${label}！`);scheduleSave(300)}
 async function flyToFriend(id){if(!flyer())return;if(G.flags.surf){await say('在水上沒辦法起飛，先上岸吧！');return}
   const o=flyPeers().find(x=>x.uid===id);if(!o){await say('這位好友現在不在線上。');return}const d=flySpot(o.map,o.x,o.y);if(!d){await say(`${o.name} 旁邊沒有地方降落……`);return}await flyGo(d,`${o.name} 的旁邊`)}
 async function flyMenu(){const f=flyer();if(!f){await say('隊伍裡沒有會「飛天」的怪獸。');return}
