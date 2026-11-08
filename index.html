@@ -237,7 +237,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-203252';
+import CONFIG from './firebase-config.js?v=20261108-210424';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -389,7 +389,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-203252";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-210424";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1332,7 +1332,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1108f',d:'11/8 調整',items:['愛歹丸的招式換成科技招式：雷射光刻、病毒入侵、防火牆、晶圓旋斬、超頻重拳、奈米光束、電路過載、量子爆發（保留招牌肉圓炸彈）','GM 的名字旁邊會顯示紅色「遊戲GM」標籤','GM 稀有「愛歹丸」換新造型：台灣晶片打造的機械戰士！','愛歹丸變強了！能力值大幅提升，肉圓炸彈威力 90（還可能讓對手混亂）、珍奶砲彈 80，後面的招式也全部加強']},
+const NEWS=[{v:'1108g',d:'11/8 新增',items:['台灣街景裝飾登場！土地公廟、檳榔攤、機車、挖土機、辦桌、垃圾車、砂石車、藍白拖……走過去按 A 調查看看，裡面藏了小東西喔！']},
+ {v:'1108f',d:'11/8 調整',items:['愛歹丸的招式換成科技招式：雷射光刻、病毒入侵、防火牆、晶圓旋斬、超頻重拳、奈米光束、電路過載、量子爆發（保留招牌肉圓炸彈）','GM 的名字旁邊會顯示紅色「遊戲GM」標籤','GM 稀有「愛歹丸」換新造型：台灣晶片打造的機械戰士！','愛歹丸變強了！能力值大幅提升，肉圓炸彈威力 90（還可能讓對手混亂）、珍奶砲彈 80，後面的招式也全部加強']},
  {v:'1108c',d:'11/8 修正',items:['修正：開場夢境時切換 App，夢裡的玉山蒼龍會被存進存檔、名字變成「你」。重新進遊戲時，蒼龍會飛回玉山，並請你補取名字']},
  {v:'1108b',d:'11/8 晚上',items:['📮 選單新增「信箱」：GM 的信，第一封是「超稀有怪獸情報」','好友頁可以搜尋玩家名稱加好友','選單-怪獸-「設定技能」：自己排招式順序','選單-怪獸-「查看」重新排版，還能看到下兩招會在幾級學會','選單會顯示身上有多少錢','怪獸商店的商品不會賣完了','進化後不會再補學舊招式','右上角改成「回報bug及遊戲建議」','GM 稀有怪獸「愛歹丸」登場！遇到 GM 就有機會拿到']},
  {v:'1108',d:'11/8',items:['新手保護：拿到第 2 個徽章前，戰敗不會掉錢','第一次走進 2 號道路的草叢，會有一隻啾啾鵲在等你，打贏牠就跟你走','勁敵阿翔第一戰：超級爆擊！','超稀有怪獸出現機率提高到 0.3%','新增好友：加好友、看好友在哪裡、私訊聊天','晶洞巨人換新造型：硫磺盾衛（專屬招式硫火巨盾）']},
@@ -1584,6 +1585,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   for(let ty=Math.floor(cy/16);ty<=Math.floor((cy+143)/16);ty++)for(let tx=Math.floor(cx/16);tx<=Math.floor((cx+159)/16);tx++){const T=TILES[tileAt(tx,ty)]||TILES[' '];ctx.drawImage(T[fr],tx*16-cx,ty*16-cy)}
   const list=[];
   for(const e of ents){const [ex,ey,wk]=entPos(e,now);
+    if(e.deco){if(e.deco!=='_')list.push({y:ey,d:()=>drawDeco(e.deco,ex-cx,ey-cy,now)});continue}
     if(e.kind==='item'||e.ball){list.push({y:ey-1,d:()=>ctx.drawImage(BALLIMG,ex-cx,ey-cy-(e.ball?4:0))});continue}
     list.push({y:ey,d:()=>{drawPerson(e.look,e.dir,Math.round(ex-cx),Math.round(ey-cy)-3,wk,e.par);
       if(e.qmark&&!e.alert&&e.qmark()){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17-(Math.floor(now/400)%2);ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#f8d040';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#181820';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}
@@ -1625,6 +1627,7 @@ async function interact(x,y){const pe=lastPeers.find(o=>Math.round(o.x)===x&&Mat
   if(TILE_TEXT[ch])await say(TILE_TEXT[ch])}
 async function talkTo(e){
   if(e.kind==='item'){const nmI={ball:'捉捉球',ball2:'高級球',ball3:'超級球',potion:'傷藥',soy:'豆漿',rice:'米漿',youtiao:'燒餅油條'}[e.item]||'道具';G.items[e.item]=Math.min(99,(G.items[e.item]|0)+e.n);G.flags['i_'+e.id]=true;refreshEnts();await say(`撿到了 ${nmI} ×${e.n}！`);scheduleSave();return}
+  if(e.deco){await e.talk(e);return}
   if(e.ball){await e.talk(e);return}
   const od=e.dir;faceTo(e);
   if(e.trainer)await trainerTalk(e);else if(e.talk)await e.talk(e);else if(e.lines)await sayAll(e.lines);
@@ -1667,6 +1670,55 @@ async function dreamIntro(){newGame('你');G.dream=true;G.party=[makeMon(SPN('�
   mode='blank';flash=true;await wait(500);flash=false;
   await sayAll(['玉山蒼龍朝著天空大吼一聲——','整座山都亮了起來……','……','…………','「起床了——！要遲到囉——！」','咚！','……','……原來是一場夢。','（夢裡那隻龍……好帥喔。）','（要是有一天，真的能遇到牠就好了……）']);
   G=null;hideText()}
+/* ================= 台灣街景裝飾（可以調查，有的藏了小東西） ================= */
+const DECOS=[
+ {id:'shrine',map:'tamsui',x:12,y:3,w:1,k:'shrine',name:'土地公廟'},
+ {id:'betel',map:'beitou',x:13,y:12,w:1,k:'betel',name:'檳榔攤'},
+ {id:'scooter',map:'taipei',x:22,y:6,w:2,k:'scooter',name:'機車'},
+ {id:'digger',map:'xinyi',x:19,y:9,w:2,k:'digger',name:'挖土機'},
+ {id:'banquet',map:'toucheng',x:12,y:11,w:2,k:'banquet',name:'辦桌'},
+ {id:'trash',map:'yilan',x:9,y:8,w:2,k:'trash',name:'垃圾車'},
+ {id:'gravel',map:'hualien',x:33,y:9,w:2,k:'gravel',name:'砂石車'},
+ {id:'slipper',map:'route2',x:6,y:10,w:1,k:'slipper',name:'藍白拖'},
+];
+const DECO_TALK={
+ shrine:async()=>{await sayAll(['小小的土地公廟，香爐裡還有幾柱香在冒煙。','你雙手合十，拜了三下……']);healAll();sfx('heal');await say('土地公保佑！怪獸們都恢復精神了！');
+   if(!G.flags.dc_shrine){G.flags.dc_shrine=true;G.items.ball2=Math.min(99,(G.items.ball2|0)+3);sfx('badge');await sayAll(['咦？供桌上放著一個紅包……','裡面是 高級球 ×3！（土地公要你好好冒險）'])}scheduleSave(200)},
+ betel:async()=>{await sayAll(['霓虹燈閃啊閃的檳榔攤。','老闆：少年仔，要不要來一包？……騙你的啦，小朋友不能吃！']);
+   if(!G.flags.dc_betel){G.flags.dc_betel=true;G.items.ball3=Math.min(99,(G.items.ball3|0)+1);sfx('badge');await sayAll(['老闆：這顆球是之前客人掉的，送你啦！','得到了 超級球 ×1！'])}else await say('老闆：開車小心喔！');scheduleSave(200)},
+ scooter:async()=>{await sayAll(['騎樓下停了一整排機車，擠得滿滿的。','（台北的機車真的好多……）']);
+   if(!G.flags.dc_scooter){G.flags.dc_scooter=true;G.items.ball=Math.min(99,(G.items.ball|0)+5);sfx('badge');await sayAll(['機車腳踏墊上放著一袋捉捉球，旁邊有張紙條：','「送給有緣的訓練家」','得到了 捉捉球 ×5！'])}scheduleSave(200)},
+ digger:async()=>{await sayAll(['工地裡停著一台黃色的挖土機。','（101 旁邊又在蓋新大樓了……）']);
+   if(!G.flags.dc_digger){G.flags.dc_digger=true;G.items.ball3=Math.min(99,(G.items.ball3|0)+2);sfx('badge');await sayAll(['咦？鏟斗裡好像有東西在發光……','挖到了 超級球 ×2！'])}else await say('鏟斗裡只剩下泥土了。');scheduleSave(200)},
+ banquet:async()=>{await sayAll(['紅色圓桌配紅色塑膠椅，是熱鬧的辦桌！','總舖師：來來來，吃飽沒？']);
+   if(!G.flags.dc_banquet){G.flags.dc_banquet=true;G.items.douhua=Math.min(99,(G.items.douhua|0)+2);sfx('badge');await sayAll(['總舖師：剩下的豆花帶著路上吃！','得到了 豆花 ×2！'])}else await say('總舖師：下次辦桌再來喔！');scheduleSave(200)},
+ trash:async()=>{await say('垃圾車來了！大家拿著垃圾出來倒～');await playMaiden();
+   if(!G.flags.dc_trash){G.flags.dc_trash=true;G.items.potion=Math.min(99,(G.items.potion|0)+5);sfx('badge');await sayAll(['清潔隊大哥：垃圾不落地，台灣更美麗！這些傷藥送你！','得到了 傷藥 ×5！'])}scheduleSave(200)},
+ gravel:async()=>{await sayAll(['一台載滿砂石的大卡車。','司機：蘇花公路彎很多，騎車要小心砂石車喔！']);
+   if(!G.flags.dc_gravel){G.flags.dc_gravel=true;G.items.youtiao=Math.min(99,(G.items.youtiao|0)+3);sfx('badge');await sayAll(['司機：吃飽才有力氣！這些燒餅油條給你！','得到了 燒餅油條 ×3！'])}scheduleSave(200)},
+ slipper:async()=>{await say('路邊有一雙藍白拖。（是誰掉的……？）');
+   if(!G.flags.dc_slipper){G.flags.dc_slipper=true;G.items.ball=Math.min(99,(G.items.ball|0)+3);sfx('badge');await sayAll(['拖鞋裡面藏著東西！','得到了 捉捉球 ×3！'])}else await say('只是一雙普通的藍白拖。');scheduleSave(200)},
+};
+/* 垃圾車音樂（少女的祈禱，古典名曲） */
+function playMaiden(){const c=AU.ctx;if(!c||!AU.on)return wait(300);const t=c.currentTime+.05,N=[[76,.3],[74,.3],[76,.3],[79,.6],[76,.3],[74,.3],[72,.6],[71,.3],[72,.3],[74,.6]];let d=0;for(const [m,l] of N){blip(AU.sg,'triangle',m,t+d,l*.95,.35);d+=l}return wait(d*1000)}
+for(const D of DECOS){const M0=MAPS[D.map];if(!M0)continue;M0.npcs=M0.npcs||[];for(let i=0;i<D.w;i++)M0.npcs.push({id:'dc_'+D.id+'_'+i,x:D.x+i,y:D.y,dir:'down',deco:i===0?D.k:'_',decoW:D.w,talk:()=>DECO_TALK[D.k]()})}
+function drawDeco(k,X,Y,now){const c=ctx,R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(X+x,Y+y,w,h)};X=Math.round(X);Y=Math.round(Y);
+  if(k==='shrine'){R(1,4,14,12,'#5a2a18');R(2,5,12,10,'#c83828');R(5,8,6,7,'#3a1a10');R(6,10,4,2,'#f0c040');R(0,2,16,3,'#2a1a10');R(1,1,14,2,'#e04030');R(0,0,3,2,'#e04030');R(13,0,3,2,'#e04030');R(7,-1,2,2,'#f0c040');
+    R(3,14,10,2,'#8a8a90');const s=Math.floor(now/400)%3;c.fillStyle='rgba(230,230,230,.7)';c.fillRect(X+8+(s-1),Y+3-s*2,1,2)}
+  else if(k==='betel'){R(1,3,14,13,'#d8d0c0');R(2,8,12,7,'#b8a890');R(1,2,14,2,'#2a6a3a');const on=Math.floor(now/250)%2;c.fillStyle=on?'#ff40c0':'#40ffd0';c.fillRect(X,Y+1,16,1);c.fillRect(X,Y+1,1,9);c.fillRect(X+15,Y+1,1,9);
+    R(3,4,10,3,'#fff4a0');R(4,5,2,1,'#e03030');R(7,5,2,1,'#2a8a3a');R(10,5,2,1,'#e03030');R(3,9,4,3,'#3a8a3a');R(9,9,4,3,'#3a8a3a')}
+  else if(k==='scooter'){for(let i=0;i<3;i++){const x=1+i*10,col=['#e04040','#4070e0','#f0f0f0'][i];R(x,10,2,4,'#202028');R(x+6,10,2,4,'#202028');R(x,7,8,4,col);R(x+1,4,2,4,'#303038');R(x,3,4,1,'#303038');R(x+4,6,4,2,'#202028');R(x+1,8,6,1,'rgba(255,255,255,.4)')}}
+  else if(k==='digger'){R(0,10,24,5,'#2a2a30');for(let i=0;i<6;i++)R(1+i*4,11,2,3,'#505058');R(2,4,14,7,'#f0c020');R(3,5,6,4,'#88c8e8');R(3,5,6,1,'#c8e8f8');R(2,3,14,1,'#c89810');
+    R(15,6,4,3,'#f0c020');R(18,0,3,8,'#f0c020');R(19,-6,3,8,'#f0c020');R(22,-6,4,3,'#d8a810');R(23,-3,6,5,'#606068');R(24,1,5,1,'#404048');
+    if(!G.flags.dc_digger&&Math.floor(now/300)%2)R(25,-2,2,2,'#ffffa0')}
+  else if(k==='banquet'){c.fillStyle='#c02828';c.beginPath();c.ellipse(X+16,Y+9,11,5,0,0,7);c.fill();c.fillStyle='#e04040';c.beginPath();c.ellipse(X+16,Y+8,11,4.5,0,0,7);c.fill();
+    R(13,5,6,3,'#e8e8e8');R(14,4,4,1,'#c0c0c0');R(9,7,3,2,'#f0d080');R(21,7,3,2,'#80c060');
+    for(const [x,y] of [[1,6],[27,6],[8,13],[20,13]]){R(x,y,4,4,'#e03030');R(x,y-3,4,3,'#c82020')}}
+  else if(k==='trash'){R(0,4,9,10,'#f0f0f0');R(1,5,7,4,'#88c8e8');R(9,1,22,13,'#f0c020');R(10,2,20,4,'#f8f8f0');R(12,7,16,1,'#c89810');R(0,13,32,1,'#303038');
+    for(const x of [4,22,27])R(x,13,4,3,'#202028');const n=Math.floor(now/300)%3;c.fillStyle='#fff';c.fillText&&0;R(28-n*3,-2-n,2,2,'#40c0ff')}
+  else if(k==='gravel'){R(0,4,9,10,'#e86020');R(1,5,7,4,'#88c8e8');R(9,6,23,8,'#3a8a4a');R(9,5,23,2,'#2a6a3a');c.fillStyle='#a08060';c.beginPath();c.moveTo(X+10,Y+6);c.lineTo(X+20,Y-2);c.lineTo(X+31,Y+6);c.fill();
+    for(let i=0;i<8;i++)R(12+i*2.4,2+(i%3),1,1,'#7a6040');R(0,13,32,1,'#303038');for(const x of [3,20,26])R(x,13,4,3,'#202028')}
+  else if(k==='slipper'){R(3,8,4,7,'#f4f4f8');R(9,7,4,7,'#f4f4f8');R(3,9,4,2,'#3060c0');R(9,8,4,2,'#3060c0');R(3,14,4,1,'#c0c0c8');R(9,13,4,1,'#c0c0c8')}}
 /* ================= 傳說登場動畫（玉山主峰・蒼龍降臨） ================= */
 let CINE=null;
 const CINE_STARS=[...Array(60)].map((_,i)=>[(i*73)%160,(i*41+i*i*7)%150,(i*13)%5]);
