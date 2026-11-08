@@ -121,7 +121,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #menu.emo .it.sel{background:rgba(216,64,64,.16);box-shadow:inset 0 0 0 calc(var(--u)*.8) #d84040}#menu.emo .it.sel::before{content:none}
 .emob{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*10);line-height:1;padding:calc(var(--u)*1.4) calc(var(--u)*1.6);background:#fff;border-radius:calc(var(--u)*4);box-shadow:0 0 0 calc(var(--u)*.7) #202838;animation:emopop .3s ease-out;z-index:1}
 @keyframes emopop{0%{transform:translate(-50%,-60%) scale(.3)}70%{transform:translate(-50%,-105%) scale(1.15)}100%{transform:translate(-50%,-100%) scale(1)}}
-#menu.right{top:0;right:0;width:calc(var(--u)*72)}
+#menu.right{top:0;right:0;width:calc(var(--u)*72);max-height:calc(var(--u)*144);row-gap:calc(var(--u)*.4);padding-top:calc(var(--u)*5);padding-bottom:calc(var(--u)*5)}
 #menu.battle{right:0;bottom:0;width:calc(var(--u)*88);height:calc(var(--u)*46);align-content:center}
 #menu.moves{left:0;right:0;bottom:0;height:calc(var(--u)*46);align-content:center}
 #menu.list{right:0;bottom:calc(var(--u)*44);width:calc(var(--u)*138);max-height:calc(var(--u)*100)}
@@ -237,7 +237,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-214903';
+import CONFIG from './firebase-config.js?v=20261108-215302';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -389,7 +389,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-214903";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-215302";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2182,7 +2182,7 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')),{pos:'right'});const o=opts[i];moneyOff();
+async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
   else if(o==='地圖'){await townMap();return}else if(o==='任務')await questLog();else if(o==='信箱')await letterBox();else if(o==='表情'){const k=await choose(EMOS,{cols:6,pos:'emo',tap1:true});if(k>=0){myEmo={e:EMOS[k],t:Date.now()};updatePresence();scheduleSave(300);return}}
