@@ -235,7 +235,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-201010';
+import CONFIG from './firebase-config.js?v=20261108-201748';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -387,7 +387,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-201010";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-201748";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1292,7 +1292,7 @@ let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
 function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:isRareMon(G.party.find(m=>m.hp>0)||G.party[0])?1:0,fight:mode==='battle',eye:VIEWING}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
-function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
+function saveLocal(){if(!G||G.dream)return;try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
 function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
 let saveTimer=0,saving=false,again=false,cloudRev=0,staleStop=false;
 function snapshotPos(){if(G&&M)G.pos={map:M.id,x:player.x,y:player.y,dir:player.dir}}
@@ -1329,7 +1329,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1108b',d:'11/8 晚上',items:['📮 選單新增「信箱」：GM 的信，第一封是「超稀有怪獸情報」','好友頁可以搜尋玩家名稱加好友','選單-怪獸-「設定技能」：自己排招式順序','選單-怪獸-「查看」重新排版，還能看到下兩招會在幾級學會','選單會顯示身上有多少錢','怪獸商店的商品不會賣完了','進化後不會再補學舊招式','右上角改成「回報bug及遊戲建議」','GM 稀有怪獸「愛歹丸」登場！遇到 GM 就有機會拿到']},
+const NEWS=[{v:'1108c',d:'11/8 修正',items:['修正：開場夢境時切換 App，夢裡的玉山蒼龍會被存進存檔、名字變成「你」。重新進遊戲時，蒼龍會飛回玉山，並請你補取名字']},
+ {v:'1108b',d:'11/8 晚上',items:['📮 選單新增「信箱」：GM 的信，第一封是「超稀有怪獸情報」','好友頁可以搜尋玩家名稱加好友','選單-怪獸-「設定技能」：自己排招式順序','選單-怪獸-「查看」重新排版，還能看到下兩招會在幾級學會','選單會顯示身上有多少錢','怪獸商店的商品不會賣完了','進化後不會再補學舊招式','右上角改成「回報bug及遊戲建議」','GM 稀有怪獸「愛歹丸」登場！遇到 GM 就有機會拿到']},
  {v:'1108',d:'11/8',items:['新手保護：拿到第 2 個徽章前，戰敗不會掉錢','第一次走進 2 號道路的草叢，會有一隻啾啾鵲在等你，打贏牠就跟你走','勁敵阿翔第一戰：超級爆擊！','超稀有怪獸出現機率提高到 0.3%','新增好友：加好友、看好友在哪裡、私訊聊天','晶洞巨人換新造型：硫磺盾衛（專屬招式硫火巨盾）']},
  {v:'1107',d:'11/7',items:['每章都有超稀有：月面靈貍、霧林山椒魚、峽谷金貂（各有專屬招式和特效）','選單新增「表情」：30 個表情，頭上冒泡泡給大家看','選單點自己可以改名字','Game Boy 下方新增聊天室','新遊戲開場：玉山蒼龍夢境對戰','支線任務（第 1～5 章各 2 個）、豆花道具、技能商店高級招式']}];
 (()=>{const head=$('newsHead'),body=$('newsBody'),dot=$('newsDot');if(!head)return;head.textContent=NEWS[0].d+'　'+NEWS[0].items[0]+(NEWS[0].items.length>1?` 等 ${NEWS[0].items.length} 項`:'');
@@ -1352,7 +1353,7 @@ async function peerPet(pe){const sp=pe.lead;if(!SP[sp])return;monCry(sp);
     if(SP[sp].d)s.append(el('p',SP[sp].d))});
   markSeen(sp)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&G)saveNow()});
-window.addEventListener('pagehide',()=>{try{if(G){snapshotPos();saveLocal()}}catch(e){}});
+window.addEventListener('pagehide',()=>{try{if(G&&!G.dream){snapshotPos();saveLocal()}}catch(e){}});
 
 /* ---- 聊天室（存在 locks/chat_<時間>_<uid>） ---- */
 let chatLast=0,chatSeen=new Set(),chatReady=false;
@@ -2732,7 +2733,12 @@ function drawTitle(now){const g=tbg,t=now/1000;
   for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7);drawMist(g,t,1)}
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
-function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map'}
+function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900)}
+/* 修正：開場夢境的資料曾經被存下來（夢裡的玉山蒼龍、名字「你」），讀檔時自動收回 */
+async function dreamFix(){if(!G)return;const isDream=m=>m&&m.sp===SPN('玉山蒼龍')&&m.ot==='你'&&m.moves&&m.moves.includes('神龍天降');
+  const n=G.party.filter(isDream).length+G.box.filter(isDream).length;if(n){G.party=G.party.filter(m=>!isDream(m));G.box=G.box.filter(m=>!isDream(m));
+    if(!G.party.length&&G.box.length)G.party.push(G.box.shift());await sayAll(['……咦？','原本跟在身邊的玉山蒼龍，化成一道光飛回玉山了。','（那果然只是一場夢……）','總有一天，要在玉山頂上真正遇見牠！']);scheduleSave(200)}
+  if(G.name==='你'){await say('對了，你還沒告訴大家你的名字呢！');const h=()=>{};uiStack.push(h);let v;try{v=await askName()}finally{popUI(h)}if(v){for(const m of [...G.party,...G.box])if(m.ot==='你')m.ot=v;G.name=v;updatePresence();scheduleSave(200);await say(`好的！你的名字是 ${v}！`)}}}
 async function staleReload(){try{mode='blank';await say('這個帳號在別的地方玩過了，雲端有比較新的進度。\n馬上幫你載入最新進度！')}catch(e){}location.reload()}
 const sumG=g=>`最高Lv${Math.max(0,...g.party.map(m=>m.lv))}・${g.steps|0}步`;
 async function getSaved(){let saved=null,oldVer=false,localNewer=null;
