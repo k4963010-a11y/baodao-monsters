@@ -69,7 +69,7 @@ button{touch-action:manipulation}
 #frp li{max-width:82%;background:#f0f2f6;border-radius:calc(var(--u)*2);padding:calc(var(--u)*1) calc(var(--u)*2.2);align-self:flex-start;font-size:.9em;word-break:break-all}#frp li.me{align-self:flex-end;background:#d8f2ec}#frp li small{display:block;font-size:.72em;color:#7a8090}
 #frp .fpres{display:flex;flex-direction:column;gap:calc(var(--u)*1.5)}#frp .sec{font-size:.8em;color:#5a6070;margin-top:calc(var(--u)*1)}
 #bcBar{position:absolute;left:0;right:0;top:calc(var(--u)*3);height:calc(var(--u)*13);background:linear-gradient(#e83a3a,#b81e28);border-top:calc(var(--u)*.8) solid #ffd84a;border-bottom:calc(var(--u)*.8) solid #ffd84a;z-index:90;overflow:hidden;pointer-events:none;box-shadow:0 calc(var(--u)*1) calc(var(--u)*2) rgba(0,0,0,.35)}
-#bcBar span{position:absolute;top:50%;left:0;white-space:nowrap;color:#fff;font-size:calc(var(--u)*7.5);line-height:1;text-shadow:calc(var(--u)*.6) calc(var(--u)*.6) 0 #6a0a10;transform:translate(calc(var(--u)*160),-50%);animation:bcMove var(--bcd,10s) linear 2}
+#bcBar span{position:absolute;top:50%;left:0;white-space:nowrap;color:#fff;font-size:calc(var(--u)*7.5);line-height:1;text-shadow:calc(var(--u)*.6) calc(var(--u)*.6) 0 #6a0a10;transform:translate(calc(var(--u)*160),-50%);animation:bcMove var(--bcd,10s) linear 1}
 #bcBar.mid{top:calc(var(--u)*46)}
 @keyframes bcMove{from{transform:translate(calc(var(--u)*160),-50%)}to{transform:translate(-100%,-50%)}}
 .bcbtn{background:#e83a3a!important;color:#fff!important;margin-left:6px}
@@ -148,7 +148,8 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #menu.right{top:0;right:0;width:calc(var(--u)*72);max-height:calc(var(--u)*144);row-gap:calc(var(--u)*.4);padding-top:calc(var(--u)*5);padding-bottom:calc(var(--u)*5)}
 #menu.battle{right:0;bottom:0;width:calc(var(--u)*88);height:calc(var(--u)*46);align-content:center}
 #menu.moves{left:0;right:0;bottom:0;height:calc(var(--u)*46);align-content:center}
-#menu.list{right:0;bottom:calc(var(--u)*44);width:calc(var(--u)*138);max-height:calc(var(--u)*100)}
+#menu.list{right:0;bottom:calc(var(--u)*57);width:calc(var(--u)*138);max-height:calc(var(--u)*87);padding-top:calc(var(--u)*4);padding-bottom:calc(var(--u)*4)}
+#menu.list.yn{width:calc(var(--u)*50)}#menu.list.yn.yl{left:0;right:auto}
 #menu.title{left:calc(var(--u)*30);right:calc(var(--u)*30);bottom:calc(var(--u)*9)}
 .binfo{position:absolute;font-size:calc(var(--u)*7.5);line-height:1.2;z-index:1;color:var(--c3)}
 #eInfo{left:calc(var(--u)*4);top:calc(var(--u)*6);width:calc(var(--u)*80)}
@@ -261,7 +262,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-002643';
+import CONFIG from './firebase-config.js?v=20261109-053219';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -416,7 +417,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-002643";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-053219";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1381,7 +1382,7 @@ function bcNext(){if(BC_ON||!BC_Q.length)return;const text=BC_Q.shift();const ba
   const pos=()=>bar.classList.toggle('mid',mode==='battle');pos();const tk=setInterval(pos,300);
   sp.onanimationend=()=>{clearInterval(tk);bar.hidden=true;BC_ON=false;bcNext()}}
 function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
-  w.innerHTML='<div class="in" role="dialog" aria-label="GM 大聲公"><h3>📣 GM 大聲公</h3><p>寫的字會用跑馬燈出現在所有線上玩家的遊戲畫面上（走路、戰鬥中都看得到），跑兩次。</p><textarea maxlength="80" placeholder="最多 80 個字"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">發送</button></div></div>';
+  w.innerHTML='<div class="in" role="dialog" aria-label="GM 大聲公"><h3>📣 GM 大聲公</h3><p>寫的字會用跑馬燈出現在所有線上玩家的遊戲畫面上（走路、戰鬥中都看得到），跑一次。</p><textarea maxlength="80" placeholder="最多 80 個字"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">發送</button></div></div>';
   document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row span'),close=()=>w.remove();ta.focus();
   ta.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});ta.addEventListener('keyup',x=>x.stopPropagation());
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
@@ -1483,7 +1484,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
+const NEWS=[{v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
+ {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
  {v:'1110',d:'飛天＋好友',items:['👥 選單新增「訓練家」：輸入朋友的 ID 就能加好友，好友分「在線上／未上線」，還可以直接私訊','每位玩家都自動跟 GM 凱凱 成為好友，有問題可以直接私訊 GM','你的 ID 在「訓練家」→「＋加好友」，或選單點自己的名字就看得到','🪽 新技能「飛天」：打贏花蓮館主小百合可以拿到「飛天技能書」（已經打贏的，回去找小百合拿）','教會飛系、龍系或光系的怪獸，選單就會出現「飛天」','可以飛到去過的城市（降落在寶貝中心門口），也可以飛到在線上的好友旁邊！']},
  {v:'1109h',d:'11/9 調整',items:['訓練家名冊分成「在線上／未上線／全部」三個分頁','游泳時不會再出現滑板車，游泳速度跟滑板車一樣快']},
  {v:'1109g',d:'11/9 調整',items:['地圖、圖鑑分布、搭車畫面的字變清楚了','閃線鰻、蘭陽雷鰻改成水屬性，升級時水系、電系招式輪流學']},
@@ -1641,7 +1643,7 @@ function say(text){return new Promise(res=>{dlg.hidden=false;dlgArrow.hidden=tru
   const ep=EPOCH;const tk=setInterval(()=>{if(ep!==EPOCH){clearInterval(tk);return}i++;dlgText.textContent=ch.slice(0,i).join('');if(i>=ch.length)fin()},22);
   const h=k=>{if(k!=='a'&&k!=='b')return;if(!done){fin();return}popUI(h);dlgArrow.hidden=true;res()};uiStack.push(h)})}
 async function sayAll(lines){for(const l of lines)await say(l)}
-function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!==false,cols=opt.cols||1,vis=opt.vis||(cols>1?99:7);let idx=clamp(opt.start||0,0,items.length-1),top=0;
+function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!==false,cols=opt.cols||1,vis=opt.vis||(cols>1?99:String(opt.pos||'').startsWith('list')?6:7);let idx=clamp(opt.start||0,0,items.length-1),top=0;
   menuEl.className='box '+(opt.pos||'right');menuEl.style.setProperty('--cols',cols);menuEl.hidden=false;
   const render=()=>{if(idx<top)top=idx;if(idx>=top+vis)top=idx-vis+1;menuEl.replaceChildren();
     items.slice(top,top+vis).forEach((t,j)=>{const d=document.createElement('div');const i=top+j;d.className='it'+(i===idx?' sel':'')+(opt.off&&opt.off(i)?' off':'');d.textContent=t;
@@ -1653,7 +1655,7 @@ function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!=
     if(k==='up')idx-=cols;else if(k==='down')idx+=cols;else if(k==='left'&&cols>1)idx-=1;else if(k==='right'&&cols>1)idx+=1;else if(k==='a'){close(idx);return}else if(k==='b'||k==='start'){if(cancel)close(-1);return}
     idx=clamp(idx,0,items.length-1);render()};
   uiStack.push(h);render()})}
-async function yesNo(q){showText(q);const i=await choose(['好','不要'],{pos:'list'});hideText();return i===0}
+async function yesNo(q){showText(q);const i=await choose(['好','不要'],{pos:mode==='battle'?'list yn yl':'list yn'});hideText();return i===0}
 function sheet(build){return new Promise(res=>{sheetEl.replaceChildren();sheetEl.className='box';build(sheetEl);const hint=document.createElement('div');hint.className='hint';hint.textContent='A：繼續';sheetEl.append(hint);sheetEl.hidden=false;
   const h=k=>{if(k==='a'||k==='b'){popUI(h);sheetEl.hidden=true;sheetEl.onclick=null;res()}};uiStack.push(h);sheetEl.onclick=()=>press('a')})}
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e};
