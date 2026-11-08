@@ -238,7 +238,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-222041';
+import CONFIG from './firebase-config.js?v=20261108-222329';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -390,7 +390,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-222041";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-222329";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1506,7 +1506,7 @@ function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlin
   if(!list.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent='還沒有人。開始冒險後，你和朋友會出現在這裡。';ol.append(li);return}
   list.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
     const rk=document.createElement('span');rk.className='rk';rk.textContent=i+1;
-    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)&&p.id!==uid){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
+    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)&&p.id!==uid){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
     const ic=document.createElement('div');ic.className='icons';p.party.forEach((sp,j)=>{const im=document.createElement('img');im.src=iconURL(sp);im.alt=SP[sp].n;im.title=`${SP[sp].n} Lv${p.lv[j]||'?'}`;ic.append(im)});
     li.append(rk,row,ic);ol.append(li)});renderFriends()}
 const SLOTS=['s1','s2','s3'];
