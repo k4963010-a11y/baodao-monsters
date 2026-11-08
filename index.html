@@ -261,7 +261,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-002606';
+import CONFIG from './firebase-config.js?v=20261109-002643';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -416,7 +416,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-002606";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-002643";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1483,12 +1483,13 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109h',d:'11/9 調整',items:['訓練家名冊分成「在線上／未上線／全部」三個分頁','游泳時不會再出現滑板車，游泳速度跟滑板車一樣快']},
+const NEWS=[{v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
+ {v:'1110',d:'飛天＋好友',items:['👥 選單新增「訓練家」：輸入朋友的 ID 就能加好友，好友分「在線上／未上線」，還可以直接私訊','每位玩家都自動跟 GM 凱凱 成為好友，有問題可以直接私訊 GM','你的 ID 在「訓練家」→「＋加好友」，或選單點自己的名字就看得到','🪽 新技能「飛天」：打贏花蓮館主小百合可以拿到「飛天技能書」（已經打贏的，回去找小百合拿）','教會飛系、龍系或光系的怪獸，選單就會出現「飛天」','可以飛到去過的城市（降落在寶貝中心門口），也可以飛到在線上的好友旁邊！']},
+ {v:'1109h',d:'11/9 調整',items:['訓練家名冊分成「在線上／未上線／全部」三個分頁','游泳時不會再出現滑板車，游泳速度跟滑板車一樣快']},
  {v:'1109g',d:'11/9 調整',items:['地圖、圖鑑分布、搭車畫面的字變清楚了','閃線鰻、蘭陽雷鰻改成水屬性，升級時水系、電系招式輪流學']},
  {v:'1109f',d:'11/9 新功能',items:['圖鑑新增「分布地圖」：看完怪獸介紹按 A，台灣地圖上會標出牠出現的地方（還沒去過的地方顯示 ?），就知道後面還遇不遇得到','戰鬥時遇到已經抓過的怪獸，名字旁邊會出現小寶貝球']},
  {v:'1109e',d:'11/9 修正',items:['修正：在海上游泳時更新，會被送回家裡。現在會留在原地，繼續騎著怪獸','修正：按「更新」時會等存檔完成才重新載入，位置不會跑掉']},
  {v:'1109d',d:'11/9 更新',items:['雲端已經升級，存檔恢復正常！大家的進度都回來了','對戰中不能按「更新」，避免打到一半跳出去','滑板車的桿子換成黑色粗桿子，比較清楚','深海怪獸的經驗值調整成跟淺海差不多','GM 可以寄信附送怪獸到大家的信箱 🎁']},
- {v:'1110',d:'飛天＋好友',items:['👥 選單新增「訓練家」：輸入朋友的 ID 就能加好友，好友分「在線上／未上線」，還可以直接私訊','每位玩家都自動跟 GM 凱凱 成為好友，有問題可以直接私訊 GM','你的 ID 在「訓練家」→「＋加好友」，或選單點自己的名字就看得到','🪽 新技能「飛天」：打贏花蓮館主小百合可以拿到「飛天技能書」（已經打贏的，回去找小百合拿）','教會飛系、龍系或光系的怪獸，選單就會出現「飛天」','可以飛到去過的城市（降落在寶貝中心門口），也可以飛到在線上的好友旁邊！']},
  {v:'1109c',d:'11/9 公告',items:['今天玩家太多，雲端暫時讀不到存檔，有些人被送回出生地。你的進度都還在雲端、沒有不見！','如果標題畫面出現「雲端暫時連不上」，請晚一點再按「重新連線」，不要開新的冒險喔']},
  {v:'1109b',d:'11/9',items:['「回報bug及遊戲建議」改成私下回報：只有 GM 看得到，GM 會直接回信到你的遊戲信箱 📮']},
  {v:'1109',d:'龜山島更新',items:['🐢 新地圖：頭城往東 → 外澳沙灘 → 頭城海岸・漁港 → 龜山島外海 → 龜山島！','游泳改成怪獸技能：用「游泳技能書」教水系、冰系或龍系怪獸學會游泳，就能騎著牠在海上前進','面向水按 A，可以選「釣魚」或「游泳」','深海（深藍色）有更強的怪獸：盾月翻車、銀鞭帶魚（Lv50 進化成皇帶海龍王），還有超稀有的深淵鯨艦','龜島靈搬家了，現在只住在龜山島','宜蘭市新增 2 個要去龜山島才能完成的支線任務']},
