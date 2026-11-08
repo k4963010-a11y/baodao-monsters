@@ -52,6 +52,8 @@ button{touch-action:manipulation}
 .gmtag{display:inline-block;margin-left:4px;padding:0 4px;border-radius:4px;background:#d83030;color:#fff;font-size:.78em;line-height:1.35;vertical-align:middle;font-weight:normal}
 #chatList li span.gmtag,.frdm li span.gmtag{display:inline-block}
 .toastmsg{position:fixed;left:50%;bottom:22%;transform:translateX(-50%);background:rgba(20,26,42,.95);color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;z-index:99;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.cball{display:inline-block;width:calc(var(--u)*5);height:calc(var(--u)*5);margin-left:calc(var(--u)*1.5);vertical-align:middle;border-radius:50%;background:linear-gradient(#e84040 45%,#202838 45% 55%,#f8f8f8 55%);box-shadow:0 0 0 calc(var(--u)*.6) #202838}
+#sheet .dexnext{position:absolute;left:calc(var(--u)*8);bottom:calc(var(--u)*6);font-size:.85em;color:var(--c2)}
 #news{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #newsBtn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;text-align:left}
 #newsBtn span{font-size:18px}#newsBtn b{font-weight:normal;color:var(--shell-hi);white-space:nowrap}#newsBtn em{font-style:normal;color:var(--muted);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -238,7 +240,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-222329';
+import CONFIG from './firebase-config.js?v=20261108-223703';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -390,7 +392,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-222329";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-223703";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1393,7 +1395,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109e',d:'11/9 修正',items:['修正：在海上游泳時更新，會被送回家裡。現在會留在原地，繼續騎著怪獸','修正：按「更新」時會等存檔完成才重新載入，位置不會跑掉']},
+const NEWS=[{v:'1109f',d:'11/9 新功能',items:['圖鑑新增「分布地圖」：看完怪獸介紹按 A，台灣地圖上會標出牠出現的地方（還沒去過的地方顯示 ?），就知道後面還遇不遇得到','戰鬥時遇到已經抓過的怪獸，名字旁邊會出現小寶貝球']},
+ {v:'1109e',d:'11/9 修正',items:['修正：在海上游泳時更新，會被送回家裡。現在會留在原地，繼續騎著怪獸','修正：按「更新」時會等存檔完成才重新載入，位置不會跑掉']},
  {v:'1109d',d:'11/9 更新',items:['雲端已經升級，存檔恢復正常！大家的進度都回來了','對戰中不能按「更新」，避免打到一半跳出去','滑板車的桿子換成黑色粗桿子，比較清楚','深海怪獸的經驗值調整成跟淺海差不多','GM 可以寄信附送怪獸到大家的信箱 🎁']},
  {v:'1109c',d:'11/9 公告',items:['今天玩家太多，雲端暫時讀不到存檔，有些人被送回出生地。你的進度都還在雲端、沒有不見！','如果標題畫面出現「雲端暫時連不上」，請晚一點再按「重新連線」，不要開新的冒險喔']},
  {v:'1109b',d:'11/9',items:['「回報bug及遊戲建議」改成私下回報：只有 GM 看得到，GM 會直接回信到你的遊戲信箱 📮']},
@@ -1597,7 +1600,7 @@ function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+
   if(Math.floor(now/150)%2){ctx.fillStyle='#ffe040';ctx.fillRect(Math.round(x)-1,Math.round(y)-16,2,2);ctx.fillRect(Math.round(x)+5,Math.round(y)-13,2,2)}}
 function sweepTags(){for(const k in tags){if(tags[k].live)tags[k].live=false;else{tags[k].d.remove();delete tags[k]}}}
 function buildBoards(){boardsEl.replaceChildren();for(const k in tags)delete tags[k];boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
-function loadMap(id){FISH=null;if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true;if(id==='hualien')G.flags.hualien=true;if(/^center\d*$/.test(id))G.flags['hc_'+id]=true}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst|busst|hlst|hhouse)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
+function loadMap(id){FISH=null;if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true;if(id==='hualien')G.flags.hualien=true;if(id==='sea')G.flags.vz_sea=true;if(id==='guishan')G.flags.vz_guishan=true;if(/^center\d*$/.test(id))G.flags['hc_'+id]=true}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst|busst|hlst|hhouse)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
 function placePlayer(p){setTimeout(updatePresence,0);player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
   if(walkable(bx,by)){follower.x=follower.tx=bx;follower.y=follower.ty=by}else{follower.x=follower.tx=p.x;follower.y=follower.ty=p.y}}
 async function event(fn){busy=true;try{await fn()}catch(e){console.error(e)}finally{busy=false;hideText();menuEl.hidden=true;for(const k in held)held[k]=0}}
@@ -2132,14 +2135,15 @@ function drawTownMap(now){const c=ctx,blink=Math.floor(now/300)%2,cur=locOf(M&&M
     else if(n.t===1){c.fillStyle='#202028';c.fillRect(n.x-4,n.y-4,8,8);c.fillStyle=open?'#e84848':'#9a8a8a';c.fillRect(n.x-3,n.y-3,6,6);c.fillStyle=open?'#f8a8a0':'#c8c0c0';c.fillRect(n.x-3,n.y-3,6,1)}
     else if(n.t===2){c.fillStyle='#202028';c.beginPath();c.arc(n.x,n.y,4,0,7);c.fill();c.fillStyle=open?'#58c8f0':'#a0b0b8';c.beginPath();c.arc(n.x,n.y,3,0,7);c.fill()}
     else{c.fillStyle='#202028';c.fillRect(n.x-2,n.y-2,4,4);c.fillStyle=open?'#f8e070':'#c8c0a0';c.fillRect(n.x-1,n.y-1,2,2)}
-    if(n.k===cur&&blink){const S=sprites(heroLook()).down[0];c.drawImage(S,n.x-8,n.y-14)}
+    if(n.k===cur&&blink&&!DEXV){const S=sprites(heroLook()).down[0];c.drawImage(S,n.x-8,n.y-14)}
     if(i===tmapAt){c.strokeStyle=blink?'#ffe040':'#ffffff';c.lineWidth=1;c.strokeRect(n.x-6.5,n.y-6.5,13,13)}});
-  c.restore();
+  drawDexMarks(c,now);c.restore();
   // 右上小地圖：整座台灣＋目前看的範圍
   const ox=4,oy=16,sc=.07;c.fillStyle='rgba(20,26,42,.55)';c.fillRect(ox-2,oy-1,27,45);c.fillStyle='#68b048';c.beginPath();TW.forEach(([x,y],i)=>i?c.lineTo(ox+x*sc,oy+y*sc):c.moveTo(ox+x*sc,oy+y*sc));c.closePath();c.fill();
   c.strokeStyle='#ffe040';c.lineWidth=1;c.strokeRect(ox+camX*sc,oy+camY*sc,160*sc,104*sc);
-  c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';c.fillText('城鎮地圖　◀▶ 移動　B 關閉',4,2);
+  c.fillStyle='#f8f8f0';c.fillRect(0,0,160,14);c.fillStyle='#303848';c.fillRect(0,13,160,1);c.font='10px DotGothic16,sans-serif';c.textBaseline='top';c.fillStyle='#202838';c.fillText(DEXV?`${SP[DEXV.sp].n} 分布　◀▶ B關閉`:'城鎮地圖　◀▶ 移動　B 關閉',4,2);
   const n=n0,open=n.ch<=OPEN_CH;c.fillStyle='#f8f8f0';c.fillRect(0,118,160,26);c.fillStyle='#303848';c.fillRect(0,118,160,1);c.fillStyle='#202838';
+  if(DEXV){const d=DEXV.nodes[DEXV.at];c.fillText(n.n+`　（${DEXV.at+1}/${DEXV.nodes.length}）`,5,121);c.fillStyle='#5a6070';c.fillText((d.known?[...d.how].join('・'):'？？？（還沒去過）')+(DEXV.extra.length?'　'+DEXV.extra.join('・'):''),5,132);return}
   c.fillText(n.n+(n.k===cur?'　← 你在這裡':open?'':`（${n.ch>=10?'傳說':n.ch>=9?'終章':'第'+n.ch+'章'}・製作中）`),5,121);c.fillStyle='#5a6070';c.fillText(n.d.split('\n')[0],5,132)}
 function townMap(){return new Promise(res=>{const prev=mode;menuEl.hidden=true;hideText();tmapAt=Math.max(0,TMAP.findIndex(n=>n.k===locOf(M.id)));mode='tmap';
   const hd=k=>{if(k==='left'||k==='up'){tmapAt=(tmapAt+TMAP.length-1)%TMAP.length;sfx('blip')}else if(k==='right'||k==='down'){tmapAt=(tmapAt+1)%TMAP.length;sfx('blip')}else if(k==='b'||k==='a'||k==='start'){popUI(hd);mode=prev;res()}};uiStack.push(hd)})}
@@ -2307,10 +2311,42 @@ async function useDouhua(){if(!G.items.douhua){await say('豆花吃完了！');r
   scheduleSave();return true}
 
 function questText(){const f=G.flags;if(!f.starter)return '去林教授的研究所。';if(!f.letter_done)return '到北投寶貝中心，把信交給溫醫師。';if(!f.leader_back)return '去北投的地熱谷看看。';if(!G.badges)return '挑戰北投溫泉道館！';if(G.badges<2&&!f.cave_done)return '從北投商店街往東，走陽明山步道，穿過紗帽山洞。';if(G.badges<2)return '挑戰台北電光道館！';if(G.badges<3)return '從台北城往東，走象山步道到信義區，爬上台北101道館四樓！';if(G.badges<4&&!f.tunneldone)return '從信義區往東走到坪林，穿過雪山隧道到宜蘭！';if(G.badges<4)return '穿過蘭陽平原到宜蘭市，挑戰水之道館！';if(G.badges<5&&!f.hualien)return '從宜蘭市往南，走蘇花公路到花蓮！';if(G.badges<5)return '挑戰花蓮的草之道館！';return '第五章完成！下一章：台東・花東縱谷（製作中）。'}
+/* ---- 圖鑑「出現地點」：去過的地方顯示地名，沒去過的只顯示「？？？」 ---- */
+const ZINFO={r2s:['2號道路','草叢',1],r2n:['2號道路（北）','草叢',1],geo:['北投地熱谷','草叢',1],r3:['陽明山','草叢',2],cave1:['紗帽山洞','洞窟',2],cave2:['紗帽山洞 B1','洞窟',2],park:['台北公園','草叢',2],
+ r4:['象山步道入口','草叢',3],xs1:['象山步道 山腰','草叢',3],xs2:['象山步道 陡坡','草叢',3],xs4:['象山 下山步道','草叢',3],xinyi:['信義區','草叢',3],
+ r5:['北宜公路・坪林','草叢',4],tunnel:['雪山隧道','隧道',4],r6:['蘭陽平原・礁溪','草叢',4],ylpark:['宜蘭公園','草叢',4],
+ shallow:['龜山島外海（淺海）','游泳',4.5],deep:['龜山島外海（深海）','游泳',4.5],guishan:['龜山島','草叢',4.5],suhua:['蘇花公路','草叢',5],hlpark:['花蓮公園','草叢',5]};
+function chReached(ch){if(ch<=1)return true;if(ch===2)return G.badges>=1;if(ch===3)return G.badges>=2;if(ch===4)return G.badges>=3||!!G.flags.tunneldone;if(ch===4.5)return !!(G.flags.vz_sea||G.flags.vz_guishan);if(ch===5)return G.badges>=4||!!G.flags.hualien;return G.badges>=ch-1}
+function rateTag(t,sp){const tot=t.reduce((s,a)=>s+a[1],0),w=(t.find(a=>a[0]===sp)||[0,0])[1]/tot;return w<=.0035?'・超稀有':w<=.006?'・少見':''}
+function dexPlaces(sp){const out=[],seen=new Set();let hidden=0;
+  const add=(name,how,ch,t)=>{const k=name+how;if(seen.has(k))return;seen.add(k);if(chReached(ch))out.push(`${name}（${how}${rateTag(t,sp)}）`);else hidden++};
+  for(const z in ZINFO){const Z=ZONES[z];if(Z&&Z.t.some(a=>a[0]===sp))add(ZINFO[z][0],ZINFO[z][1],ZINFO[z][2],Z.t)}
+  for(const id in MAPS){const Mx=MAPS[id];if(Mx.fishT&&Mx.fishT.some(a=>a[0]===sp)){const n=TMAP.find(t=>t.k===locOf(id));add(Mx.name,'釣魚',(id==='sea'||id==='guishan')?4.5:((n&&n.ch)||1),Mx.fishT)}}
+  if(FISH_T.some(a=>a[0]===sp))add('各地的水邊','釣魚',1,FISH_T);
+  if(TREE_T.some(a=>a[0]===sp))add('各地的樹','搖樹',1,TREE_T);
+  const from=SP.findIndex(s=>s&&s.evo&&s.evo[1]===sp);
+  return {out,hidden,evoFrom:from>0?from:0}}
+/* ---- 圖鑑分布地圖：在台灣地圖上，把怪獸的小圖示放在出現的地點 ---- */
+const ZNODE={r2s:'route2',r2n:'route2',geo:'beitou',r3:'route3',cave1:'route3',cave2:'route3',park:'taipei',r4:'route4',xs1:'route4',xs2:'route4',xs4:'route4',xinyi:'xinyi',r5:'route5',tunnel:'tunnel',r6:'route6',ylpark:'yilan',shallow:'guishan',deep:'guishan',guishan:'guishan',suhua:'suhua',hlpark:'hualien'};
+let DEXV=null;
+function dexNodes(sp){const N={};const put=(k,how,ch,t)=>{if(!k)return;const n=N[k]||(N[k]={k,how:new Set(),known:false});n.how.add(how+rateTag(t,sp));if(chReached(ch))n.known=true};
+  for(const z in ZINFO){const Z=ZONES[z];if(Z&&Z.t.some(a=>a[0]===sp))put(ZNODE[z],ZINFO[z][1],ZINFO[z][2],Z.t)}
+  for(const id in MAPS){const Mx=MAPS[id];if(Mx.fishT&&Mx.fishT.some(a=>a[0]===sp)){const k=locOf(id),n=TMAP.find(t=>t.k===k);put(k,'釣魚',(id==='sea'||id==='guishan')?4.5:((n&&n.ch)||1),Mx.fishT)}}
+  return Object.values(N).map(n=>({...n,i:TMAP.findIndex(t=>t.k===n.k)})).filter(n=>n.i>=0).sort((a,b)=>a.i-b.i)}
+async function dexWhere(id){const nodes=dexNodes(id),P=dexPlaces(id);
+  const extra=[];if(FISH_T.some(a=>a[0]===id))extra.push('各地釣魚');if(TREE_T.some(a=>a[0]===id))extra.push('搖樹');if(P.evoFrom)extra.push(`由${G.seen.includes(P.evoFrom)?SP[P.evoFrom].n:'？？？'}進化`);
+  if(!nodes.length){await sheet(s=>{s.classList.add('letter');s.append(el('h3',`📍 ${SP[id].n} 的分布`),el('p',extra.length?extra.join('\n'):'野外找不到……\n要用特別的方式才能得到！'))});return}
+  return new Promise(res=>{const prev=mode;menuEl.hidden=true;hideText();sheetEl.hidden=true;DEXV={sp:id,nodes,at:0,extra};tmapAt=nodes[0].i;mode='tmap';
+    const hd=k=>{if(k==='left'||k==='up'){DEXV.at=(DEXV.at+nodes.length-1)%nodes.length;tmapAt=nodes[DEXV.at].i;sfx('blip')}else if(k==='right'||k==='down'){DEXV.at=(DEXV.at+1)%nodes.length;tmapAt=nodes[DEXV.at].i;sfx('blip')}
+      else if(k==='b'||k==='a'||k==='start'){popUI(hd);DEXV=null;mode=prev;res()}};uiStack.push(hd)})}
+function drawDexMarks(c,now){if(!DEXV)return;const im=SPRM[DEXV.sp]||SPR16[DEXV.sp];
+  DEXV.nodes.forEach((n,j)=>{const T=TMAP[n.i],hop=(Math.floor(now/260)+j)%2;
+    if(n.known&&im){c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.ellipse(T.x,T.y+2,7,3,0,0,7);c.fill();c.drawImage(im,Math.round(T.x-8),Math.round(T.y-15-hop),16,16)}
+    else{c.fillStyle='#202028';c.beginPath();c.arc(T.x,T.y-9-hop,6,0,7);c.fill();c.fillStyle='#f8f8f0';c.beginPath();c.arc(T.x,T.y-9-hop,5,0,7);c.fill();c.fillStyle='#202838';c.font='bold 8px sans-serif';c.textBaseline='middle';c.textAlign='center';c.fillText('?',T.x,T.y-8.5-hop);c.textAlign='left'}})}
 async function dex(){let at=0;for(;;){const items=DEX_ORDER.map((id,i)=>{const s=SP[id];return `No.${String(i+1).padStart(2,'0')} ${G.seen.includes(id)?s.n:'？？？'} ${G.caught.includes(id)?'●':G.seen.includes(id)?'○':''}`});
   showText(`圖鑑　看過 ${G.seen.length}・抓到 ${G.caught.length}\n●抓到了　○看過`);const i=await choose(items,{pos:'list',start:at,vis:6});if(i<0)return;at=i;const id=DEX_ORDER[i];
   if(!G.seen.includes(id)){await say('還沒遇過這隻怪獸。');continue}
-  await sheet(s=>{const top=el('div',null,'top');const im=el('img');im.src=iconURL(id);im.alt=SP[id].n;const info=el('div');info.append(el('h3',`No.${String(dexNo(id)).padStart(2,'0')} ${SP[id].n}`),typeTag(SP[id].t));top.append(im,info);s.append(top,el('p',G.caught.includes(id)?SP[id].d:'還沒抓到，看不清楚牠的樣子……'))})}}
+  await sheet(s=>{const top=el('div',null,'top');const im=el('img');im.src=iconURL(id);im.alt=SP[id].n;const info=el('div');info.append(el('h3',`No.${String(dexNo(id)).padStart(2,'0')} ${SP[id].n}`),typeTag(SP[id].t));top.append(im,info);s.append(top,el('p',G.caught.includes(id)?SP[id].d:'還沒抓到，看不清楚牠的樣子……'),el('div','A：看出現地點 ▶','dexnext'))});await dexWhere(id)}}
 const RARE_LINE=new Set([26,12,48,49,50,51,52,53,68,69,87,88,89,90,93]);  // 只能靠稀有出場拿到的種類（含進化型）
 const isRareMon=m=>!!m&&(!!m.rare||RARE_LINE.has(m.sp));
 function halo(x,y,now){ctx.save();ctx.globalAlpha=.22+.14*Math.sin(now/180);ctx.fillStyle='#fff3a0';ctx.beginPath();ctx.ellipse(x,y,11,10,0,0,7);ctx.fill();ctx.globalAlpha*=.8;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.ellipse(x,y,7,6,0,0,7);ctx.fill();ctx.restore()}
@@ -2379,7 +2415,7 @@ let B=null;const eInfo=$('eInfo'),pInfo=$('pInfo');
 function setBar(elm,r){elm.style.width=(r*100)+'%';elm.className=r<.2?'low':r<.5?'mid':''}
 function ballRow(id,team){const el=$(id);if(!el)return;if(!team){el.hidden=true;return}el.hidden=false;const k=team.map(x=>x.hp>0?'':'ko').join();if(el.dataset.k===k)return;el.dataset.k=k;el.replaceChildren();for(let i=0;i<6;i++){const b=document.createElement('i');b.className=i<team.length?(team[i].hp>0?'':'ko'):'no';el.append(b)}}
 function updHud(){if(!B)return;const e=B.enemy,m=B.me;ballRow('eBalls',B.eTeam);ballRow('pBalls',B.pTeam);
-  if(e){$('eName').textContent=nm(e);$('eLv').textContent='Lv'+e.lv+tagOf(e);setBar($('eHp'),e.hp/maxhp(e))}
+  if(e){$('eName').textContent=nm(e);if(G&&G.caught.includes(e.sp)){const c=document.createElement('i');c.className='cball';c.title='抓過了';$('eName').append(c)}$('eLv').textContent='Lv'+e.lv+tagOf(e);setBar($('eHp'),e.hp/maxhp(e))}
   if(m){$('pName').textContent=nm(m);$('pLv').textContent='Lv'+m.lv+tagOf(m);setBar($('pHp'),m.hp/maxhp(m));$('pHpT').textContent=`${m.hp} / ${maxhp(m)}`;if(B.xpLock!==m){B.xpLock=m;setXp(xpRatio(m),true)}}
   eInfo.hidden=!e||B.eGone;pInfo.hidden=!m||B.mehidden}
 function xpRatio(m){if(m.lv>=100)return 1;const a=lvExp(m.lv),b=lvExp(m.lv+1);return clamp((m.exp-a)/(b-a),0,1)}
