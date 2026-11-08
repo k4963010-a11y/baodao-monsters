@@ -79,7 +79,7 @@ button{touch-action:manipulation}
 .cryhop{animation:cryhop .18s steps(2) 4}@keyframes cryhop{50%{transform:translateY(-6px)}}
 #bugList{list-style:none;margin:0;padding:0;max-height:260px;overflow:auto}
 #bugList li{border-top:1px solid var(--line);padding:8px 0;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-all}
-#bugList li b{color:var(--shell-hi);font-weight:normal}#bugList li i{color:var(--muted);font-style:normal;font-size:12px;margin-left:6px}
+#bugList li b{color:var(--shell-hi);font-weight:normal}#bugList li.done{opacity:.55}#bugList .rep{color:#5cd88a;font-size:12px;margin-top:4px}#bugList .repbtn{display:block;margin-top:6px;background:#3cb4a6;color:#062a26;border:0;border-radius:6px;font:inherit;font-size:13px;padding:4px 14px;cursor:pointer}#bugDlg .q{color:var(--ink);background:#10162a;border-radius:8px;padding:8px;font-size:13px}#bugList li i{color:var(--muted);font-style:normal;font-size:12px;margin-left:6px}
 .bezel .led i{width:8px;height:8px;border-radius:50%;background:#e33a3a;box-shadow:0 0 6px #e33a3a}
 .screen{position:relative;width:100%;aspect-ratio:160/144;background:#000;overflow:hidden;font-size:calc(var(--u)*8);line-height:1.35;color:var(--c3);outline:none}
 .screen canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -237,7 +237,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261108-214556';
+import CONFIG from './firebase-config.js?v=20261108-214903';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -372,8 +372,8 @@ if(auth){
       <ol id="roster"></ol>
     </section>
     <section class="card" id="bugCard" hidden>
-      <h2>Bug 回報</h2>
-      <p class="sub">大家回報的問題（最新的在上面）</p>
+      <h2>Bug 回報（只有 GM 看得到）</h2>
+      <p class="sub">按「回覆」會寄到玩家的遊戲信箱</p>
       <ul id="bugList"></ul>
     </section>
     <section class="card">
@@ -389,7 +389,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261108-214556";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261108-214903";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1335,8 +1335,26 @@ async function saveNow(){if(!G||G.dream)return;if(mode==='map')snapshotPos();sav
   saving=false;if(again){again=false;saveNow()}}
 let rosterDocs=[],swapSlots={},INVMAP={};
 /* ---- 回報 bug ---- */
-function renderBugs(list){const ul=$('bugList');if(!ul)return;ul.replaceChildren();list=list.filter(b=>b&&typeof b.text==='string').sort((a,b)=>(b.t|0)-(a.t|0)).slice(0,30);
-  $('bugCard').hidden=!list.length;for(const b of list){const li=document.createElement('li');const n=document.createElement('b');n.textContent=String(b.name||'訓練家').slice(0,8);const t=document.createElement('i');const d=new Date(b.t||0);t.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`+(b.where?'・'+String(b.where).slice(0,20):'');li.append(n,t,document.createTextNode('\n'+b.text.slice(0,500)));ul.append(li)}}
+/* bug 回報：只有 GM 看得到，可以直接回信到玩家的遊戲信箱 */
+function renderBugs(list){const ul=$('bugList');if(!ul)return;ul.replaceChildren();const isGM=GM_UIDS.has(uid);
+  list=list.filter(b=>b&&typeof b.text==='string').sort((a,b)=>(!!a.replied-!!b.replied)||(b.t|0)-(a.t|0)).slice(0,40);
+  $('bugCard').hidden=!isGM||!list.length;if(!isGM)return;
+  for(const b of list){const li=document.createElement('li');if(b.replied)li.className='done';const n=document.createElement('b');n.textContent=String(b.name||'訓練家').slice(0,8);const t=document.createElement('i');const d=new Date(b.t||0);t.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`+(b.where?'・'+String(b.where).slice(0,20):'');
+    li.append(n,t,document.createTextNode('\n'+b.text.slice(0,500)));
+    if(b.replied){const r=document.createElement('div');r.className='rep';r.textContent='✔ 已回覆：'+String(b.reply||'').slice(0,200);li.append(r)}
+    else if(b.uid){const bt=document.createElement('button');bt.type='button';bt.className='repbtn';bt.textContent='回覆';bt.onclick=()=>gmReply(b);li.append(bt)}
+    ul.append(li)}}
+function gmReply(b){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回覆玩家"><h3></h3><p class="q"></p><textarea maxlength="400" placeholder="寫下要回給玩家的話，會寄到他的遊戲信箱"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
+  w.querySelector('h3').textContent=`回覆給 ${String(b.name||'訓練家').slice(0,8)}`;w.querySelector('.q').textContent='他說：「'+b.text.slice(0,200)+'」';
+  document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row span'),close=()=>w.remove();ta.focus();
+  w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')close()});ta.addEventListener('keyup',e=>e.stopPropagation());
+  w.querySelector('.go').onclick=async()=>{const text=ta.value.trim();if(!text){msg.textContent='先寫點東西喔！';return}msg.textContent='寄送中……';const t=Date.now();
+    try{await db.doc('locks/mail_'+String(b.uid).slice(0,40)+'_'+t).set({holder:'mail',exp:0,to:b.uid,from:'GM 凱凱',title:'回覆：你的回報',q:b.text.slice(0,200),body:text.slice(0,400),t});
+      if(b.id){const {id,...rest}=b;await db.doc('locks/'+b.id).set({...rest,replied:true,reply:text.slice(0,400)})}
+      w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家下次打開選單的「信箱」就會看到。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
+    catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
+let MYMAIL=[];
+function mailsFromLocks(docs){if(!uid)return;MYMAIL=docs.filter(d=>/^mail_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(m=>m.to===uid&&typeof m.body==='string'&&typeof m.t==='number').sort((a,b)=>b.t-a.t).slice(0,30)}
 function bugReport(){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回報bug及遊戲建議"><h3>回報 bug 及遊戲建議</h3><p>遇到怪怪的地方，或有好玩的點子嗎？寫下來告訴我們，會盡快處理！</p><textarea maxlength="500" placeholder="例如：在雪山隧道中段，跟護理師說話後畫面卡住不能動"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">送出</button></div></div>';
   document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row span'),close=()=>w.remove();ta.focus();
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')close()});
@@ -1349,9 +1367,11 @@ function bugReport(){if($('bugDlg'))return;const w=document.createElement('div')
 const LETTERS=[
  {id:'sr1',d:'11/8',from:'GM 凱凱',title:'超稀有怪獸情報',body:['各位訓練家好！','飽島上每一章都藏著一隻「超稀有」怪獸，只有 0.3% 的機率會出現，而且只住在那一章：','','第一章　霧紋豹（2號道路北、北投地熱谷）','第二章　刺刺陽（陽明山、紗帽山洞、台北公園）','第三章　月面靈貍（象山步道、信義區）','第四章　霧林山椒魚（坪林、雪山隧道、礁溪、宜蘭公園）','第五章　峽谷金貂（蘇花公路、花蓮公園）','','釣魚：有機會釣到超稀有的「水燈靈」','搖樹：有機會搖下超稀有的「月影鴞」','','超稀有非常難遇到，也非常難抓！','出發前一定要把寶貝球準備齊全，高級球、超級球多帶一點喔！','','祝大家好運！']}
 ];
-const mailUnread=()=>!!G&&LETTERS.some(l=>!G.flags['ml_'+l.id]);
-async function letterBox(){for(;;){showText('信箱');const i=await choose([...LETTERS.map(l=>`${G.flags['ml_'+l.id]?'　':'❗'}${l.d} ${l.title}`),'關閉'],{pos:'list'});hideText();if(i<0||i===LETTERS.length)return;
-  const L=LETTERS[i];G.flags['ml_'+L.id]=true;scheduleSave(300);const lines=L.body;const PER=9;
+const mailKey=m=>'mp'+(m.t%1e10).toString(36);
+const allLetters=()=>[...MYMAIL.map(m=>{const d=new Date(m.t);const wrap=t=>String(t).split('\n').flatMap(x=>x.match(/.{1,17}/g)||['']);return {id:mailKey(m).slice(1),d:`${d.getMonth()+1}/${d.getDate()}`,from:m.from||'GM 凱凱',title:m.title||'GM 的信',body:[...(m.q?['你的回報：',...wrap('「'+m.q+'」'),'']:[]),...wrap(m.body)]}}),...LETTERS];
+const mailUnread=()=>!!G&&allLetters().some(l=>!G.flags['ml_'+l.id]);
+async function letterBox(){for(;;){const LS_=allLetters();showText('信箱');const i=await choose([...LS_.map(l=>`${G.flags['ml_'+l.id]?'　':'❗'}${l.d} ${l.title}`),'關閉'],{pos:'list',vis:6});hideText();if(i<0||i===LS_.length)return;
+  const L=LS_[i];G.flags['ml_'+L.id]=true;scheduleSave(300);const lines=L.body;const PER=9;
   for(let k=0;k<lines.length;k+=PER)await sheet(s=>{s.classList.add('letter');s.append(el('h3',`📮 ${L.title}`),el('div',`寄件人：${L.from}　${L.d}${lines.length>PER?`　（${k/PER+1}/${Math.ceil(lines.length/PER)}）`:''}`,'from'),el('p',lines.slice(k,k+PER).join('\n')))})}}
 /* 好友：搜尋玩家名稱 */
 function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document.createElement('input');inp.placeholder='🔍 搜尋玩家名稱加好友';inp.maxLength=8;inp.value=FR.q||'';
@@ -1362,7 +1382,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1109',d:'龜山島更新',items:['🐢 新地圖：頭城往東 → 外澳沙灘 → 頭城海岸・漁港 → 龜山島外海 → 龜山島！','游泳改成怪獸技能：用「游泳技能書」教水系、冰系或龍系怪獸學會游泳，就能騎著牠在海上前進','面向水按 A，可以選「釣魚」或「游泳」','深海（深藍色）有更強的怪獸：盾月翻車、銀鞭帶魚（Lv50 進化成皇帶海龍王），還有超稀有的深淵鯨艦','龜島靈搬家了，現在只住在龜山島','宜蘭市新增 2 個要去龜山島才能完成的支線任務']},
+const NEWS=[{v:'1109b',d:'11/9',items:['「回報bug及遊戲建議」改成私下回報：只有 GM 看得到，GM 會直接回信到你的遊戲信箱 📮']},
+ {v:'1109',d:'龜山島更新',items:['🐢 新地圖：頭城往東 → 外澳沙灘 → 頭城海岸・漁港 → 龜山島外海 → 龜山島！','游泳改成怪獸技能：用「游泳技能書」教水系、冰系或龍系怪獸學會游泳，就能騎著牠在海上前進','面向水按 A，可以選「釣魚」或「游泳」','深海（深藍色）有更強的怪獸：盾月翻車、銀鞭帶魚（Lv50 進化成皇帶海龍王），還有超稀有的深淵鯨艦','龜島靈搬家了，現在只住在龜山島','宜蘭市新增 2 個要去龜山島才能完成的支線任務']},
  {v:'1108g',d:'11/8 新增',items:['台灣街景裝飾登場！土地公廟、檳榔攤、機車、挖土機、辦桌、垃圾車、砂石車、藍白拖……走過去按 A 調查看看，裡面藏了小東西喔！']},
  {v:'1108f',d:'11/8 調整',items:['愛歹丸的招式換成科技招式：雷射光刻、病毒入侵、防火牆、晶圓旋斬、超頻重拳、奈米光束、電路過載、量子爆發（保留招牌肉圓炸彈）','GM 的名字旁邊會顯示紅色「遊戲GM」標籤','GM 稀有「愛歹丸」換新造型：台灣晶片打造的機械戰士！','愛歹丸變強了！能力值大幅提升，肉圓炸彈威力 90（還可能讓對手混亂）、珍奶砲彈 80，後面的招式也全部加強']},
  {v:'1108c',d:'11/8 修正',items:['修正：開場夢境時切換 App，夢裡的玉山蒼龍會被存進存檔、名字變成「你」。重新進遊戲時，蒼龍會飛回玉山，並請你補取名字']},
@@ -1462,7 +1483,7 @@ function subscribeCloud(){
   db.collection('players').onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
-  try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());friendsFromLocks(s.docs);renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>d.data()));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
+  try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());friendsFromLocks(s.docs);mailsFromLocks(s.docs);renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>({...d.data(),id:d.id})));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
 }
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
   const list=rosterDocs.filter(({d})=>d&&d.ver===2).map(({id,d})=>({id,name:typeof d.name==='string'?d.name.slice(0,8):'訓練家',caught:Array.isArray(d.caught)?new Set(d.caught.filter(x=>SP[x|0])).size:0,badges:clamp(d.badges|0,0,8),party:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.sp|0).filter(x=>SP[x]).slice(0,6),lv:(Array.isArray(d.party)?d.party:[]).map(m=>m&&m.lv|0)}))
