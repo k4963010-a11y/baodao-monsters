@@ -89,6 +89,17 @@ service cloud.firestore {
                         && str(d().text, 120) && d().pair == d().m[0] + '_' + d().m[1]);
       allow delete: if signed() && (me() in resource.data.m || isGM());
     }
+    // 天降寶貝球：活動只有 GM 能開；每顆球第一個建立紀錄的人得到（已存在的不能覆蓋）
+    match /dropev/{id} {
+      allow read: if signed();
+      allow write: if isGM();
+    }
+    match /dropc/{id} {
+      allow read: if signed();
+      allow create: if signed() && d().uid == me() && str(d().ev, 30) && d().i is int && d().i >= 0 && d().i < 100
+                     && str(d().name, 20) && id == 'c_' + d().ev + '_' + string(d().i);
+      allow delete: if isGM();
+    }
     // 邀請碼
     match /invites/{id} {
       allow read: if signed();

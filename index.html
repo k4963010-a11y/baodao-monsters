@@ -270,7 +270,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-182958';
+import CONFIG from './firebase-config.js?v=20261109-212903';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -345,7 +345,7 @@ if(auth){
   <div class="leftcol">
   <div class="device">
     <div class="bezel">
-      <div class="led"><i></i>POWER<button class="bugbtn" id="bugBtn" type="button">回報bug及遊戲建議</button><button class="bugbtn bcbtn" id="gmBcBtn" type="button" hidden>📣 GM大聲公</button></div>
+      <div class="led"><i></i>POWER<button class="bugbtn" id="bugBtn" type="button">回報bug及遊戲建議</button><button class="bugbtn bcbtn" id="gmBcBtn" type="button" hidden>📣 GM大聲公</button><button class="bugbtn bcbtn" id="gmDropBtn" type="button" hidden>🎁 天降球</button></div>
       <div class="screen" id="screen" tabindex="0" aria-label="遊戲畫面">
         <canvas id="cv" width="160" height="144"></canvas>
         <div id="cvtxt"></div>
@@ -434,7 +434,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-182958";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-212903";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -851,7 +851,7 @@ const WALK=new Set('.,=F_DfqmjUxLZ^aI9'.split(''));
 const BALLIMG=(()=>{const c=mk(16,16),g=c.getContext('2d');const ci=(x,y,r,k,a0=0,a1=7)=>{g.fillStyle=k;g.beginPath();g.arc(x,y,r,a0,a1);g.fill()};ci(8,10,5,'#181820');ci(8,10,4,'#e84040',Math.PI,0);ci(8,10,4,'#f8f8f8',0,Math.PI);g.fillStyle='#181820';g.fillRect(4,9.5,8,1);ci(8,10,1.6,'#181820');ci(8,10,1,'#f8f8f8');g.fillStyle='#ffffff';g.fillRect(6,7,2,1);return c})();
 const BALLIMGS=(()=>{const mkTint=(col)=>{const c=mk(16,16),g=c.getContext('2d');g.drawImage(BALLIMG,0,0);const d=g.getImageData(0,0,16,16);const [R,G2,Bc]=hex(col);
   for(let i=0;i<d.data.length;i+=4){const r=d.data[i],gg=d.data[i+1],b=d.data[i+2];if(r>gg+50&&r>b+50){const k=r/255;d.data[i]=R*k;d.data[i+1]=G2*k;d.data[i+2]=Bc*k}}g.putImageData(d,0,0);return c};
-  return {ball:BALLIMG,ball2:mkTint('#4878e8'),ball3:mkTint('#f0c030')}})();
+  return {ball:BALLIMG,ball2:mkTint('#4878e8'),ball3:mkTint('#f0c030'),ball4:mkTint('#9040d8')}})();
 
 /* ================= maps ================= */
 const MAPS={
@@ -1299,7 +1299,7 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const flags={};if(d.flags&&typeof d.flags==='object')for(const k in d.flags){if(/^[a-z0-9_]{1,24}$/i.test(k)){const v=d.flags[k];if(typeof v==='boolean'||(typeof v==='number'&&isFinite(v)))flags[k]=v}}
   if(flags.starter&&!party.length)return null;
   const g={ver:2,look:clamp(d.look|0,0,CHARS.length-1),name:(typeof d.name==='string'&&d.name.trim()?d.name.trim():'訓練家').slice(0,8),money:clamp(d.money|0,0,999999),
-   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
+   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),ball4:clamp(d.items?.ball4|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
    seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
@@ -1427,7 +1427,7 @@ function bcFromLocks(docs){BC_DOCS=docs.filter(d=>/^bc_/.test(d.id));const now=D
   for(const d of BC_DOCS){const v=d.data();if(!v||typeof v.text!=='string'||typeof v.t!=='number')continue;if(now-v.t>3*60*1000||seen[d.id]||BC_SEEN.has(d.id))continue;BC_SEEN.add(d.id);seen[d.id]=v.t;BC_Q.push(v.text.slice(0,80))}
   for(const k in seen)if(now-seen[k]>864e5)delete seen[k];try{localStorage.setItem('baodao_bcseen',JSON.stringify(seen))}catch(e){}bcNext()}
 function bcNext(){if(BC_ON||!BC_Q.length)return;const text=BC_Q.shift();const bar=$('bcBar'),sp=bar.querySelector('span');BC_ON=true;
-  sp.textContent='📣 GM 凱凱：'+text;sp.style.setProperty('--bcd',(8+text.length*.32).toFixed(1)+'s');sp.style.animation='none';void sp.offsetWidth;sp.style.animation='';bar.hidden=false;try{sfx('badge')}catch(e){}
+  const raw=typeof text==='object'?text.raw:'📣 GM 凱凱：'+text;sp.textContent=raw;sp.style.setProperty('--bcd',(8+raw.length*.32).toFixed(1)+'s');sp.style.animation='none';void sp.offsetWidth;sp.style.animation='';bar.hidden=false;try{sfx('badge')}catch(e){}
   const pos=()=>bar.classList.toggle('mid',mode==='battle');pos();const tk=setInterval(pos,300);
   sp.onanimationend=()=>{clearInterval(tk);bar.hidden=true;BC_ON=false;bcNext()}}
 function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
@@ -1437,7 +1437,7 @@ function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.replace(/\s+/g,' ').trim();if(!text){msg.textContent='寫點什麼吧！';return}if(!db||!uid){msg.textContent='要先登入喔！';return}msg.textContent='發送中……';const t=Date.now();
     try{await db.doc('bc/bc_'+t).set({from:uid,text:text.slice(0,80),t});for(const d of BC_DOCS){try{db.doc('bc/'+d.id).delete()}catch(e){}}close()}catch(e){msg.textContent='發送失敗，請再試一次。'}}}
-$('gmBcBtn').addEventListener('click',gmBroadcast);
+$('gmBcBtn').addEventListener('click',gmBroadcast);$('gmDropBtn').addEventListener('click',gmDropNow);
 function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
   w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
   w.querySelector('h3').textContent=`寄給 ${name}`;const sel=w.querySelector('.sp');for(let i=1;i<=N_SP;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i} ${SP[i].n}`;sel.append(o)}
@@ -1456,6 +1456,43 @@ function gmReply(b){if($('bugDlg'))return;const w=document.createElement('div');
       if(b.id){const {id,...rest}=b;await db.doc('bugs/'+b.id).set({...rest,replied:true,reply:text.slice(0,400)})}
       w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家下次打開選單的「信箱」就會看到。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
     catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
+/* ================= 天降寶貝球：每天固定時間在淡水鎮掉 70 顆球，其中 1 顆大師球，踩到先搶先贏 =================
+   位置和哪顆是大師球由活動 id 算出來（每個人看到的一樣）；誰先搶到看 Firestore dropc/c_<活動>_<編號> 誰先建立（規則禁止覆蓋） */
+const DROP_MIX=[['ball',40],['ball2',20],['ball3',9],['ball4',1]];  // 每場掉的球：捉捉球40、高級球20、超級球9、大師球1（改這裡就好）
+const DROP={times:['2026-11-09 21:45'],  // 活動時間（台灣時間，可以放好幾場）
+  dur:10*60*1000,pre:5*60*1000,n:DROP_MIX.reduce((a,[,c])=>a+c,0),map:'tamsui',fall:2600};
+let DROPEV=null,DROPGM=null,DROPC={},DROP_UNSUB=null,DROP_BALLS=null,DROP_MASTER=-1,DROP_KIND=[];const DROP_PEND=new Set(),DROP_ANN=new Set();
+function dropRng(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return ((h^=h>>>16)>>>0)/4294967296}}
+function dropSched(now){for(const s of DROP.times){const m=/^(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d)$/.exec(s);if(!m)continue;const t0=Date.UTC(+m[1],+m[2]-1,+m[3],+m[4]-8,+m[5]);if(now>=t0-DROP.pre&&now<t0+DROP.dur)return {id:'d'+m[1]+m[2]+m[3]+m[4]+m[5],t0}}return null}
+function dropCur(now){if(DROPGM&&now>=DROPGM.t0-DROP.pre&&now<DROPGM.t0+DROP.dur)return DROPGM;return dropSched(now)}
+function dropLayout(ev){const M2=MAPS[DROP.map],rng=dropRng(ev.id),c=[];
+  for(let y=0;y<M2.h;y++)for(let x=0;x<M2.w;x++){if(!WALK.has(M2.grid[y][x]))continue;if((M2.warps||[]).some(w=>w[0]===x&&w[1]===y))continue;if((M2.npcs||[]).some(n=>n.x===x&&n.y===y))continue;if((M2.items||[]).some(n=>n.x===x&&n.y===y))continue;c.push([x,y])}
+  for(let i=c.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[c[i],c[j]]=[c[j],c[i]]}DROP_BALLS=c.slice(0,DROP.n);const ks=DROP_MIX.flatMap(([k,n])=>Array(n).fill(k)).slice(0,DROP_BALLS.length);for(let i=ks.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[ks[i],ks[j]]=[ks[j],ks[i]]}DROP_KIND=ks;DROP_MASTER=ks.indexOf('ball4')}
+function dropToast(t,ms=2600){const el=document.createElement('div');el.className='toastmsg';el.textContent=t;document.body.append(el);setTimeout(()=>el.remove(),ms)}
+function bcPush(raw){BC_Q.push({raw});bcNext()}
+const dropLeft=()=>DROP_BALLS?DROP_BALLS.length-Object.keys(DROPC).length:0;
+function dropTick(){if(!db||!db.query||!uid)return;const now=Date.now(),ev=dropCur(now);
+  if((ev&&ev.id)!==(DROPEV&&DROPEV.id)){if(DROP_UNSUB){try{DROP_UNSUB()}catch(e){}DROP_UNSUB=null}DROPEV=ev;DROPC={};DROP_PEND.clear();DROP_BALLS=null;
+    if(ev){dropLayout(ev);try{DROP_UNSUB=db.query('dropc',{where:[['ev','==',ev.id]]}).onSnapshot(sn=>{const c={};sn.docs.forEach(x=>{const v=x.data();if(v&&v.ev===ev.id&&Number.isInteger(v.i))c[v.i]={uid:v.uid,name:String(v.name||'訓練家').slice(0,8),t:v.t}});DROPC=c;dropCheck()},e=>console.warn('dropc',e))}catch(e){}}}
+  dropCheck()}
+function dropCheck(){const ev=DROPEV;if(!ev||!DROP_BALLS)return;const now=Date.now(),k=a=>ev.id+a;
+  if(now<ev.t0){if(!DROP_ANN.has(k('pre'))){DROP_ANN.add(k('pre'));bcPush(`🎁 天降寶貝球預告：${Math.max(1,Math.round((ev.t0-now)/60000))} 分鐘後，淡水鎮會掉下 ${DROP.n} 顆寶貝球，其中 1 顆是「大師球」！`)}return}
+  if(now<ev.t0+DROP.dur&&dropLeft()>0&&!DROP_ANN.has(k('go'))){DROP_ANN.add(k('go'));bcPush(`🎁 天降寶貝球開始！快到淡水鎮搶球，${DROP.n} 顆裡有高級球、超級球，還有 1 顆大師球（100% 抓到）！`);try{sfx('badge')}catch(e){}}
+  const mc=DROPC[DROP_MASTER];if(mc&&!DROP_ANN.has(k('master'))){DROP_ANN.add(k('master'));bcPush(`🎉 恭喜「${mc.name}」在淡水鎮搶到了大師球！`)}
+  if((now>=ev.t0+DROP.dur||dropLeft()<=0)&&!DROP_ANN.has(k('end'))&&DROP_ANN.has(k('go'))){DROP_ANN.add(k('end'));bcPush(dropLeft()<=0?`🎁 天降寶貝球：${DROP.n} 顆全部被搶光了！下次活動時間請看公告！`:'🎁 天降寶貝球時間到，活動結束！下次活動時間請看公告！')}}
+function dropActive(){const ev=DROPEV;if(!ev||!DROP_BALLS)return false;const el=Date.now()-ev.t0;return el>=0&&el<DROP.dur}
+function dropStep(){if(!G||G.dream||!dropActive()||!M||M.id!==DROP.map||Date.now()-DROPEV.t0<DROP.fall)return;
+  const i=DROP_BALLS.findIndex(b=>b[0]===player.x&&b[1]===player.y);if(i<0||DROPC[i]||DROP_PEND.has(i))return;const ev=DROPEV;DROP_PEND.add(i);
+  db.doc(`dropc/c_${ev.id}_${i}`).set({ev:ev.id,i,uid,name:G.name,t:Date.now()}).then(()=>{DROPC[i]={uid,name:G.name,t:Date.now()};
+    if(i===DROP_MASTER){G.items.ball4=Math.min(99,(G.items.ball4|0)+1);try{sfx('badge')}catch(e){}dropToast('★ 搶到了「大師球」！100% 必定抓到！',4500);dropCheck()}
+    else{const k=DROP_KIND[i]||'ball';G.items[k]=Math.min(99,(G.items[k]|0)+1);try{sfx(k==='ball'?'ball':'lvl')}catch(e){}dropToast(`${k==='ball3'?'★ ':''}撿到${BALLS[k][0]}！（淡水鎮還剩 ${dropLeft()} 顆）`)}scheduleSave(1500)})
+   .catch(()=>{dropToast('慢了一步，被別人搶走了！')}).finally(()=>DROP_PEND.delete(i))}
+function dropDraw(list,cx,cy){if(!dropActive()||!M||M.id!==DROP.map)return;const el=Date.now()-DROPEV.t0;
+  DROP_BALLS.forEach((b,i)=>{if(DROPC[i]||DROP_PEND.has(i))return;const delay=(i%10)*130+((i*37)%5)*70;const ft=clamp((el-delay)/900,0,1);if(ft<=0)return;
+    const X=b[0]*16-cx,GY=b[1]*16-cy,fall=(1-ft*ft)*160,bob=ft>=1?((Math.floor((el+i*90)/300)%2)?1:0):0;
+    list.push({y:b[1]*16-1,d:()=>{ctx.fillStyle='rgba(0,0,0,.28)';const sw=Math.round(4+6*ft);ctx.fillRect(X+8-sw/2,GY+13,sw,2);ctx.drawImage(BALLIMG,X,GY-fall-bob)}})})}
+async function gmDropNow(){if(!GM_UIDS.has(uid)||!db)return;if(!window.confirm('現在開一場「天降寶貝球」？\n1 分鐘後在淡水鎮掉 70 顆球（1 顆大師球），所有線上玩家會收到預告。'))return;
+  const t=Date.now();try{await db.doc('dropev/ev_'+t).set({id:'g'+t,t0:t+60000,t});dropToast('已開始！1 分鐘後掉球。')}catch(e){dropToast('開始失敗：'+(e&&e.message||e))}}
 /* ================= GM 防作弊巡查 ================= */
 let CHEAT_GIFTS={};
 async function cheatScan(){if(!GM_UIDS.has(uid)||!db)return;const sub=$('cheatSub'),ul=$('cheatList');sub.textContent='掃描中……';ul.replaceChildren();
@@ -1573,7 +1610,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+const NEWS=[{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走過去踩到就撿到，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
@@ -1689,7 +1726,7 @@ async function gmMigrateLocks(){try{const s=await db.collection('locks').get();l
     try{await db.doc(r[1]+'/'+d.id).set(v);await db.doc('locks/'+d.id).delete();n++}catch(e){console.warn('migrate',d.id,e)}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已把 ${n} 筆舊資料搬到新位置`;document.body.append(t);setTimeout(()=>t.remove(),5000)}}catch(e){console.warn('migrate',e)}}
 function subscribeCloud(){
-  $('gmBcBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
+  $('gmBcBtn').hidden=!GM_UIDS.has(uid);$('gmDropBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
@@ -1703,6 +1740,7 @@ function subscribeCloud(){
     Q('dm',{where:[['m','array-contains',uid]]},d=>{FD.dm=d;frUpd()});
     Q('mail',{where:[['to','==',uid]]},d=>mailsFromLocks(d));
     Q('bc',{orderBy:['t','desc'],limit:5},d=>bcFromLocks(d));
+    Q('dropev',{orderBy:['t','desc'],limit:1},d=>{const v=d[0]&&d[0].data();DROPGM=v&&typeof v.id==='string'&&typeof v.t0==='number'?{id:v.id.slice(0,30),t0:v.t0}:null;dropTick()});setInterval(dropTick,1000);
     if(GM_UIDS.has(uid)){Q('bugs',{orderBy:['t','desc'],limit:60},d=>renderBugs(d.map(x=>({...x.data(),id:x.id}))));gmMigrateLocks()}
     db.query('invites',{}).get().then(s=>{INVMAP={};s.docs.forEach(d=>{const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)});renderRoster()}).catch(()=>{})}
 }
@@ -1830,7 +1868,7 @@ function spotter(){for(const e of ents){if(!e.trainer||!e.sight||G.flags['t_'+e.
 async function spotted(e){e.alert=true;await wait(650);e.alert=false;const sx=e.x,sy=e.y,sd=e.dir,mid=M.id;
   while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e);
   if(M.id===mid&&ents.includes(e)&&(e.x!==sx||e.y!==sy)){const bd=BACK[sd];let n=0;while((e.x!==sx||e.y!==sy)&&n++<12)await stepEnt(e,bd);e.dir=sd}}
-function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;updatePresence();if(G.steps%120===0)scheduleSave(300);
+function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;dropStep();updatePresence();if(G.steps%120===0)scheduleSave(300);
   const w=warpAt(player.x,player.y);if(w){event(()=>doWarp(w));return}
   const tr=(M.triggers||[]).find(t=>t.at.some(([x,y])=>x===player.x&&y===player.y)&&t.cond());if(tr){event(tr.run);return}
   const sp=spotter();if(sp){event(()=>spotted(sp));return}
@@ -1871,6 +1909,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
     list.push({y:ey,d:()=>{drawPerson(e.look,e.dir,Math.round(ex-cx),Math.round(ey-cy)-3,wk,e.par);
       if(e.qmark&&!e.alert&&e.qmark()){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17-(Math.floor(now/400)%2);ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#f8d040';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#181820';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}
       if(e.alert){const bx=Math.round(ex-cx)+3,by=Math.round(ey-cy)-17;ctx.fillStyle='#181820';ctx.fillRect(bx,by,10,12);ctx.fillStyle='#fff';ctx.fillRect(bx+1,by+1,8,10);ctx.fillStyle='#e03030';ctx.fillRect(bx+4,by+2,2,5);ctx.fillRect(bx+4,by+8,2,2)}}})}
+  dropDraw(list,cx,cy);
   const lead=G&&G.party[0];if(lead&&!(G.flags.surf)&&!FLYA&&(Math.round(fx)!==Math.round(px)||Math.round(fy)!==Math.round(py))){const hop=(Math.floor(now/250)%2)?1:0;list.push({y:fy,d:()=>{const dirx=px>fx?-1:1;const X=Math.round(fx-cx),Y=Math.round(fy-cy)-hop-1;const img=SPRM[lead.sp]||SPR16[lead.sp],w=16,ox=0,oy=0;const rtier=rareTier(lead);rareFx(rtier,X+8,Y+8,now,false);if(dirx<0){ctx.save();ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(img,ox,Y+oy,w,w);ctx.restore()}else ctx.drawImage(img,X+ox,Y+oy,w,w);rareFx(rtier,X+8,Y+8,now,true)}})}
   for(const o of otherPlayers(now)){
     if(o.fa){if(o.fa.dir!=='wait')list.push({y:o.y*16,d:()=>drawFly(Math.round(o.x*16-cx),Math.round(o.y*16-cy),now,o.fa,'p'+o.look)});continue}
@@ -2647,12 +2686,12 @@ async function takeBackSwap(ids){for(const id of ids){const cur=slotMon(id);if(!
   await ref.delete();const m=sanMon(live.mon);m.hp=maxhp(m);const w=addMon(m);await say(`把 ${nm(m)} 拿回來了！${w==='box'?'（放進怪獸箱）':''}`);await saveNow()}}
 async function partyPick(prompt,ok,cancel=true){for(;;){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list',cancel,start:Math.max(0,G.party.findIndex((m,j)=>ok(j)))});if(i<0)return -1;if(ok(i))return i;await say('不能選這一隻。')}}
 const HEALS=[['potion','傷藥',20,'用了'],['soy','豆漿',30,'喝了'],['rice','米漿',50,'喝了'],['youtiao','燒餅油條',999,'吃了']];
-async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.items.ball}`}];if(G.items.ball2)rows.push({k:'ball2',t:`高級球 ×${G.items.ball2}・好抓1.5倍`});if(G.items.ball3)rows.push({k:'ball3',t:`超級球 ×${G.items.ball3}・好抓2倍`});HEALS.forEach(([k,n,h])=>{if(k==='potion'||G.items[k])rows.push({k,t:`${n} ×${G.items[k]|0}・${h>=999?'全滿':'回'+h}`})});
+async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.items.ball}`}];if(G.items.ball2)rows.push({k:'ball2',t:`高級球 ×${G.items.ball2}・好抓1.5倍`});if(G.items.ball3)rows.push({k:'ball3',t:`超級球 ×${G.items.ball3}・好抓2倍`});if(G.items.ball4)rows.push({k:'ball4',t:`大師球 ×${G.items.ball4}・必定抓到`});HEALS.forEach(([k,n,h])=>{if(k==='potion'||G.items[k])rows.push({k,t:`${n} ×${G.items[k]|0}・${h>=999?'全滿':'回'+h}`})});
   if(G.flags.swim)rows.push({k:'swimbook',t:'游泳技能書'});if(G.flags.flybook)rows.push({k:'flybook',t:'飛天技能書'});if(G.items.douhua)rows.push({k:'douhua',t:`豆花 ×${G.items.douhua}・升1級`});if(!inBattle&&G.flags.letter_has&&!G.flags.letter_done)rows.push({k:'letter',t:'林教授的信'});if(!inBattle&&G.flags.q_egg===1)rows.push({k:'qegg',t:'溫泉蛋'});if(!inBattle&&G.badges)rows.push({k:'badge',t:`徽章（${G.badges} 個）`});
   showText('背包');const i=await choose(rows.map(r=>r.t),{pos:'list'});if(i<0)return null;const k=rows[i].k;
   if(k==='letter'){await say('要交給北投寶貝中心溫醫師的信。封得好好的。');continue}if(k==='swimbook'){if(inBattle){await say('對戰中不能用！');continue}await useSwimBook();continue}if(k==='flybook'){if(inBattle){await say('對戰中不能用！');continue}await useFlyBook();continue}if(k==='qegg'){await say('溫泉阿伯煮的溫泉蛋，要送給淡水的阿嬤。');continue}if(k==='douhua'){if(inBattle){await say('對戰中不能吃豆花！');continue}await useDouhua();continue}
   if(k==='badge'){await say(BADGES.slice(0,G.badges).join('、')+'\n都好好地收在徽章盒裡。');continue}
-  if(k==='ball'||k==='ball2'||k==='ball3'){if(!inBattle){await say('在對戰中才能丟球！');continue}if(!G.items[k]){await say('用完了！');continue}if(B.trainer){await say('不能抓別人的怪獸！');continue}return {type:'ball',k}}
+  if(k==='ball'||k==='ball2'||k==='ball3'||k==='ball4'){if(!inBattle){await say('在對戰中才能丟球！');continue}if(!G.items[k]){await say('用完了！');continue}if(B.trainer){await say('不能抓別人的怪獸！');continue}return {type:'ball',k}}
   const H=HEALS.find(h=>h[0]===k);if(!G.items[k]){await say(`${H[1]}用完了！`);continue}if(!G.party.length)continue;
   const t=await partyPick('要給哪一隻用？',j=>G.party[j].hp>0&&G.party[j].hp<maxhp(G.party[j]));if(t<0)continue;
   const m=G.party[t];const before=m.hp;m.hp=Math.min(maxhp(m),m.hp+H[2]);G.items[k]--;if(inBattle)updHud();sfx('catch');await say(`${nm(m)} ${H[3]}${H[1]}，HP 回復了 ${m.hp-before}！`);scheduleSave();if(inBattle)return {type:'item'}}}
@@ -2893,11 +2932,11 @@ async function gainExp(me,foe,trainer,div=1){const e=Math.max(1,Math.floor(SP[fo
     for(const [l,mv] of SP[me.sp].l){if(l===me.lv)await learnMove(me,mv)}
     const ev=SP[me.sp].evo;if(ev&&me.lv>=ev[0])me.evo=true}
   if(show){setXp(xpRatio(me));await wait(750)}}
-const BALLS={ball:['捉捉球',1],ball2:['高級球',1.5],ball3:['超級球',2.2]};
+const BALLS={ball:['捉捉球',1],ball2:['高級球',1.5],ball3:['超級球',2.2],ball4:['大師球',255]};
 async function throwBall(foe,k='ball'){k=BALLS[k]?k:'ball';G.items[k]--;sfx('ball');B.ballImg=BALLIMGS[k];await say(`${G.name} 丟出了${BALLS[k][0]}！`);
   for(let i=0;i<=14;i++){const t=i/14;B.ball={x:20+(124-20)*t,y:110-(110-40)*t-Math.sin(t*Math.PI)*40,rot:t*8};await wait(28)}
   B.ehidden=true;B.ball={x:124,y:58,rot:0};await wait(400);
-  const Mx=maxhp(foe);const sk=((recOf(foe).main)||{}).k;const p=clamp(((3*Mx-2*foe.hp)*SP[foe.sp].c)/(3*Mx*255)*BALLS[k][1]*(sk==='slp'?2:sk==='par'?1.5:1),0.02,1);const caught=Math.random()<p;const shakes=caught?3:Math.min(2,Math.floor(Math.random()*3*p+Math.random()));
+  const Mx=maxhp(foe);const sk=((recOf(foe).main)||{}).k;const p=k==='ball4'?1:clamp(((3*Mx-2*foe.hp)*SP[foe.sp].c)/(3*Mx*255)*BALLS[k][1]*(sk==='slp'?2:sk==='par'?1.5:1),0.02,1);const caught=Math.random()<p;const shakes=caught?3:Math.min(2,Math.floor(Math.random()*3*p+Math.random()));
   for(let s=0;s<shakes;s++){B.ball.rot=.5;await wait(180);B.ball.rot=-.5;await wait(180);B.ball.rot=0;await wait(350)}
   if(caught){sfx('catch');foe.ot=G.name;if(B.rare)foe.rare=B.rare===2?2:1;await say(`抓到了 ${nm(foe)}！`);B.eGone=true;updHud();const where=addMon(foe);if(where==='box')await say(`身上滿了，${nm(foe)} 送進怪獸箱了。`);B.ball=null;return true}
   B.ball=null;B.ehidden=false;await say(['哎呀！跑出來了！','差一點點就抓到了！','可惡！只差一點！'][Math.min(2,shakes)]);return false}
