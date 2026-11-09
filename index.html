@@ -102,6 +102,14 @@ button{touch-action:manipulation}
 #chatMsg{margin:6px 0 0;min-height:1em}
 .cryhop{animation:cryhop .18s steps(2) 4}@keyframes cryhop{50%{transform:translateY(-6px)}}
 #bugList{list-style:none;margin:0;padding:0;max-height:260px;overflow:auto}
+#cheatList{list-style:none;margin:8px 0 0;padding:0;max-height:360px;overflow:auto}
+#cheatList li{border-top:1px solid var(--line);padding:8px 0;font-size:13px;line-height:1.55;word-break:break-all}
+#cheatList li b{color:var(--shell-hi);font-weight:normal}#cheatList li i{color:var(--muted);font-style:normal;font-size:12px;margin-left:6px}
+#cheatList .r{color:#ff7b7b}#cheatList .y{color:#e8c05a}#cheatList .fixed{color:#5cd88a}
+.scanbtn,#cheatList .fixbtn{background:#3cb4a6;color:#062a26;border:0;border-radius:6px;font:inherit;font-size:13px;padding:5px 14px;cursor:pointer}
+#cheatList .fixbtn{display:block;margin-top:6px}
+#bugDlg .cm{max-height:46vh;overflow:auto;margin:8px 0;font-size:13px}#bugDlg .cm div{display:flex;gap:6px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:6px 0}
+#bugDlg .cm span{flex:1;min-width:0}#bugDlg .cm select{font:inherit;font-size:13px;max-width:44%}
 #bugList li{border-top:1px solid var(--line);padding:8px 0;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-all}
 #bugList li b{color:var(--shell-hi);font-weight:normal}#bugList li.done{opacity:.55}#bugList .rep{color:#5cd88a;font-size:12px;margin-top:4px}#bugList .repbtn{display:block;margin-top:6px;background:#3cb4a6;color:#062a26;border:0;border-radius:6px;font:inherit;font-size:13px;padding:4px 14px;cursor:pointer}#bugDlg .q{color:var(--ink);background:#10162a;border-radius:8px;padding:8px;font-size:13px}#bugList li i{color:var(--muted);font-style:normal;font-size:12px;margin-left:6px}
 .bezel .led i{width:8px;height:8px;border-radius:50%;background:#e33a3a;box-shadow:0 0 6px #e33a3a}
@@ -262,7 +270,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-181341';
+import CONFIG from './firebase-config.js?v=20261109-182958';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -402,6 +410,12 @@ if(auth){
       <div class="chattabs rtabs"><button type="button" data-rt="on" class="on">🟢 在線上</button><button type="button" data-rt="off">未上線</button><button type="button" data-rt="all">全部</button></div>
       <ol id="roster"></ol>
     </section>
+    <section class="card" id="cheatCard" hidden>
+      <h2>🛡 防作弊巡查（只有 GM 看得到）</h2>
+      <p class="sub" id="cheatSub">檢查所有玩家存檔裡「正常玩不可能出現」的東西。</p>
+      <button type="button" id="cheatScan" class="scanbtn">開始掃描</button>
+      <ul id="cheatList"></ul>
+    </section>
     <section class="card" id="bugCard" hidden>
       <h2>Bug 回報（只有 GM 看得到）</h2>
       <p class="sub">按「回覆」會寄到玩家的遊戲信箱</p>
@@ -420,7 +434,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-181341";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-182958";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1289,6 +1303,32 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
    seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
+/* ================= 防作弊：檢查存檔有沒有不可能出現的東西 =================
+   red = 正常玩不可能出現（直接判定作弊）；yellow = 可疑，GM 自己判斷 */
+const NO_WILD=new Set([35,75,90]);   // 玉山蒼龍（傳說未開放）、金剛舍利尊（中台禪寺未開放）、愛歹丸（GM 限定）
+const GM_OT='GM 凱凱';
+const lvCap=b=>25+(b|0)*12;          // 等級「可疑」門檻：0徽章25、5徽章85
+function lineSps(sp){const sps=[sp];for(let k=0;k<5;k++){const pre=SP.findIndex(s=>s&&s.evo&&sps.includes(s.evo[1])&&!sps.includes(SP.indexOf(s)));if(pre<0)break;sps.push(pre)}return sps}
+function legalMoves(m){const ok=new Set(),t=SP[m.sp].t;for(const s of lineSps(m.sp))for(const [l,mv] of SP[s].l)if(l<=m.lv)ok.add(mv);
+  for(const [mv] of SKILLS)if(MOVES[mv]&&(MOVES[mv].t==='一般'||MOVES[mv].t===t))ok.add(mv);
+  if(SWIM_TYPES.includes(t))ok.add('游泳');if(FLY_TYPES.includes(t))ok.add('飛天');
+  for(const q of QUESTS){const g=q.give||{};if(g.tutor&&g.tutor.t.includes(t))ok.add(g.tutor.m);if(g.mon&&SPN(g.mon.n)===m.sp)(g.mon.moves||[]).forEach(x=>ok.add(x))}return ok}
+/* d=存檔（原始或 sanG 過）；gifts=[{sp,lv}] GM 真的寄給這個玩家的怪獸（沒給就不檢查 GM 怪獸） */
+function cheatCheck(d,gifts){const red=[],yellow=[],mons=[];if(!d||typeof d!=='object')return {red,yellow,mons};
+  const badges=d.badges|0;if(badges>OPEN_CH)red.push(`徽章 ${badges} 個（目前只開放到第 ${OPEN_CH} 章）`);
+  if((+d.money||0)>999999)red.push(`錢 ${d.money} 元（超過上限）`);
+  const it=d.items&&typeof d.items==='object'?d.items:{};for(const k in it)if((+it[k]||0)>99)red.push(`道具 ${k} ×${it[k]}（超過99）`);
+  const gl=gifts?gifts.map(g=>({sp:g.sp|0,lv:g.lv|0,used:false})):null;
+  const scan=(arr,where)=>(Array.isArray(arr)?arr:[]).forEach((raw,i)=>{const m=sanMon(raw);if(!m)return;const why=[];let sev=0;
+    if(m.ot===GM_OT){if(gl){const g=gl.find(x=>!x.used&&x.sp===m.sp);if(g){g.used=true;if(g.lv>=50){why.push(`GM 信件送的 Lv${g.lv}（若不是你寄的=舊漏洞偽造）`);sev=Math.max(sev,1)}}else{why.push('標示 GM 送的，但查不到 GM 寄送紀錄');sev=2}}
+      if(sev)mons.push({where,i,m,why,sev});return}
+    if(NO_WILD.has(m.sp)){why.push(`${SP[m.sp].n} 是正常玩法拿不到的`);sev=2}
+    const ok=legalMoves(m),bad=m.moves.filter(x=>!ok.has(x));if(bad.length){why.push(`學不會的招式：${bad.join('、')}`);sev=2}
+    if(m.lv>lvCap(badges)){why.push(`Lv${m.lv}，${badges} 個徽章正常約 Lv${lvCap(badges)} 內`);sev=Math.max(sev,1)}
+    if(sev)mons.push({where,i,m,why,sev})});
+  scan(d.party,'party');scan(d.box,'box');
+  for(const x of mons)(x.sev===2?red:yellow).push(`${x.where==='party'?'身上':'怪獸箱'} ${SP[x.m.sp].n} Lv${x.m.lv}：${x.why.join('；')}`);
+  return {red,yellow,mons}}
 function markCaught(sp){markSeen(sp);if(!G.caught.includes(sp))G.caught.push(sp)}
 function addMon(m){markCaught(m.sp);if(G.party.length<6){G.party.push(m);return 'party'}G.box.push(m);return 'box'}
 function healAll(){G.party.forEach(m=>{m.hp=maxhp(m);delete m.pp});sfx('heal')}
@@ -1358,8 +1398,12 @@ let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
 function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:rareTier(G.party.find(m=>m.hp>0)||G.party[0]),fight:mode==='battle',eye:VIEWING,flyD:FLYW?FLYW.d:'',flyT:FLYW?FLYW.t:0,flySp:FLYW?FLYW.sp:0}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
-function saveLocal(){if(!G||G.dream)return;try{localStorage.setItem(LS,JSON.stringify(G))}catch(e){}}
-function loadLocal(){try{return sanG(JSON.parse(localStorage.getItem(LS)||'null'))}catch(e){return null}}
+/* 本機存檔有簽章：手動改 localStorage 的存檔，簽章對不上就不會被拿去蓋雲端 */
+function lsSig(str){let h1=0xdeadbeef^0x5b,h2=0x41c6ce57^0x2d;const t=str+'|飽島怪獸|bd-anti-cheat-v1';for(let i=0;i<t.length;i++){const ch=t.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (h2>>>0).toString(36)+(h1>>>0).toString(36)}
+function saveLocal(){if(!G||G.dream)return;try{const g=JSON.stringify(G),r=cloudRev|0;localStorage.setItem(LS,JSON.stringify({w:2,g,r,s:lsSig(g+'#'+r)}))}catch(e){}}
+let LOCAL_TRUST=false,LOCAL_REV=0;
+function loadLocal(){LOCAL_TRUST=false;LOCAL_REV=0;try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o&&o.w===2&&typeof o.g==='string'){LOCAL_TRUST=o.s===lsSig(o.g+'#'+(o.r|0));LOCAL_REV=o.r|0;return sanG(JSON.parse(o.g))}return sanG(o)}catch(e){return null}}
 let saveTimer=0,saving=false,again=false,cloudRev=0,staleStop=false;
 function snapshotPos(){if(G&&M)G.pos={map:M.id,x:player.x,y:player.y,dir:player.dir}}
 function scheduleSave(ms=1200){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,ms)}
@@ -1412,6 +1456,46 @@ function gmReply(b){if($('bugDlg'))return;const w=document.createElement('div');
       if(b.id){const {id,...rest}=b;await db.doc('bugs/'+b.id).set({...rest,replied:true,reply:text.slice(0,400)})}
       w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家下次打開選單的「信箱」就會看到。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
     catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
+/* ================= GM 防作弊巡查 ================= */
+let CHEAT_GIFTS={};
+async function cheatScan(){if(!GM_UIDS.has(uid)||!db)return;const sub=$('cheatSub'),ul=$('cheatList');sub.textContent='掃描中……';ul.replaceChildren();
+  try{const [ps,ms]=await Promise.all([db.collection('players').get(),db.query('mail',{}).get()]);CHEAT_GIFTS={};
+    ms.docs.forEach(x=>{const v=x.data();if(v&&v.gift&&typeof v.to==='string')(CHEAT_GIFTS[v.to]=CHEAT_GIFTS[v.to]||[]).push({sp:v.gift.sp|0,lv:v.gift.lv|0})});
+    const rows=[];ps.docs.forEach(x=>{if(GM_UIDS.has(x.id))return;const d=x.data();if(!d||d.ver!==2)return;const c=cheatCheck(d,CHEAT_GIFTS[x.id]||[]);if(c.red.length||c.yellow.length)rows.push({id:x.id,d,c})});
+    rows.sort((a,b)=>b.c.red.length-a.c.red.length||b.c.yellow.length-a.c.yellow.length);
+    sub.textContent=`掃描了 ${ps.docs.length} 位玩家：${rows.filter(r=>r.c.red.length).length} 位確定有問題（紅）、${rows.filter(r=>!r.c.red.length).length} 位可疑（黃）。`;
+    for(const r of rows){const li=document.createElement('li');const b=document.createElement('b');b.textContent=String(r.d.name||'訓練家').slice(0,8);const i=document.createElement('i');i.textContent=`ID ${r.id.slice(0,6).toUpperCase()}・徽章${r.d.badges|0}・${r.d.steps|0}步`+(r.d.gmFix?'・GM 修正過':'');li.append(b,i);
+      for(const t of r.c.red){const p=document.createElement('div');p.className='r';p.textContent='❌ '+t;li.append(p)}for(const t of r.c.yellow){const p=document.createElement('div');p.className='y';p.textContent='⚠ '+t;li.append(p)}
+      const bt=document.createElement('button');bt.type='button';bt.className='fixbtn';bt.textContent='處理';bt.onclick=()=>cheatFix(r.id,r.d,li);li.append(bt);ul.append(li)}
+    if(!rows.length){const li=document.createElement('li');li.textContent='✔ 沒有發現問題。';ul.append(li)}}
+  catch(e){console.warn('cheatScan',e);sub.textContent='掃描失敗：'+(e&&e.message||e)}}
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='cheatScan')cheatScan()});
+function cheatFix(id,d0,li){if($('bugDlg'))return;const c=cheatCheck(d0,CHEAT_GIFTS[id]||[]);const name=String(d0.name||'訓練家').slice(0,8),cap=lvCap(d0.badges|0);
+  const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="處理作弊"><h3></h3><p class="sub" style="margin:0;font-size:13px">每隻選要怎麼處理。錢、道具、徽章超過上限會自動改回上限。</p><div class="cm"></div><textarea maxlength="400"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">修正並寄信通知</button></div></div>';
+  w.querySelector('h3').textContent=`處理 ${name} 的存檔`;const cm=w.querySelector('.cm');const sels=[];
+  for(const x of c.mons){const row=document.createElement('div');const sp=document.createElement('span');sp.className=x.sev===2?'r':'y';sp.style.color=x.sev===2?'#ff7b7b':'#e8c05a';sp.textContent=`${x.where==='party'?'身上':'箱'} ${SP[x.m.sp].n} Lv${x.m.lv}：${x.why.join('；')}`;
+    const sel=document.createElement('select');const opts=[['keep','不處理'],['del','移除這隻'],['moves','招式重設'],['lv',`降到 Lv${Math.min(cap,x.m.lv)}`]];for(const [v,t] of opts){const o=document.createElement('option');o.value=v;o.textContent=t;sel.append(o)}
+    sel.value=x.sev===2?((NO_WILD.has(x.m.sp)||x.m.ot===GM_OT)?'del':'moves'):'keep';row.append(sp,sel);cm.append(row);sels.push({x,sel})}
+  if(!c.mons.length){const p=document.createElement('div');p.textContent='（沒有怪獸要處理，只會把錢/道具/徽章改回上限）';cm.append(p)}
+  const ta=w.querySelector('textarea');ta.value='系統巡查發現你的存檔有正常玩法不可能出現的資料，已經修正回來了。請公平遊戲，大家一起玩才好玩！如果覺得弄錯了，可以按「回報bug及遊戲建議」跟 GM 說。';
+  document.body.append(w);const msg=w.querySelector('.row span'),close=()=>w.remove();
+  w.querySelectorAll('textarea,select').forEach(e=>{e.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});e.addEventListener('keyup',x=>x.stopPropagation())});
+  w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
+  w.querySelector('.go').onclick=async()=>{msg.textContent='修正中……';try{const ref=db.doc('players/'+id);const cur=await ref.get();if(!cur.exists)throw new Error('找不到存檔');const d=JSON.parse(JSON.stringify(cur.data()));
+      if((d.rev|0)!==(d0.rev|0)){msg.textContent='玩家剛剛又存檔了，請關掉重新掃描一次。';return}
+      const del={party:new Set(),box:new Set()};let n=0;
+      for(const {x,sel} of sels){const arr=d[x.where];const m=arr&&arr[x.i];if(!m||(m.sp|0)!==x.m.sp){msg.textContent='資料對不上，請重新掃描。';return}const a=sel.value;if(a==='keep')continue;n++;
+        if(a==='del')del[x.where].add(x.i);
+        else if(a==='moves'){const f=makeMon(x.m.sp,clamp(m.lv|0,1,100));const ok=legalMoves(f);const keep=(m.moves||[]).filter(v=>ok.has(MV_RENAME[v]||v));m.moves=keep.length?keep:f.moves;delete m.pp}
+        else if(a==='lv'){const L=Math.min(cap,m.lv|0);const f=makeMon(x.m.sp,L);m.lv=L;m.exp=lvExp(L);m.hp=maxhp(f);const ok=legalMoves(f);const keep=(m.moves||[]).filter(v=>ok.has(MV_RENAME[v]||v));m.moves=keep.length?keep:f.moves;delete m.pp}}
+      d.party=(d.party||[]).filter((_,i)=>!del.party.has(i));d.box=(d.box||[]).filter((_,i)=>!del.box.has(i));
+      if(!d.party.length){if(d.box.length)d.party.push(d.box.shift());else d.party.push(makeMon(1,5,String(d.name||'').slice(0,12)))}
+      d.money=clamp(+d.money||0,0,999999);d.badges=clamp(d.badges|0,0,OPEN_CH);if(d.items)for(const k in d.items)d.items[k]=clamp(+d.items[k]||0,0,99);
+      d.rev=(d.rev|0)+1;d.updatedAt=Date.now();d.gmFix=Date.now();await ref.set(d);
+      const body=ta.value.trim();if(body){const t=Date.now();await db.doc('mail/mail_'+id.slice(0,40)+'_'+t).set({to:id,from:GM_OT,title:'GM 巡查通知',body:body.slice(0,400),t})}
+      w.querySelector('.in').innerHTML='<h3>修正完成！</h3><p>玩家如果在線上，下次存檔時會自動載入修正後的進度。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close;
+      li.querySelectorAll('.fixbtn').forEach(b=>b.remove());const ok=document.createElement('div');ok.className='fixed';ok.textContent=`✔ 已修正（處理 ${n} 隻）`;li.append(ok)}
+    catch(e){msg.textContent='修正失敗：'+(e&&e.message||e)}}}
 let MYMAIL=[];
 function mailsFromLocks(docs){if(!uid)return;MYMAIL=docs.filter(d=>/^mail_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(m=>m.to===uid&&typeof m.body==='string'&&typeof m.t==='number').sort((a,b)=>b.t-a.t).slice(0,30)}
 function bugReport(){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回報bug及遊戲建議"><h3>回報 bug 及遊戲建議</h3><p>遇到怪怪的地方，或有好玩的點子嗎？寫下來告訴我們，會盡快處理！</p><textarea maxlength="500" placeholder="例如：在雪山隧道中段，跟護理師說話後畫面卡住不能動"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">送出</button></div></div>';
@@ -1489,7 +1573,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+const NEWS=[{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
@@ -1605,7 +1689,7 @@ async function gmMigrateLocks(){try{const s=await db.collection('locks').get();l
     try{await db.doc(r[1]+'/'+d.id).set(v);await db.doc('locks/'+d.id).delete();n++}catch(e){console.warn('migrate',d.id,e)}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已把 ${n} 筆舊資料搬到新位置`;document.body.append(t);setTimeout(()=>t.remove(),5000)}}catch(e){console.warn('migrate',e)}}
 function subscribeCloud(){
-  $('gmBcBtn').hidden=!GM_UIDS.has(uid);
+  $('gmBcBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
@@ -3162,7 +3246,7 @@ async function staleReload(){try{mode='blank';await say('這個帳號在別的�
 const sumG=g=>`最高Lv${Math.max(0,...g.party.map(m=>m.lv))}・${g.steps|0}步`;
 async function getSaved(){let saved=null,oldVer=false,localNewer=null,cloudErr=false;
   if(db){try{const s=await db.doc('players/'+uid).get();if(s.exists){const d=s.data();cloudRev=d.rev|0;saved=sanG(d);if(!saved&&d&&d.ver===1)oldVer=true}}catch(e){cloudErr=true;staleStop=true}}
-  const loc=loadLocal();if(db&&saved&&loc&&loc.name===saved.name&&(loc.steps|0)>(saved.steps|0))localNewer=loc;
+  const loc=loadLocal();if(db&&saved&&loc&&loc.name===saved.name&&(loc.steps|0)>(saved.steps|0)&&LOCAL_TRUST&&LOCAL_REV>=cloudRev&&!cheatCheck(loc).red.length)localNewer=loc;
   if(!saved)saved=loc;return {saved,oldVer,localNewer,cloudErr}}
 async function boot(){requestAnimationFrame(frame);music('town');
   await initCloud();
