@@ -278,7 +278,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-222402';
+import CONFIG from './firebase-config.js?v=20261109-223148';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -444,7 +444,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-222402";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-223148";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3275,7 +3275,7 @@ function drawTitle(now){const g=tbg,t=now/1000;
   for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7);drawMist(g,t,1)}
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
-function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600)}
+function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600);if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_shari1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmShari1)},2600)}
 /* 每位玩家自動跟 GM 成為好友（只做一次） */
 async function gmFriend(){const gm=[...GM_UIDS][0];if(!gm||!db||!uid||!G)return;const k=pairKey(uid,gm),[a,b]=k.split('_');
   try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===gm?'凱凱':G.name,bn:b===gm?'凱凱':G.name,t:Date.now()});G.flags.gmfr=true;scheduleSave(500)}catch(e){}}
@@ -3285,6 +3285,10 @@ async function gmFriendAll(){if(gmAllRun)return;gmAllRun=true;for(let i=0;i<40&&
   let n=0;for(const {id,d} of rosterDocs){if(id===uid||!d||d.ver!==2||isFriend(id))continue;const k=pairKey(uid,id),[a,b]=k.split('_'),nm=typeof d.name==='string'?d.name.slice(0,8):'訓練家';
     try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===uid?G.name:nm,bn:b===uid?G.name:nm,t:Date.now()});n++}catch(e){}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已經跟 ${n} 位玩家成為好友`;document.body.append(t);setTimeout(()=>t.remove(),4000)}}
+/* GM 一次性：送凱凱一隻 Lv75 金剛舍利尊，招式＝牠能學的威力最強 4 招 */
+async function gmShari1(){if(G.flags.gm_shari1)return;G.flags.gm_shari1=true;const sp=SPN('金剛舍利尊');const m=makeMon(sp,75,'GM 凱凱');
+  const all=[...new Set(lineSps(sp).flatMap(s=>SP[s].l.map(([,mv])=>mv)))].filter(mv=>MOVES[mv]);m.moves=all.sort((a,b)=>(MOVES[b].p||0)-(MOVES[a].p||0)).slice(0,4);delete m.pp;m.hp=maxhp(m);
+  const w=addMon(m);sfx('badge');await sayAll(['一道金色的佛光從天而降……',`得到了 金剛舍利尊 Lv75！${w==='box'?'（身上滿了，送進怪獸箱）':''}`,`招式：${m.moves.join('、')}`]);await saveNow()}
 async function gmFly1(){if(G.flags.gm_fly1)return;const m=[...G.party,...G.box].find(x=>x.sp===18);G.flags.gm_fly1=true;G.flags.flybook=true;
   if(m){m.sp=47;if(m.lv<36){m.lv=36;m.exp=lvExp(36)}m.moves=['願星審判','飛天','日光爆發','許願星'];delete m.pp;m.hp=maxhp(m);markCaught(47);sfx('badge');await sayAll(['咦？蛋願天使的身體發出耀眼的光芒……','蛋願天使 進化成了 蛋願神皇！',`蛋願神皇 Lv${m.lv} 學會了 願星審判、飛天、日光爆發、許願星！`,'打開選單選「飛天」就能出發！'])}
   await saveNow()}
