@@ -14,7 +14,7 @@ service cloud.firestore {
     // 存檔：自己寫自己的；GM 可以修正（處理作弊、補怪獸）
     // 存檔基本檢查（V95 防作弊）：玩家自己寫的存檔要合理，GM 不受限
     function num(v, lo, hi) { return v is number && v >= lo && v <= hi; }
-    function okSave(uid) {
+    function okSave() {
       let n = request.resource.data;
       let o = resource == null ? {} : resource.data;
       return n.ver == 2
@@ -27,7 +27,7 @@ service cloud.firestore {
     }
     match /players/{uid} {
       allow read: if signed();
-      allow create, update: if isGM() || (signed() && me() == uid && okSave(uid));
+      allow create, update: if isGM() || (signed() && me() == uid && okSave());
       allow delete: if isGM();
     }
     match /presence/{uid} {
