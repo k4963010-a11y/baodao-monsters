@@ -278,7 +278,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-215816';
+import CONFIG from './firebase-config.js?v=20261109-222402';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -444,7 +444,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-215816";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-222402";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1488,16 +1488,17 @@ function dropTick(){if(!db||!db.query||!uid)return;const now=Date.now(),ev=dropC
   dropCheck()}
 function dropCheck(){const ev=DROPEV;if(!ev||!DROP_BALLS)return;const now=Date.now(),k=a=>ev.id+a;
   if(now<ev.t0){if(!DROP_ANN.has(k('pre'))){DROP_ANN.add(k('pre'));bcPush(`🎁 天降寶貝球預告：${Math.max(1,Math.round((ev.t0-now)/60000))} 分鐘後，淡水鎮會掉下 ${DROP.n} 顆寶貝球，其中 1 顆是「大師球」！`)}return}
-  if(now<ev.t0+DROP.dur&&dropLeft()>0&&!DROP_ANN.has(k('go'))){DROP_ANN.add(k('go'));bcPush(`🎁 天降寶貝球開始！快到淡水鎮搶球，${DROP.n} 顆裡有高級球、超級球，還有 1 顆大師球（100% 抓到）！`);try{sfx('badge')}catch(e){}}
+  if(now<ev.t0+DROP.dur&&dropLeft()>0&&!DROP_ANN.has(k('go'))){DROP_ANN.add(k('go'));bcPush(`🎁 天降寶貝球開始！快到淡水鎮，面向寶貝球按 A 撿起來！${DROP.n} 顆裡有高級球、超級球，還有 1 顆大師球（100% 抓到）！`);try{sfx('badge')}catch(e){}}
   const mc=DROPC[DROP_MASTER];if(mc&&!DROP_ANN.has(k('master'))){DROP_ANN.add(k('master'));bcPush(`🎉 恭喜「${mc.name}」在淡水鎮搶到了大師球！`)}
   if((now>=ev.t0+DROP.dur||dropLeft()<=0)&&!DROP_ANN.has(k('end'))&&DROP_ANN.has(k('go'))){DROP_ANN.add(k('end'));bcPush(dropLeft()<=0?`🎁 天降寶貝球：${DROP.n} 顆全部被搶光了！下次活動時間請看公告！`:'🎁 天降寶貝球時間到，活動結束！下次活動時間請看公告！')}}
 function dropActive(){const ev=DROPEV;if(!ev||!DROP_BALLS)return false;const el=Date.now()-ev.t0;return el>=0&&el<DROP.dur}
-function dropStep(){if(!G||G.dream||!dropActive()||!M||M.id!==DROP.map||Date.now()-DROPEV.t0<DROP.fall)return;
-  const i=DROP_BALLS.findIndex(b=>b[0]===player.x&&b[1]===player.y);if(i<0||DROPC[i]||DROP_PEND.has(i))return;const ev=DROPEV;DROP_PEND.add(i);
+/* 按 A 撿球：面向的那一格有球就撿；沒有的話，看腳下那一格。一次撿一顆 */
+function dropPickA(fx,fy){if(!G||G.dream||!dropActive()||!M||M.id!==DROP.map||Date.now()-DROPEV.t0<DROP.fall)return false;
+  const at=(x,y)=>DROP_BALLS.findIndex((b,j)=>b[0]===x&&b[1]===y&&!DROPC[j]&&!DROP_PEND.has(j));let i=at(fx,fy);if(i<0)i=at(player.x,player.y);if(i<0)return false;const ev=DROPEV;DROP_PEND.add(i);
   db.doc(`dropc/c_${ev.id}_${i}`).set({ev:ev.id,i,uid,name:G.name,t:Date.now()}).then(()=>{DROPC[i]={uid,name:G.name,t:Date.now()};
     if(i===DROP_MASTER){G.items.ball4=Math.min(99,(G.items.ball4|0)+1);try{sfx('badge')}catch(e){}dropToast('★ 搶到了「大師球」！100% 必定抓到！',4500);dropCheck()}
     else{const k=DROP_KIND[i]||'ball';G.items[k]=Math.min(99,(G.items[k]|0)+1);try{sfx(k==='ball'?'ball':'lvl')}catch(e){}dropToast(`${k==='ball3'?'★ ':''}撿到${BALLS[k][0]}！（淡水鎮還剩 ${dropLeft()} 顆）`)}scheduleSave(1500)})
-   .catch(()=>{dropToast('慢了一步，被別人搶走了！')}).finally(()=>DROP_PEND.delete(i))}
+   .catch(()=>{dropToast('慢了一步，被別人搶走了！')}).finally(()=>DROP_PEND.delete(i));return true}
 function dropDraw(list,cx,cy){if(!dropActive()||!M||M.id!==DROP.map)return;const el=Date.now()-DROPEV.t0;
   DROP_BALLS.forEach((b,i)=>{if(DROPC[i]||DROP_PEND.has(i))return;const delay=(i%10)*130+((i*37)%5)*70;const ft=clamp((el-delay)/900,0,1);if(ft<=0)return;
     const X=b[0]*16-cx,GY=b[1]*16-cy,fall=(1-ft*ft)*160,bob=ft>=1?((Math.floor((el+i*90)/300)%2)?1:0):0;
@@ -1621,7 +1622,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走過去踩到就撿到，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+const NEWS=[{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
@@ -1879,7 +1880,7 @@ function spotter(){for(const e of ents){if(!e.trainer||!e.sight||G.flags['t_'+e.
 async function spotted(e){e.alert=true;await wait(650);e.alert=false;const sx=e.x,sy=e.y,sd=e.dir,mid=M.id;
   while(Math.abs(player.x-e.x)+Math.abs(player.y-e.y)>1)await stepEnt(e,e.dir);player.dir=BACK[e.dir];await trainerTalk(e);
   if(M.id===mid&&ents.includes(e)&&(e.x!==sx||e.y!==sy)){const bd=BACK[sd];let n=0;while((e.x!==sx||e.y!==sy)&&n++<12)await stepEnt(e,bd);e.dir=sd}}
-function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;dropStep();updatePresence();if(G.steps%120===0)scheduleSave(300);
+function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.flags.surf=false}G.steps++;updatePresence();if(G.steps%120===0)scheduleSave(300);
   const w=warpAt(player.x,player.y);if(w){event(()=>doWarp(w));return}
   const tr=(M.triggers||[]).find(t=>t.at.some(([x,y])=>x===player.x&&y===player.y)&&t.cond());if(tr){event(tr.run);return}
   const sp=spotter();if(sp){event(()=>spotted(sp));return}
@@ -1887,7 +1888,7 @@ function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.
   if((tileAt(player.x,player.y)===','&&Math.random()<0.1||M.cave&&tileAt(player.x,player.y)==='x'&&Math.random()<0.07||M.cave&&'aI'.includes(tileAt(player.x,player.y))&&Math.random()<0.04)&&G.party.some(m=>m.hp>0)){const z=M.zone&&M.zone(player.x,player.y);if(z)event(()=>wildEncounter(z))}
   else if(M.id==='route2'&&!G.flags.birdjoin&&G.flags.starter&&tileAt(player.x,player.y)===','&&G.party.some(m=>m.hp>0))event(birdFriend)}
 function swimStep(){const tl=tileAt(player.x,player.y);if(G.flags.surf&&'~8'.includes(tl)&&Math.random()<(tl==='8'?0.07:0.05)&&G.party.some(m=>m.hp>0)){const z=M.seaZone&&M.seaZone(tl);if(z&&ZONES[z]){event(()=>wildEncounter(z));return true}ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T,xm:M.fishXm};event(()=>wildEncounter('fish'));return true}return false}
-function mapPress(k){if(k==='a'){const [dx,dy]=DIRS[player.dir];event(()=>interact(player.x+dx,player.y+dy))}else if(k==='start')event(startMenu)}
+function mapPress(k){if(k==='a'){const [dx,dy]=DIRS[player.dir];if(dropPickA(player.x+dx,player.y+dy))return;event(()=>interact(player.x+dx,player.y+dy))}else if(k==='start')event(startMenu)}
 let last=performance.now();
 let CVT=[],CVTK='';const cvT=(x,y,t,col,sz)=>CVT.push([x,y,t,col||'#202838',sz||10]);
 function cvFlush(){const k=JSON.stringify(CVT);CVT=[];if(k===CVTK)return;CVTK=k;const box=$('cvtxt');box.replaceChildren();for(const [x,y,t,col,sz] of JSON.parse(k)){const e=document.createElement('span');e.textContent=t;e.style.left=`calc(var(--u)*${x})`;e.style.top=`calc(var(--u)*${y})`;e.style.color=col;e.style.fontSize=`calc(var(--u)*${sz})`;box.append(e)}}
