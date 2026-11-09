@@ -1,19 +1,85 @@
 rules_version = '2';
+// 飽島怪獸 Firestore 規則（2026-11-09 V94：locks 拆成各自集合、每個角色只讀寫該讀寫的）
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    // GM 帳號（凱凱）。要加 GM 就把 uid 加進這個清單，game.html 的 GM_UIDS 也要一起加
+    function isGM() { return signed() && me() in ['PGWziQU4dpTkWLdaTTXR24mSgRs2']; }
+    function nowMs() { return request.time.toMillis(); }
+    function str(v, n) { return v is string && v.size() <= n; }
+    function d() { return request.resource.data; }
+    function freshT() { return d().t is number && d().t > nowMs() - 86400000 && d().t < nowMs() + 86400000; }
+
+    // 存檔：自己寫自己的；GM 可以修正（處理作弊、補怪獸）
     match /players/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if signed();
+      allow write: if signed() && (me() == uid || isGM());
     }
     match /presence/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if signed();
+      allow write: if signed() && me() == uid;
     }
+    // 舊交換箱：已停用，只能把自己放的拿回來
     match /swap/{slot} {
-      allow read, write: if request.auth != null && slot in ['s1', 's2', 's3'];
+      allow read: if signed();
+      allow delete: if signed() && (resource.data.by == me() || isGM());
+      allow create, update: if isGM();
     }
+    // 只剩交換箱用的短暫鎖；舊資料 GM 搬家用
     match /locks/{id} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isGM() || (signed() && id in ['swap_s1', 'swap_s2', 'swap_s3']);
+    }
+
+    // 聊天室：大家看得到；只能用自己的身分發言；可以刪自己的、或 7 天前的舊訊息
+    match /chat/{id} {
+      allow read: if signed();
+      allow create: if isGM() || (signed() && d().uid == me() && str(d().text, 120) && str(d().name, 20) && freshT()
+                        && id == 'chat_' + string(d().t) + '_' + me());
+      allow delete: if signed() && (resource.data.uid == me() || isGM() || resource.data.t < nowMs() - 604800000);
+      allow update: if isGM();
+    }
+    // bug 回報：誰都能送，只有 GM 看得到
+    match /bugs/{id} {
+      allow create: if isGM() || (signed() && d().uid == me() && str(d().text, 500));
+      allow read, update, delete: if isGM();
+    }
+    // 信箱：只有收件人看得到；只有 GM 能寄（附送怪獸的漏洞就是這裡）
+    match /mail/{id} {
+      allow read: if signed() && (resource.data.to == me() || isGM());
+      allow create, update, delete: if isGM();
+    }
+    // GM 大聲公
+    match /bc/{id} {
+      allow read: if signed();
+      allow write: if isGM();
+    }
+    // 好友邀請：只能用自己名義送；收、送雙方看得到、可以刪
+    match /freq/{id} {
+      allow read: if signed() && (resource.data.to == me() || resource.data.from == me() || isGM());
+      allow create: if isGM() || (signed() && d().from == me() && d().to is string && d().to != me()
+                        && id == 'freq_' + d().to + '_' + me());
+      allow delete: if signed() && (resource.data.to == me() || resource.data.from == me() || isGM());
+    }
+    // 好友：只有雙方看得到
+    match /friends/{id} {
+      allow read: if signed() && (me() in resource.data.m || isGM());
+      allow create, update: if isGM() || (signed() && me() in d().m && d().m.size() == 2
+                        && d().m[0] == d().a && d().m[1] == d().b && id == 'fr_' + d().a + '_' + d().b);
+      allow delete: if signed() && (me() in resource.data.m || isGM());
+    }
+    // 私訊：只有雙方看得到
+    match /dm/{id} {
+      allow read: if signed() && me() in resource.data.m;
+      allow create: if isGM() || (signed() && d().from == me() && me() in d().m && d().m.size() == 2
+                        && str(d().text, 120) && d().pair == d().m[0] + '_' + d().m[1]);
+      allow delete: if signed() && (me() in resource.data.m || isGM());
+    }
+    // 邀請碼
+    match /invites/{id} {
+      allow read: if signed();
+      allow create: if isGM() || (signed() && d().usedBy == me());
+      allow update: if isGM() || (signed() && resource.data.usedBy == me() && d().usedBy == me());
     }
   }
 }

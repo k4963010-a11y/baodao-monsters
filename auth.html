@@ -34,7 +34,7 @@
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 import CONFIG from './firebase-config.js';
 
@@ -63,6 +63,9 @@ function makeDb(){return {
     set:v=>setDoc(r,v),delete:()=>deleteDoc(r),
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
+  query(name,o={}){const parts=[];(o.where||[]).forEach(w=>parts.push(where(w[0],w[1],w[2])));if(o.orderBy)parts.push(orderBy(o.orderBy[0],o.orderBy[1]||'asc'));if(o.limit)parts.push(limit(o.limit));
+    const q=query(collection(fs,name),...parts);const wrap=s=>({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))});
+    return {onSnapshot:(cb,err)=>onSnapshot(q,s=>cb(wrap(s)),err),get:async()=>wrap(await getDocs(q))}},
   collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)},async get(){const s=await getDocs(collection(fs,name));return {docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}}}}}}
 function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
@@ -95,8 +98,8 @@ if(auth){
     let ic='',ih='';if(mode==='reg'){ic=$('aic').value.trim().toUpperCase().replace(/\s+/g,'');ih=ic?await sha(ic):'';if(!NEED_INV)ic=ih='';else if(!INV.has(ih)){msg.textContent='邀請碼不正確，請向凱凱拿邀請碼喔。';return}}
     $('ago').disabled=true;msg.textContent=mode==='reg'?'註冊中……':'登入中……';
     try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);
-      if(mode==='reg'&&ih){const L=doc(fs,'locks','inv_'+ih);let used=false;
-        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{holder:'invite',exp:0,code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
+      if(mode==='reg'&&ih){const L=doc(fs,'invites','inv_'+ih);let used=false;
+        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
         if(used){try{await c.user.delete()}catch(e3){}msg.textContent='這個邀請碼已經有人用過了，請向凱凱拿新的。';$('ago').disabled=false;return}}
       msg.textContent='';enter(c.user,u)}
     catch(err){msg.textContent=ERR[err.code]||('出了點問題：'+(err.code||err.message));$('ago').disabled=false}});

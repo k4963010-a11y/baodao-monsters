@@ -260,9 +260,9 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-154337';
+import CONFIG from './firebase-config.js?v=20261109-181341';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -289,6 +289,9 @@ function makeDb(){return {
     set:v=>setDoc(r,v),delete:()=>deleteDoc(r),
     acquire({holder,ttlMs}){const L=doc(fs,'locks',path.replace(/\//g,'_'));return runTransaction(fs,async tx=>{const s=await tx.get(L);const now=Date.now();
       if(s.exists()){const d=s.data();if(d.exp>now&&d.holder!==holder)return {acquired:false}}tx.set(L,{holder,exp:now+ttlMs});return {acquired:true}})}}},
+  query(name,o={}){const parts=[];(o.where||[]).forEach(w=>parts.push(where(w[0],w[1],w[2])));if(o.orderBy)parts.push(orderBy(o.orderBy[0],o.orderBy[1]||'asc'));if(o.limit)parts.push(limit(o.limit));
+    const q=query(collection(fs,name),...parts);const wrap=s=>({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))});
+    return {onSnapshot:(cb,err)=>onSnapshot(q,s=>cb(wrap(s)),err),get:async()=>wrap(await getDocs(q))}},
   collection(name){return {onSnapshot(cb,err){return onSnapshot(collection(fs,name),s=>cb({metadata:{fromCache:s.metadata.fromCache},docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}),err)},async get(){const s=await getDocs(collection(fs,name));return {docs:s.docs.map(d=>({id:d.id,data:()=>d.data()}))}}}}}}
 function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
@@ -321,8 +324,8 @@ if(auth){
     let ic='',ih='';if(mode==='reg'){ic=$('aic').value.trim().toUpperCase().replace(/\s+/g,'');ih=ic?await sha(ic):'';if(!NEED_INV)ic=ih='';else if(!INV.has(ih)){msg.textContent='邀請碼不正確，請向凱凱拿邀請碼喔。';return}}
     $('ago').disabled=true;msg.textContent=mode==='reg'?'註冊中……':'登入中……';
     try{const c=mode==='reg'?await createUserWithEmailAndPassword(auth,toEmail(u),p):await signInWithEmailAndPassword(auth,toEmail(u),p);
-      if(mode==='reg'&&ih){const L=doc(fs,'locks','inv_'+ih);let used=false;
-        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{holder:'invite',exp:0,code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
+      if(mode==='reg'&&ih){const L=doc(fs,'invites','inv_'+ih);let used=false;
+        try{await runTransaction(fs,async tx=>{const d=await tx.get(L);if(d.exists()&&d.data().usedBy&&d.data().usedBy!==c.user.uid){used=true;return}tx.set(L,{code:ic,usedBy:c.user.uid,user:u,at:Date.now()})})}catch(e2){}
         if(used){try{await c.user.delete()}catch(e3){}msg.textContent='這個邀請碼已經有人用過了，請向凱凱拿新的。';$('ago').disabled=false;return}}
       msg.textContent='';enter(c.user,u)}
     catch(err){msg.textContent=ERR[err.code]||('出了點問題：'+(err.code||err.message));$('ago').disabled=false}});
@@ -417,7 +420,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-154337";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-181341";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1367,7 +1370,7 @@ let rosterDocs=[],swapSlots={},INVMAP={};
 /* ---- 回報 bug ---- */
 /* bug 回報：只有 GM 看得到，可以直接回信到玩家的遊戲信箱 */
 function renderBugs(list){const ul=$('bugList');if(!ul)return;ul.replaceChildren();const isGM=GM_UIDS.has(uid);
-  list=list.filter(b=>b&&typeof b.text==='string').sort((a,b)=>(!!a.replied-!!b.replied)||(b.t|0)-(a.t|0)).slice(0,40);
+  list=list.filter(b=>b&&typeof b.text==='string').sort((a,b)=>(!!a.replied-!!b.replied)||(+b.t||0)-(+a.t||0)).slice(0,40);
   $('bugCard').hidden=!isGM||!list.length;if(!isGM)return;
   for(const b of list){const li=document.createElement('li');if(b.replied)li.className='done';const n=document.createElement('b');n.textContent=String(b.name||'訓練家').slice(0,8);const t=document.createElement('i');const d=new Date(b.t||0);t.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`+(b.where?'・'+String(b.where).slice(0,20):'');
     li.append(n,t,document.createTextNode('\n'+b.text.slice(0,500)));
@@ -1389,7 +1392,7 @@ function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div
   ta.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});ta.addEventListener('keyup',x=>x.stopPropagation());
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.replace(/\s+/g,' ').trim();if(!text){msg.textContent='寫點什麼吧！';return}if(!db||!uid){msg.textContent='要先登入喔！';return}msg.textContent='發送中……';const t=Date.now();
-    try{await db.doc('locks/bc_'+t).set({holder:'bc',exp:0,from:uid,text:text.slice(0,80),t});for(const d of BC_DOCS){try{db.doc('locks/'+d.id).delete()}catch(e){}}close()}catch(e){msg.textContent='發送失敗，請再試一次。'}}}
+    try{await db.doc('bc/bc_'+t).set({from:uid,text:text.slice(0,80),t});for(const d of BC_DOCS){try{db.doc('bc/'+d.id).delete()}catch(e){}}close()}catch(e){msg.textContent='發送失敗，請再試一次。'}}}
 $('gmBcBtn').addEventListener('click',gmBroadcast);
 function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
   w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
@@ -1398,15 +1401,15 @@ function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('d
   w.querySelectorAll('textarea,input').forEach(e=>{e.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});e.addEventListener('keyup',x=>x.stopPropagation())});
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.trim(),sp=+sel.value,lv=clamp(+w.querySelector('.lv').value||5,1,100);if(!text&&!sp){msg.textContent='寫點話或選一隻怪獸喔！';return}msg.textContent='寄送中……';const t=Date.now();
-    try{await db.doc('locks/mail_'+String(to).slice(0,40)+'_'+t).set({holder:'mail',exp:0,to,from:'GM 凱凱',title:sp?'GM 送你一份禮物':'GM 的信',body:text||(sp?`送你一隻 ${SP[sp].n}，好好照顧牠！`:''),...(sp?{gift:{sp,lv}}:{}),t});
+    try{await db.doc('mail/mail_'+String(to).slice(0,40)+'_'+t).set({to,from:'GM 凱凱',title:sp?'GM 送你一份禮物':'GM 的信',body:text||(sp?`送你一隻 ${SP[sp].n}，好好照顧牠！`:''),...(sp?{gift:{sp,lv}}:{}),t});
       w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家打開選單的「信箱」就會收到'+(sp?'怪獸':'信')+'。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
 function gmReply(b){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回覆玩家"><h3></h3><p class="q"></p><textarea maxlength="400" placeholder="寫下要回給玩家的話，會寄到他的遊戲信箱"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
   w.querySelector('h3').textContent=`回覆給 ${String(b.name||'訓練家').slice(0,8)}`;w.querySelector('.q').textContent='他說：「'+b.text.slice(0,200)+'」';
   document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row span'),close=()=>w.remove();ta.focus();
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')close()});ta.addEventListener('keyup',e=>e.stopPropagation());
   w.querySelector('.go').onclick=async()=>{const text=ta.value.trim();if(!text){msg.textContent='先寫點東西喔！';return}msg.textContent='寄送中……';const t=Date.now();
-    try{await db.doc('locks/mail_'+String(b.uid).slice(0,40)+'_'+t).set({holder:'mail',exp:0,to:b.uid,from:'GM 凱凱',title:'回覆：你的回報',q:b.text.slice(0,200),body:text.slice(0,400),t});
-      if(b.id){const {id,...rest}=b;await db.doc('locks/'+b.id).set({...rest,replied:true,reply:text.slice(0,400)})}
+    try{await db.doc('mail/mail_'+String(b.uid).slice(0,40)+'_'+t).set({to:b.uid,from:'GM 凱凱',title:'回覆：你的回報',q:b.text.slice(0,200),body:text.slice(0,400),t});
+      if(b.id){const {id,...rest}=b;await db.doc('bugs/'+b.id).set({...rest,replied:true,reply:text.slice(0,400)})}
       w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家下次打開選單的「信箱」就會看到。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
     catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
 let MYMAIL=[];
@@ -1416,7 +1419,7 @@ function bugReport(){if($('bugDlg'))return;const w=document.createElement('div')
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.trim();if(!text){msg.textContent='請先寫下問題喔！';return}if(!db){msg.textContent='要先登入才能送出喔！';return}
     msg.textContent='送出中……';const t=Date.now();const where=(typeof M!=='undefined'&&M&&M.name)||'';
-    try{await db.doc('locks/bug_'+t+'_'+String(uid||'x').slice(0,40)).set({holder:'bug',exp:0,uid:uid||'',name:(G&&G.name)||'',where,text:text.slice(0,500),t,ver:typeof BD_BUILD!=='undefined'?String(BD_BUILD):''});
+    try{await db.doc('bugs/bug_'+t+'_'+String(uid||'x').slice(0,40)).set({uid:uid||'',name:(G&&G.name)||'',where,text:text.slice(0,500),t,ver:typeof BD_BUILD!=='undefined'?String(BD_BUILD):''});
       msg.textContent='';w.querySelector('.in').innerHTML='<h3>謝謝你的回報！</h3><p>我們收到了，會盡快處理。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}
     catch(e){msg.textContent='送出失敗，請稍後再試一次。'}}}
 /* ---- 📮 信箱：給玩家的信（新的放最上面；沒看過的選單會顯示 ❗） ---- */
@@ -1486,7 +1489,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
+const NEWS=[{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+ {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
  {v:'1110',d:'飛天＋好友',items:['👥 選單新增「訓練家」：輸入朋友的 ID 就能加好友，好友分「在線上／未上線」，還可以直接私訊','每位玩家都自動跟 GM 凱凱 成為好友，有問題可以直接私訊 GM','你的 ID 在「訓練家」→「＋加好友」，或選單點自己的名字就看得到','🪽 新技能「飛天」：打贏花蓮館主小百合可以拿到「飛天技能書」（已經打贏的，回去找小百合拿）','教會飛系、龍系或光系的怪獸，選單就會出現「飛天」','可以飛到去過的城市（降落在寶貝中心門口），也可以飛到在線上的好友旁邊！']},
@@ -1526,10 +1530,10 @@ async function peerPet(pe){const sp=pe.lead;if(!SP[sp])return;monCry(sp);
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&G)saveNow()});
 window.addEventListener('pagehide',()=>{try{if(G&&!G.dream){snapshotPos();saveLocal()}}catch(e){}});
 
-/* ---- 聊天室（存在 locks/chat_<時間>_<uid>） ---- */
+/* ---- 聊天室（Firestore chat/chat_<時間>_<uid>） ---- */
 let chatLast=0,chatSeen=new Set(),chatReady=false;
 function renderChat(list){const box=$('chatList');if(!box)return;$('chatCard').hidden=false;chatReady=true;
-  list=list.filter(c=>c&&typeof c.text==='string').sort((a,b)=>(a.t|0)-(b.t|0)).slice(-60);
+  list=list.filter(c=>c&&typeof c.text==='string').sort((a,b)=>(+a.t||0)-(+b.t||0)).slice(-60);
   const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<40;box.replaceChildren();
   if(!list.length){const p=document.createElement('li');p.className='empty';p.textContent='還沒有人說話，來打聲招呼吧！';box.append(p)}
   for(const c of list){const li=document.createElement('li');if(c.uid===uid)li.className='me';const n=document.createElement('b');n.textContent=String(c.name||'訓練家').slice(0,8);if(GM_UIDS.has(c.uid))n.append(gmTag());
@@ -1540,15 +1544,15 @@ async function chatSend(){const inp=$('chatIn'),msg=$('chatMsg');const text=inp.
   if(!db||!uid){msg.textContent='要先登入才能聊天喔！';return}if(!G){msg.textContent='先開始冒險，取好名字再聊天喔！';return}
   const now=Date.now();if(now-chatLast<3000){msg.textContent='講太快了，休息一下再說～';return}chatLast=now;
   msg.textContent='';$('chatGo').disabled=true;
-  try{await db.doc('locks/chat_'+now+'_'+String(uid).slice(0,40)).set({holder:'chat',exp:0,uid,name:G.name||'訓練家',text:text.slice(0,120),t:now});inp.value='';chatPrune()}
+  try{await db.doc('chat/chat_'+now+'_'+String(uid).slice(0,40)).set({uid,name:G.name||'訓練家',text:text.slice(0,120),t:now});inp.value='';chatPrune()}
   catch(e){msg.textContent='送出失敗，請稍後再試。'}$('chatGo').disabled=false;inp.focus()}
 let chatDocs=[];
-function chatPrune(){/* 只留最新 150 則、7 天內 */const old=chatDocs.sort((a,b)=>b.t-a.t).filter((c,i)=>i>=150||Date.now()-c.t>7*864e5).slice(0,20);
-  for(const c of old){try{db.doc('locks/'+c.id).delete()}catch(e){}}}
+function chatPrune(){/* 刪掉 7 天前的舊訊息（規則允許任何人刪 7 天前的） */const old=chatDocs.filter(c=>Date.now()-c.t>7*864e5).slice(0,20);
+  for(const c of old){try{db.doc('chat/'+c.id).delete()}catch(e){}}}
 $('chatGo').addEventListener('click',()=>FR.view==='dm'?dmSend():chatSend());
 $('chatIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.isComposing){e.preventDefault();FR.view==='dm'?dmSend():chatSend()}});
 $('chatIn').addEventListener('keyup',e=>e.stopPropagation());
-/* ---- 好友（存在 locks：freq_<對方>_<我> 邀請、fr_<a>_<b> 好友、dm_<a>_<b>_<時間>_<我> 私訊） ---- */
+/* ---- 好友（Firestore：freq/freq_<對方>_<我> 邀請、friends/fr_<a>_<b> 好友、dm/dm_<a>_<b>_<時間>_<我> 私訊；m=[a,b] 給規則與查詢用） ---- */
 let FR={list:[],reqs:[],dms:{},view:'lobby',with:null,seen:{}};
 try{FR.seen=JSON.parse(localStorage.getItem('baodao_dmseen')||'{}')||{}}catch(e){}
 const pairKey=(a,b)=>a<b?a+'_'+b:b+'_'+a;
@@ -1564,10 +1568,10 @@ function friendWhere(id){const on=onlineMap();if(on[id]!==undefined)return {on:t
 const unreadOf=f=>(FR.dms[f.pair]||[]).filter(m=>m.from!==uid&&m.t>(FR.seen[f.pair]||0)).length;
 async function addFriend(id,name){if(!db||!uid||!G){await alertMsg('要先登入、開始冒險，才能加好友喔！');return}if(id===uid||isFriend(id))return;
   const rq=FR.reqs.find(r=>r.id===id);if(rq){await acceptFriend(rq);return}
-  try{await db.doc('locks/freq_'+id+'_'+uid).set({holder:'freq',exp:0,from:uid,fromName:G.name,to:id,toName:name||'',t:Date.now()});await alertMsg(`已經送出好友邀請給 ${name}！等對方接受就好囉。`)}catch(e){await alertMsg('送出失敗，請稍後再試。')}}
+  try{await db.doc('freq/freq_'+id+'_'+uid).set({from:uid,fromName:G.name,to:id,toName:name||'',t:Date.now()});await alertMsg(`已經送出好友邀請給 ${name}！等對方接受就好囉。`)}catch(e){await alertMsg('送出失敗，請稍後再試。')}}
 async function acceptFriend(r){const k=pairKey(uid,r.id),[a,b]=k.split('_');
-  try{await db.doc('locks/fr_'+k).set({holder:'fr',exp:0,a,b,an:a===uid?G.name:r.name,bn:b===uid?G.name:r.name,t:Date.now()});await db.doc('locks/'+r.doc).delete()}catch(e){}}
-async function declineFriend(r){try{await db.doc('locks/'+r.doc).delete()}catch(e){}}
+  try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===uid?G.name:r.name,bn:b===uid?G.name:r.name,t:Date.now()});await db.doc('freq/'+r.doc).delete()}catch(e){}}
+async function declineFriend(r){try{await db.doc('freq/'+r.doc).delete()}catch(e){}}
 function alertMsg(t){$('chatMsg').textContent=t;return Promise.resolve()}
 function setChatView(v,w){FR.view=v;FR.with=w||null;if(v==='dm'&&w){FR.seen[w.pair]=Date.now();try{localStorage.setItem('baodao_dmseen',JSON.stringify(FR.seen))}catch(e){}}
   $('chatTabLobby').classList.toggle('on',v==='lobby');$('chatTabFr').classList.toggle('on',v!=='lobby');$('chatList').hidden=v!=='lobby';$('frBox').hidden=v==='lobby';
@@ -1585,21 +1589,38 @@ function renderFriends(){frpRender();const box=$('frBox');if(!box)return;const t
   if(!FR.list.length)box.append(mk('p','frempty','還沒有好友。\n在右邊的「訓練家名冊」按「＋好友」，或在遊戲裡走到朋友旁邊按 A →「加好友」。'));
   for(const f of FR.list){const w=friendWhere(f.id);const row=mk('div','frrow');const nm=mk('b',null,friendName(f.id));if(GM_UIDS.has(f.id))nm.append(gmTag());const u=unreadOf(f);const at=mk('i',w.on?'on':'',(w.on?'● ':'○ ')+w.at);const bt=mk('button','go','私訊'+(u?`（${u}）`:''));bt.onclick=()=>setChatView('dm',{...f,name:friendName(f.id)});row.append(nm,at,bt);box.append(row)}}
 async function dmPost(f,text){if(!db||!uid||!G)return '要先登入、開始冒險才能私訊喔！';const now=Date.now();if(now-chatLast<1500)return '講太快了，休息一下再說～';chatLast=now;
-  try{await db.doc('locks/dm_'+f.pair+'_'+now+'_'+uid.slice(0,8)).set({holder:'dm',exp:0,pair:f.pair,from:uid,name:G.name,text:text.slice(0,120),t:now});
-    const old=(FR.dms[f.pair]||[]).filter((m,i,a)=>i<a.length-80||now-m.t>30*864e5).slice(0,10);for(const m of old){try{db.doc('locks/'+m.id).delete()}catch(e){}}return ''}
+  try{await db.doc('dm/dm_'+f.pair+'_'+now+'_'+uid.slice(0,8)).set({pair:f.pair,m:f.pair.split('_'),from:uid,name:G.name,text:text.slice(0,120),t:now});
+    const old=(FR.dms[f.pair]||[]).filter((m,i,a)=>i<a.length-80||now-m.t>30*864e5).slice(0,10);for(const m of old){try{db.doc('dm/'+m.id).delete()}catch(e){}}return ''}
   catch(e){return '送出失敗，請稍後再試。'}}
 async function dmSend(){const inp=$('chatIn'),f=FR.with;const text=inp.value.replace(/\s+/g,' ').trim();if(!text||!f)return;
   $('chatGo').disabled=true;const err=await dmPost(f,text);if(err)$('chatMsg').textContent=err;else inp.value='';$('chatGo').disabled=false;inp.focus()}
 $('chatTabLobby').addEventListener('click',()=>setChatView('lobby'));$('chatTabFr').addEventListener('click',()=>setChatView('friends'));
 
 
+/* GM 登入時：把舊 locks 裡的社群資料搬到各自的集合（搬完刪掉；交換箱的鎖 swap_* 不動） */
+async function gmMigrateLocks(){try{const s=await db.collection('locks').get();let n=0;
+  const MAP=[[/^chat_/,'chat'],[/^bug_/,'bugs'],[/^mail_/,'mail'],[/^bc_/,'bc'],[/^freq_/,'freq'],[/^fr_/,'friends'],[/^dm_/,'dm'],[/^inv_/,'invites']];
+  for(const d of s.docs){const r=MAP.find(([re])=>re.test(d.id));if(!r)continue;const v={...d.data()};delete v.holder;delete v.exp;
+    if(r[1]==='friends'&&typeof v.a==='string'&&typeof v.b==='string')v.m=[v.a,v.b];if(r[1]==='dm'&&typeof v.pair==='string')v.m=v.pair.split('_');
+    try{await db.doc(r[1]+'/'+d.id).set(v);await db.doc('locks/'+d.id).delete();n++}catch(e){console.warn('migrate',d.id,e)}}
+  if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已把 ${n} 筆舊資料搬到新位置`;document.body.append(t);setTimeout(()=>t.remove(),5000)}}catch(e){console.warn('migrate',e)}}
 function subscribeCloud(){
   $('gmBcBtn').hidden=!GM_UIDS.has(uid);
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
   db.collection('swap').onSnapshot(s=>{swapSlots={};s.docs.forEach(d=>{swapSlots[d.id]=d.data()});renderSwap()},()=>{});
-  try{db.collection('locks').onSnapshot(s=>{chatDocs=s.docs.filter(d=>/^chat_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice());friendsFromLocks(s.docs);mailsFromLocks(s.docs);bcFromLocks(s.docs);renderBugs(s.docs.filter(d=>/^bug_/.test(d.id)).map(d=>({...d.data(),id:d.id})));INVMAP={};s.docs.forEach(d=>{if(/^inv_/.test(d.id)){const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)}});renderRoster()},()=>{})}catch(e){}
+  /* 社群資料分開放（以前全塞在 locks，每個人都下載全部）：每個人只查自己需要的 */
+  if(db.query){const Q=(n,o,cb)=>{try{db.query(n,o).onSnapshot(s=>cb(s.docs),e=>console.warn(n,e))}catch(e){}};
+    const FD={fr:[],fq:[],dm:[]};const frUpd=()=>friendsFromLocks([...FD.fr,...FD.fq,...FD.dm]);
+    Q('chat',{orderBy:['t','desc'],limit:80},d=>{chatDocs=d.map(x=>({id:x.id,...x.data()})).filter(c=>typeof c.t==='number');renderChat(chatDocs.slice())});
+    Q('friends',{where:[['m','array-contains',uid]]},d=>{FD.fr=d;frUpd()});
+    Q('freq',{where:[['to','==',uid]]},d=>{FD.fq=d;frUpd()});
+    Q('dm',{where:[['m','array-contains',uid]]},d=>{FD.dm=d;frUpd()});
+    Q('mail',{where:[['to','==',uid]]},d=>mailsFromLocks(d));
+    Q('bc',{orderBy:['t','desc'],limit:5},d=>bcFromLocks(d));
+    if(GM_UIDS.has(uid)){Q('bugs',{orderBy:['t','desc'],limit:60},d=>renderBugs(d.map(x=>({...x.data(),id:x.id}))));gmMigrateLocks()}
+    db.query('invites',{}).get().then(s=>{INVMAP={};s.docs.forEach(d=>{const v=d.data();if(v&&v.usedBy&&typeof v.code==='string')INVMAP[v.usedBy]=v.code.slice(0,8)});renderRoster()}).catch(()=>{})}
 }
 let RTAB='on';document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.rtabs button');if(b){RTAB=b.dataset.rt;renderRoster()}});
 function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlineMap();
@@ -2798,6 +2819,10 @@ async function throwBall(foe,k='ball'){k=BALLS[k]?k:'ball';G.items[k]--;sfx('bal
   B.ball=null;B.ehidden=false;await say(['哎呀！跑出來了！','差一點點就抓到了！','可惡！只差一點！'][Math.min(2,shakes)]);return false}
 async function transition(){for(let i=0;i<3;i++){fadeA=1;await wait(80);fadeA=0;await wait(80)}}
 async function battle(enemies,trainer){
+  if(!G.party.some(m=>m&&m.hp>0)){/* 隊伍裡沒有能戰鬥的怪獸：不進戰鬥，直接送回寶貝中心（以前會當掉） */
+    if(trainer&&trainer.noLose){await say('你的怪獸都沒有力氣了，先去寶貝中心休息吧！');return 'lose'}
+    await sayAll([`${G.name} 的怪獸都沒有力氣了……`,'先回去休息吧！']);healAll();G.lastHeal=nearHeal();loadMap(G.lastHeal.map);placePlayer(G.lastHeal);
+    await say('怪獸們都恢復健康了。別太勉強喔！');scheduleSave(200);return 'lose'}
   await transition();mode='battle';updatePresence();$('moneyBox').hidden=true;music(trainer&&/館主|阿翔/.test(trainer.name)?'boss':'battle');$('mapName').hidden=true;B={enemy:enemies[0],me:null,ehidden:false,eGone:false,mehidden:true,shake:{e:0,p:0},stage:{e:{a:0,d:0},p:{a:0,d:0}},ball:null,trainer,assist:B_ASSIST,eTeam:trainer?enemies:null,pTeam:G.party};
   markSeen(B.enemy.sp);let ei=0,mi=G.party.findIndex(m=>m.hp>0);let me=G.party[mi],foe=B.enemy;B.me=me;B.fought=new Set([me]);updHud();
   if(trainer){await say(`${trainer.name} 想要對戰！`);await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else{const rt=RARE_NEXT;RARE_NEXT=false;
@@ -3118,12 +3143,12 @@ function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('t
 function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600)}
 /* 每位玩家自動跟 GM 成為好友（只做一次） */
 async function gmFriend(){const gm=[...GM_UIDS][0];if(!gm||!db||!uid||!G)return;const k=pairKey(uid,gm),[a,b]=k.split('_');
-  try{await db.doc('locks/fr_'+k).set({holder:'fr',exp:0,a,b,an:a===gm?'凱凱':G.name,bn:b===gm?'凱凱':G.name,t:Date.now()});G.flags.gmfr=true;scheduleSave(500)}catch(e){}}
+  try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===gm?'凱凱':G.name,bn:b===gm?'凱凱':G.name,t:Date.now()});G.flags.gmfr=true;scheduleSave(500)}catch(e){}}
 /* GM 登入時：名冊上還不是好友的玩家，全部加成好友 */
 let gmAllRun=false;
 async function gmFriendAll(){if(gmAllRun)return;gmAllRun=true;for(let i=0;i<40&&!(FR.ready&&rosterDocs.length);i++)await wait(3000);if(!(FR.ready&&rosterDocs.length&&db&&G))return;
   let n=0;for(const {id,d} of rosterDocs){if(id===uid||!d||d.ver!==2||isFriend(id))continue;const k=pairKey(uid,id),[a,b]=k.split('_'),nm=typeof d.name==='string'?d.name.slice(0,8):'訓練家';
-    try{await db.doc('locks/fr_'+k).set({holder:'fr',exp:0,a,b,an:a===uid?G.name:nm,bn:b===uid?G.name:nm,t:Date.now()});n++}catch(e){}}
+    try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===uid?G.name:nm,bn:b===uid?G.name:nm,t:Date.now()});n++}catch(e){}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已經跟 ${n} 位玩家成為好友`;document.body.append(t);setTimeout(()=>t.remove(),4000)}}
 async function gmFly1(){if(G.flags.gm_fly1)return;const m=[...G.party,...G.box].find(x=>x.sp===18);G.flags.gm_fly1=true;G.flags.flybook=true;
   if(m){m.sp=47;if(m.lv<36){m.lv=36;m.exp=lvExp(36)}m.moves=['願星審判','飛天','日光爆發','許願星'];delete m.pp;m.hp=maxhp(m);markCaught(47);sfx('badge');await sayAll(['咦？蛋願天使的身體發出耀眼的光芒……','蛋願天使 進化成了 蛋願神皇！',`蛋願神皇 Lv${m.lv} 學會了 願星審判、飛天、日光爆發、許願星！`,'打開選單選「飛天」就能出發！'])}
