@@ -278,7 +278,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-223148';
+import CONFIG from './firebase-config.js?v=20261109-231423';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -444,7 +444,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-223148";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-231423";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2075,7 +2075,10 @@ const flyer=()=>G.party.find(m=>m.moves.includes('飛天'));
 async function useFlyBook(){const ok=j=>FLY_TYPES.includes(SP[G.party[j].sp].t)&&!G.party[j].moves.includes('飛天');
   if(!G.party.some((m,j)=>ok(j))){await say(flyer()?'隊伍裡已經有怪獸會飛天了！':'只有飛系、龍系或光系的怪獸才能學「飛天」喔！');return}
   const j=await partyPick('要教哪一隻「飛天」？（飛・龍・光系）',ok);if(j<0)return;await learnMove(G.party[j],'飛天');scheduleSave()}
-function flyCities(){return TMAP.filter(n=>n.t===1&&MAPS[n.k]&&(G.flags['vt_'+n.k]||n.k==='tamsui'))}
+/* 飛天：目前只開放給 GM。之後開放給玩家時把 FLY_OPEN 改成 true（玩家只能飛去過的城市；GM 哪裡都能飛） */
+const FLY_OPEN=false;const flyGM=()=>!!(uid&&GM_UIDS.has(uid));const flyOk=()=>FLY_OPEN||flyGM();
+const flyVisited=map=>{if(flyGM())return true;const k=locOf(map);return !!k&&(k==='tamsui'||!!G.flags['vt_'+k])};
+function flyCities(){return TMAP.filter(n=>n.t===1&&MAPS[n.k]&&(flyGM()||G.flags['vt_'+n.k]||n.k==='tamsui'))}
 function flySpot(id,x,y){const Mx=MAPS[id];if(!Mx)return null;const ok=(a,b)=>a>=0&&b>=0&&a<Mx.w&&b<Mx.h&&WALK.has(Mx.grid[b][a])&&!(Mx.warps||[]).some(w=>w[0]===a&&w[1]===b)&&!(Mx.npcs||[]).some(n=>n.x===a&&n.y===b&&!n.cond);
   for(const [dx,dy,d] of [[0,1,'up'],[-1,0,'right'],[1,0,'left'],[0,-1,'down']])if(ok(x+dx,y+dy))return {map:id,x:x+dx,y:y+dy,dir:d};
   for(let r=1;r<=8;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;if(ok(x+dx,y+dy))return {map:id,x:x+dx,y:y+dy,dir:dy<0?'down':dy>0?'up':dx<0?'right':'left'}}return null}
@@ -2094,16 +2097,16 @@ async function flyGo(dest,label){const f=flyer();menuEl.hidden=true;await say(`$
   const fid=Date.now();sfx('ball');FLYA={dir:'up',t0:performance.now(),dur:FLY_DUR,sp:f.sp};FLYW={d:'up',t:fid,sp:f.sp};updatePresence();await wait(FLY_DUR+50);
   await fade(1);G.flags.surf=false;G.flags.ride=false;FLYW={d:'wait',t:fid,sp:f.sp};loadMap(dest.map);placePlayer(dest);FLYA={dir:'down',t0:performance.now()+1e9,dur:FLY_DUR,sp:f.sp};await wait(150);await fade(0);
   FLYA.t0=performance.now();FLYW={d:'down',t:fid,sp:f.sp};updatePresence();await wait(FLY_DUR+50);FLYA=null;FLYW=null;updatePresence();sfx('badge');await say(`飛到了 ${label}！`);scheduleSave(300)}
-async function flyToFriend(id){if(!flyer())return;if(G.flags.surf){await say('在水上沒辦法起飛，先上岸吧！');return}
-  const o=flyPeers().find(x=>x.uid===id);if(!o){await say('這位好友現在不在線上。');return}const d=flySpot(o.map,o.x,o.y);if(!d){await say(`${o.name} 旁邊沒有地方降落……`);return}await flyGo(d,`${o.name} 的旁邊`)}
-async function flyMenu(){const f=flyer();if(!f){await say('隊伍裡沒有會「飛天」的怪獸。');return}
+async function flyToFriend(id){if(!flyer())return;if(!flyOk()){await say('「飛天」還沒開放，敬請期待！');return}if(G.flags.surf){await say('在水上沒辦法起飛，先上岸吧！');return}
+  const o=flyPeers().find(x=>x.uid===id);if(!o){await say('這位好友現在不在線上。');return}if(!flyVisited(o.map)){await say(`${o.name} 在你還沒去過的地方，飛不過去！`);return}const d=flySpot(o.map,o.x,o.y);if(!d){await say(`${o.name} 旁邊沒有地方降落……`);return}await flyGo(d,`${o.name} 的旁邊`)}
+async function flyMenu(){if(!flyOk()){await say('「飛天」還沒開放，敬請期待！');return}const f=flyer();if(!f){await say('隊伍裡沒有會「飛天」的怪獸。');return}
   if(G.flags.surf){await say('在水上沒辦法起飛，先上岸吧！');return}
-  showText(`要讓 ${nm(f)} 飛去哪裡？`);const k=await choose(['🏙️ 去過的城市','👥 好友旁邊','算了'],{pos:'list'});hideText();
+  showText(`要讓 ${nm(f)} 飛去哪裡？`);const k=await choose([flyGM()?'🏙️ 所有城市（GM）':'🏙️ 去過的城市','👥 好友旁邊','算了'],{pos:'list'});hideText();
   if(k===0){const cs=flyCities();showText('飛到哪個城市？');const i=await choose([...cs.map(n=>n.n+(M&&locOf(M.id)===n.k?'（你在這）':'')),'算了'],{pos:'list'});hideText();if(i<0||i>=cs.length)return;
     const d=flyTown(cs[i].k);if(!d){await say('那裡現在沒辦法降落。');return}await flyGo(d,cs[i].n);return}
   if(k===1){const ps=flyPeers();if(!ps.length){await say(FR.list.length?'現在沒有好友在線上喔！':'只能飛到好友旁邊喔！\n先在選單「訓練家」加好友吧。');return}
     showText('飛到哪位好友旁邊？');const i=await choose([...ps.map(o=>`${o.name}（${MAPS[o.map].name}${o.fight?'・對戰中':''}）`),'算了'],{pos:'list'});hideText();if(i<0||i>=ps.length)return;
-    const o=flyPeers().find(x=>x.uid===ps[i].uid)||ps[i];const d=flySpot(o.map,o.x,o.y);if(!d){await say(`${o.name} 旁邊沒有地方降落……`);return}await flyGo(d,`${o.name} 的旁邊`);return}}
+    const o=flyPeers().find(x=>x.uid===ps[i].uid)||ps[i];if(!flyVisited(o.map)){await say(`${o.name} 在你還沒去過的地方，飛不過去！`);return}const d=flySpot(o.map,o.x,o.y);if(!d){await say(`${o.name} 旁邊沒有地方降落……`);return}await flyGo(d,`${o.name} 的旁邊`);return}}
 async function waterAct(ch){const sw=swimmer(),canSwim=(ch==='~'||ch==='8')&&!G.flags.surf;
   if(!canSwim||!sw){if(canSwim&&G.flags.swim&&!sw&&!G.flags.rod){await say('想游泳的話，要先用「游泳技能書」教怪獸學會游泳喔！');return}await fishHere();return}
   const opts=[];if(G.flags.rod)opts.push('釣魚');opts.push('游泳','算了');showText('要做什麼？');const i=await choose(opts,{pos:'list'});hideText();
@@ -2502,7 +2505,7 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer())opts.splice(opts.length-2,0,'飛天');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
+async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
   if(o==='訓練家'){const r=await friendPanel();if(r&&r.fly){await flyToFriend(r.fly)}return}
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
