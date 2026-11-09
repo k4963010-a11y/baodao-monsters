@@ -262,7 +262,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-053219';
+import CONFIG from './firebase-config.js?v=20261109-154337';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -417,7 +417,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-053219";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-154337";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -844,6 +844,7 @@ const MAPS={
   signs:{'8,4':'淡水鎮\n「夕陽與河港的小鎮」','8,11':'林教授 怪獸研究所','18,9':'淡水河畔\n「傍晚的夕陽，全台灣最美。」'},
   npcs:[
    {id:'mrt1x',x:1,y:1,dir:'down',look:'clerk',cond:()=>false},
+   {id:'recall',x:7,y:7,dir:'down',look:'granny',talk:()=>recallTalk()},
    {id:'girl',x:12,y:7,dir:'down',look:'girl',lines:['林教授研究的是台灣原生的怪獸喔！','像石虎、台灣藍鵲、穿山甲……都是牠們的原型。']},
    {id:'fisher',x:15,y:14,dir:'down',look:'fisher',lines:['淡水河的夕陽，是全台灣最美的！','北邊紅樹林的泥灘上，常常有招手蟹揮著大鉗子走來走去。']},
    {id:'boy',x:12,y:1,dir:'left',look:'boy',talk:async()=>{await say(G.flags.starter?'北邊是 2號道路。走過紅樹林步道，就到北投了！':'沒有怪獸的話，不能走進草叢喔。')}}],
@@ -1145,7 +1146,7 @@ const MAPS={
   npcs:[{id:'cofish',x:10,y:7,dir:'down',look:'fisher',lines:['年輕人，要去龜山島嗎？','要先讓水系、冰系或龍系的怪獸學會「游泳」，','面向海按 A 就能騎著牠游出去。','深藍色的深海裡有很大的怪獸，聽說還有像潛水艇的大鯨魚……']}]},
  sea:{name:'龜山島外海',out:'~',rows:["~~~~~~~~~~~~~~~~~888888888888888888888888888888~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~8888888888888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~8888888884888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~4~~~~~~~~~~~8888888888888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~888888888888888888888888888888~~~~~~~~4~~~~~~~~", "~~~~~~~~~~~~~~~~~888888888888888888888888888888~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~88888888888888888888888884888888~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~88888888888888888888888888888888~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~88888888888888888888888888888888~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~888888888888888888888888888888~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~8888888888888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~8888888888888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~8888888888888888888888888888~~~~~~~~~~~~~~~~~~", "~~~~~~~~~4~~~~~~~888888888888888888888888888888~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~888888888888888888888888888888~~~~~~~~~~~4~~~~~", "~~~~~~~~~~~~~~~~88888888888888888488888888888888~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~88888888888888888888888888888888~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~88888888888888888888888888888888~~~~~~~~~~~~~~~~"],
   warps:[[0,1,'coast',26,1,'left'],[0,2,'coast',26,2,'left'],[0,3,'coast',26,3,'left'],[0,4,'coast',26,4,'left'],[0,5,'coast',26,5,'left'],[0,6,'coast',26,6,'left'],[0,7,'coast',26,7,'left'],[0,8,'coast',26,8,'left'],[0,9,'coast',26,9,'left'],[0,10,'coast',26,10,'left'],[0,11,'coast',26,11,'left'],[0,12,'coast',26,12,'left'],[0,13,'coast',26,13,'left'],[0,14,'coast',26,14,'left'],[0,15,'coast',26,15,'left'],[0,16,'coast',26,16,'left'],[63,1,'guishan',1,1,'right'],[63,2,'guishan',1,1,'right'],[63,3,'guishan',1,2,'right'],[63,4,'guishan',1,3,'right'],[63,5,'guishan',1,4,'right'],[63,6,'guishan',1,5,'right'],[63,7,'guishan',1,6,'right'],[63,8,'guishan',1,7,'right'],[63,9,'guishan',1,8,'right'],[63,10,'guishan',1,9,'right'],[63,11,'guishan',1,10,'right'],[63,12,'guishan',1,11,'right'],[63,13,'guishan',1,12,'right'],[63,14,'guishan',1,13,'right'],[63,15,'guishan',1,14,'right'],[63,16,'guishan',1,14,'right']],
-  zone:()=>null,fishT:[[91,25],[94,20],[24,15],[44,12],[67,10],[73,10]],seaZone:t=>t==='8'?'deep':'shallow'},
+  zone:()=>null,fishT:[[91,25],[94,20],[24,15],[44,12],[67,10],[73,10]],fishXm:.45,seaZone:t=>t==='8'?'deep':'shallow'},
  guishan:{name:'龜山島',out:'~',rows:["~~~~~~~~~~~~~~~~~~~~~~~~","~~~~~~~~~~9999999~~~~~~~","~~~~~~~999...S...999~~~~","~~~~~999..R.TTT.R..999~~","~~~~99,,,,.TTRTT.....99~","~~~~9,,,,R..T=T..R,,,.9~","~~~99,,,,,...=...,,,,.9~","~~~99,,,S,...=..R,,,,.9~","~~~============..,,,,.9~","~~~99.........=.......9~","~~~~9.........=.......9~","~~~~99..........OOOO.99~","~~~~~999........OOOOO9~~","~~~~~~~999......OOOOO~~~","~~~~~~~~~~9999999~~~~~~~","~~~~~~~~~~~~~~~~~~~~~~~~"],
   warps:[[0,1,'sea',62,2,'left'],[0,2,'sea',62,3,'left'],[0,3,'sea',62,4,'left'],[0,4,'sea',62,5,'left'],[0,5,'sea',62,6,'left'],[0,6,'sea',62,7,'left'],[0,7,'sea',62,8,'left'],[0,8,'sea',62,9,'left'],[0,9,'sea',62,10,'left'],[0,10,'sea',62,11,'left'],[0,11,'sea',62,12,'left'],[0,12,'sea',62,13,'left'],[0,13,'sea',62,14,'left'],[0,14,'sea',62,15,'left']],
   signs:{'8,8':'龜山島\n像一隻烏龜浮在海上的火山島。\n南邊的海水是乳白色的「牛奶海」！','13,6':'401 高地\n龜山島最高的地方。\n從這裡可以看到整個蘭陽平原。'},
@@ -1263,6 +1264,7 @@ function sanMon(m){if(!m||typeof m!=='object')return null;const sp=m.sp|0;if(!SP
   const o=makeMon(sp,lv);if(typeof m.id==='string'&&m.id)o.id=m.id.slice(0,40);
   o.exp=clamp(+m.exp||0,lvExp(lv),lvExp(lv+1)-1);o.hp=m.hp==null?maxhp(o):clamp(m.hp|0,0,maxhp(o));
   if(Array.isArray(m.moves)){const mv=[...new Set(m.moves.map(x=>MV_RENAME[x]||x).filter(x=>typeof x==='string'&&MOVES[x]))].slice(0,4);if(mv.length)o.moves=mv}
+  if(Array.isArray(m.old)){const od=[...new Set(m.old.map(x=>MV_RENAME[x]||x).filter(x=>typeof x==='string'&&MOVES[x]&&!o.moves.includes(x)))].slice(-30);if(od.length)o.old=od}
   o.ot=typeof m.ot==='string'?m.ot.slice(0,12):'';if(m.rare)o.rare=m.rare===2?2:1;if(m.pp&&typeof m.pp==='object'){o.pp={};for(const k of o.moves)if(Number.isFinite(m.pp[k]))o.pp[k]=clamp(m.pp[k]|0,0,maxPP(k))}return o}
 
 /* ================= game state ================= */
@@ -1484,7 +1486,8 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
     for(const {id,d} of hits){const row=mk('div','frrow');row.append(mk('b',null,d.name.slice(0,8)),mk('i',null,`徽章 ${d.badges|0}`));if(isFriend(id))row.append(mk('small','frtag','★好友'));else{const b=mk('button','go','＋好友');b.onclick=()=>addFriend(id,d.name.slice(0,8));row.append(b)}res.append(row)}};
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
-const NEWS=[{v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
+const NEWS=[{v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
+ {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
  {v:'1110',d:'飛天＋好友',items:['👥 選單新增「訓練家」：輸入朋友的 ID 就能加好友，好友分「在線上／未上線」，還可以直接私訊','每位玩家都自動跟 GM 凱凱 成為好友，有問題可以直接私訊 GM','你的 ID 在「訓練家」→「＋加好友」，或選單點自己的名字就看得到','🪽 新技能「飛天」：打贏花蓮館主小百合可以拿到「飛天技能書」（已經打贏的，回去找小百合拿）','教會飛系、龍系或光系的怪獸，選單就會出現「飛天」','可以飛到去過的城市（降落在寶貝中心門口），也可以飛到在線上的好友旁邊！']},
  {v:'1109h',d:'11/9 調整',items:['訓練家名冊分成「在線上／未上線／全部」三個分頁','游泳時不會再出現滑板車，游泳速度跟滑板車一樣快']},
@@ -1729,7 +1732,7 @@ function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.
   if(swimStep())return;
   if((tileAt(player.x,player.y)===','&&Math.random()<0.1||M.cave&&tileAt(player.x,player.y)==='x'&&Math.random()<0.07||M.cave&&'aI'.includes(tileAt(player.x,player.y))&&Math.random()<0.04)&&G.party.some(m=>m.hp>0)){const z=M.zone&&M.zone(player.x,player.y);if(z)event(()=>wildEncounter(z))}
   else if(M.id==='route2'&&!G.flags.birdjoin&&G.flags.starter&&tileAt(player.x,player.y)===','&&G.party.some(m=>m.hp>0))event(birdFriend)}
-function swimStep(){const tl=tileAt(player.x,player.y);if(G.flags.surf&&'~8'.includes(tl)&&Math.random()<(tl==='8'?0.07:0.05)&&G.party.some(m=>m.hp>0)){const z=M.seaZone&&M.seaZone(tl);if(z&&ZONES[z]){event(()=>wildEncounter(z));return true}ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T};event(()=>wildEncounter('fish'));return true}return false}
+function swimStep(){const tl=tileAt(player.x,player.y);if(G.flags.surf&&'~8'.includes(tl)&&Math.random()<(tl==='8'?0.07:0.05)&&G.party.some(m=>m.hp>0)){const z=M.seaZone&&M.seaZone(tl);if(z&&ZONES[z]){event(()=>wildEncounter(z));return true}ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T,xm:M.fishXm};event(()=>wildEncounter('fish'));return true}return false}
 function mapPress(k){if(k==='a'){const [dx,dy]=DIRS[player.dir];event(()=>interact(player.x+dx,player.y+dy))}else if(k==='start')event(startMenu)}
 let last=performance.now();
 let CVT=[],CVTK='';const cvT=(x,y,t,col,sz)=>CVT.push([x,y,t,col||'#202838',sz||10]);
@@ -2080,7 +2083,7 @@ async function fishHere(){if(!G.flags.rod){await say('清澈的水，好像有�
   if(!(await yesNo('要在這裡釣魚嗎？')))return;hideText();
   FISH={dir:player.dir,t0:performance.now(),ph:'cast'};sfx('ball');await wait(650);FISH.ph='wait';await wait(1200+Math.random()*1800);
   if(Math.random()<.35){FISH.ph='miss';await wait(500);FISH=null;await say('……什麼都沒釣到。');return}
-  FISH.ph='bite';FISH.tb=performance.now();sfx('badge');await wait(900);FISH=null;await say('！有東西上鉤了！');ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T};await wildEncounter('fish')}
+  FISH.ph='bite';FISH.tb=performance.now();sfx('badge');await wait(900);FISH=null;await say('！有東西上鉤了！');ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T,xm:M.fishXm};await wildEncounter('fish')}
 async function shakeTree(){if(!G.flags.shake){await say('一棵大樹。\n樹葉裡好像有什麼東西在動……');return}
   if(!G.party.some(m=>m.hp>0)){await say('怪獸們都沒有力氣了，先去休息吧！');return}
   if(!(await yesNo('要搖這棵樹嗎？')))return;
@@ -2148,7 +2151,7 @@ async function skillShop(){await sayAll(['技能老師：歡迎來到招式教�
     showText(`要讓哪一隻學「${mv}」？`);const j=await choose(G.party.map(m=>`${monLabel(m)}${MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t?'':'（不能學）'}`),{pos:'list'});if(j<0)continue;const m=G.party[j];
     if(!(MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t)){await say(`${nm(m)} 是${SP[m.sp].t}系，學不會${MOVES[mv].t}系的招式。`);continue}
     if(m.moves.includes(mv)){await say(`${nm(m)} 已經會這招了！`);continue}
-    if(m.moves.length>=4){showText(`要忘掉哪一招？`);const f=await choose([...m.moves,'算了'],{pos:'list'});if(f<0||f===m.moves.length)continue;const old=m.moves[f];m.moves[f]=mv;if(m.pp)delete m.pp[old];G.money-=pr;moneyOn();await say(`${nm(m)} 忘掉了 ${old}……\n學會了 ${mv}！`)}
+    if(m.moves.length>=4){showText(`要忘掉哪一招？`);const f=await choose([...m.moves,'算了'],{pos:'list'});if(f<0||f===m.moves.length)continue;const old=m.moves[f];showText(`確定要忘記 ${old}，改學 ${mv} 嗎？`);if(await choose(['確定','再想想'],{pos:'list',cancel:false})!==0)continue;forgetMove(m,old);m.moves[f]=mv;if(m.pp)delete m.pp[old];G.money-=pr;moneyOn();await say(`${nm(m)} 忘掉了 ${old}……\n學會了 ${mv}！`)}
     else{m.moves.push(mv);G.money-=pr;moneyOn();await say(`${nm(m)} 學會了 ${mv}！`)}sfx('lvl');scheduleSave()}}finally{moneyOff()}}
 const MONSHOP=[[3,12,800],[32,12,900],[30,12,1200],[13,12,1200],[36,14,1500],[39,14,2500],[49,20,30000]];
 async function monShop(){await sayAll(['老闆：歡迎光臨信義怪獸屋！','每一隻都健康又可愛，帶回家好好照顧喔。','最後那隻……是很難得才進貨的稀有種！']);
@@ -2759,11 +2762,25 @@ async function doMove(att,def,mvName,side){const mv=MOVES[mvName];const tgt=side
   if((mvName==='硫火巨盾'||mvName==='月盾潮擊')&&att.hp>0&&B.stage[side].d<6){B.stage[side].d++;await say(`${pre(side)}${nm(att)} 舉起巨盾，防禦力提高了！`)}
   if(mv.ef&&def.hp>0&&Math.random()<(mv.ch||.3)){const w=stApply(recOf(def),mv.ef,def);updHud();if(w)await say(`${pre(tgt)}${nm(def)} ${w}`)}}
 function enemyMove(e){const ms=e.moves;const atk=ms.filter(m=>MOVES[m].p>0);if(atk.length&&(Math.random()<.78||atk.length===ms.length))return atk[rnd(0,atk.length-1)];return ms[rnd(0,ms.length-1)]}
+function forgetMove(m,mv){m.old=(m.old||[]).filter(x=>x!==mv);m.old.push(mv);if(m.old.length>30)m.old.shift()}
+// 招式回想：同進化線、目前等級以下升級學過的招 + 曾經忘掉的招（含商店/任務/技能書）
+function recallList(m){const sps=[m.sp];for(let k=0;k<5;k++){const pre=SP.findIndex(s=>s&&s.evo&&sps.includes(s.evo[1])&&!sps.includes(SP.indexOf(s)));if(pre<0)break;sps.push(pre)}
+  const out=[];for(const s of sps)for(const [l,mv] of SP[s].l)if(l<=m.lv&&MOVES[mv]&&!out.includes(mv))out.push(mv);
+  for(const mv of m.old||[])if(MOVES[mv]&&!out.includes(mv))out.push(mv);return out.filter(x=>!m.moves.includes(x))}
+const RECALL_FEE=500;
+async function recallTalk(){await say('我是記憶茶阿婆。\n喝一杯我的回想茶，怪獸就會想起以前的招式喔！');
+  for(;;){const j=await partyPick(`要讓哪一隻想起招式？（一次 ${RECALL_FEE} 元）`,()=>true);if(j<0){await say('想不起來的時候，再來喝茶喔～');return}
+    const m=G.party[j];const ls=recallList(m);if(!ls.length){await say(`${nm(m)} 現在沒有可以想起來的招式。`);continue}
+    if(G.money<RECALL_FEE){await say(`回想茶一杯 ${RECALL_FEE} 元，錢不夠喔。`);return}
+    moneyOn();showText(`要讓 ${nm(m)} 想起哪一招？`);const k=await choose([...ls.map(x=>`${x}（${MOVES[x].t}・${MOVES[x].p?'威力'+MOVES[x].p:'輔助'}）`),'算了'],{pos:'list'});moneyOff();hideText();
+    if(k<0||k>=ls.length)continue;const mv=ls[k];await say(`${nm(m)} 喝了一口回想茶……`);await learnMove(m,mv);
+    if(m.moves.includes(mv)){m.old=(m.old||[]).filter(x=>x!==mv);G.money-=RECALL_FEE;sfx('lvl');await say(`付了 ${RECALL_FEE} 元。`);scheduleSave()}else await say('沒有學的話不收錢喔。')}}
 async function learnMove(m,mv){if(m.moves.includes(mv))return;if(m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`);return}
   await say(`${nm(m)} 想學新招式 ${mv}！
 可是已經會 4 招了。`);
   for(;;){showText(`要忘記哪一招，改學 ${mv}？`);const i=await choose([...m.moves.map(x=>`${x}（${MOVES[x].t}・${MOVES[x].p?'威力'+MOVES[x].p:'輔助'}）`),`不學 ${mv}`],{pos:'list'});
-    if(i>=0&&i<m.moves.length){const old=m.moves[i];m.moves[i]=mv;if(m.pp)delete m.pp[old];sfx('lvl');await say(`1、2……喀！
+    if(i>=0&&i<m.moves.length){const old=m.moves[i];showText(`確定要忘記 ${old}，改學 ${mv} 嗎？`);if(await choose(['確定','再想想'],{pos:'list',cancel:false})!==0)continue;
+      forgetMove(m,old);m.moves[i]=mv;if(m.pp)delete m.pp[old];sfx('lvl');await say(`1、2……喀！
 ${nm(m)} 忘記了 ${old}，學會了 ${mv}！`);return}
     showText(`真的不學 ${mv} 嗎？`);const c=await choose(['不學了','再想想'],{pos:'list',cancel:false});if(c===0){await say(`${nm(m)} 沒有學 ${mv}。`);return}}}
 async function gainExp(me,foe,trainer,div=1){const e=Math.max(1,Math.floor(SP[foe.sp].x*foe.lv/5*(trainer?1.5:1)/div*(foe.xm||1)));await say(`${nm(me)} 得到了 ${e} 點經驗值！`);me.exp+=e;const show=B.me===me;
