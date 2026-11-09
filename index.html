@@ -75,6 +75,14 @@ button{touch-action:manipulation}
 .bcbtn{background:#e83a3a!important;color:#fff!important;margin-left:6px}
 #cvtxt{position:absolute;inset:0;pointer-events:none;z-index:1}#cvtxt span{position:absolute;white-space:nowrap;line-height:1.1;font-family:var(--f-game,DotGothic16),sans-serif}
 .rtabs{margin:8px 0 10px}.rtabs button{font-size:13px;padding:6px 0}
+#thBanner{grid-column:1/-1;margin-top:-18px;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);text-decoration:none}
+#thBanner:hover{border-color:#3cb4a6}
+#thBanner .thi{flex:none;width:30px;height:30px;border-radius:50%;background:#000;color:#fff;display:grid;place-items:center;font-weight:bold;font-size:17px;border:1px solid #444}
+#thBanner .thx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+#thBanner b{font-weight:normal;font-size:14px;color:var(--shell-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#thBanner em{font-style:normal;font-size:12.5px;color:var(--muted)}
+#thBanner u{text-decoration:none;font-size:22px;color:var(--muted);flex:none}
+#shareBtn{grid-column:1/-1;margin-top:-20px;background:#3cb4a6;color:#062a26;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:bold;padding:10px 14px;cursor:pointer}
 #news{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #newsBtn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;text-align:left}
 #newsBtn span{font-size:18px}#newsBtn b{font-weight:normal;color:var(--shell-hi);white-space:nowrap}#newsBtn em{font-style:normal;color:var(--muted);font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -270,7 +278,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-212903';
+import CONFIG from './firebase-config.js?v=20261109-215816';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -342,6 +350,8 @@ if(auth){
 
 <div class="wrap">
   <section id="news"><button type="button" id="newsBtn"><span>📣</span><b>更新公告</b><em id="newsHead"></em><i id="newsDot" hidden>NEW</i><u>▼</u></button><div id="newsBody" hidden></div></section>
+  <a id="thBanner" href="https://www.threads.com/@baodao.monsters" target="_blank" rel="noopener"><span class="thi" aria-hidden="true">@</span><span class="thx"><b>追蹤飽島怪獸的脆 @baodao.monsters</b><em>拜託大家分享，讓更多人一起享受這個遊戲 ^^</em></span><u aria-hidden="true">›</u></a>
+  <button type="button" id="shareBtn">📤 分享飽島怪獸給朋友</button>
   <div class="leftcol">
   <div class="device">
     <div class="bezel">
@@ -434,7 +444,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-212903";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261109-215816";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1437,7 +1447,8 @@ function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.replace(/\s+/g,' ').trim();if(!text){msg.textContent='寫點什麼吧！';return}if(!db||!uid){msg.textContent='要先登入喔！';return}msg.textContent='發送中……';const t=Date.now();
     try{await db.doc('bc/bc_'+t).set({from:uid,text:text.slice(0,80),t});for(const d of BC_DOCS){try{db.doc('bc/'+d.id).delete()}catch(e){}}close()}catch(e){msg.textContent='發送失敗，請再試一次。'}}}
-$('gmBcBtn').addEventListener('click',gmBroadcast);$('gmDropBtn').addEventListener('click',gmDropNow);
+$('gmBcBtn').addEventListener('click',gmBroadcast);
+$('shareBtn').addEventListener('click',async()=>{const url='https://k4963010-a11y.github.io/baodao-monsters/',text='我在玩「飽島怪獸」！台灣原創怪獸冒險，手機打開就能玩，一起來抓怪獸 🐾';try{if(navigator.share){await navigator.share({title:'飽島怪獸',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(text+' '+url);dropToast('已複製遊戲網址，貼給朋友吧！')}catch(e){window.prompt('複製這個網址分享給朋友：',url)}});$('gmDropBtn').addEventListener('click',gmDropNow);
 function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
   w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
   w.querySelector('h3').textContent=`寄給 ${name}`;const sel=w.querySelector('.sp');for(let i=1;i<=N_SP;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i} ${SP[i].n}`;sel.append(o)}
