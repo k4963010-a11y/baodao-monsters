@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-213554';
+import CONFIG from './firebase-config.js?v=20261110-220822';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-213554";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-220822";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -626,7 +626,7 @@ const PAL=[null,
  ['#fffaf0','#5878c8','#f09030','#141828'],['#fffff0','#a0988c','#f0d838','#201c18'],
  ['#fff8f4','#f8c838','#e8609c','#401428'],['#fffaf0','#ffd040','#e04888','#381028'],
  ['#fffdf4','#f8d870','#e89040','#402810'],['#fffdf4','#ffe070','#f08ab0','#3a2010']];
-const DEX_ORDER=[5,19,20,6,21,22,49,50,51,7,23,24,1,2,33,34,3,4,29,27,28,13,44,11,43,32,8,42,14,31,46,9,10,30,45,36,37,38,39,40,41,15,25,16,17,18,47,26,12,48,54,57,58,55,59,56,60,61,62,63,64,65,66,67,70,71,72,73,76,77,78,79,80,81,82,83,84,85,86,95,96,97,98,99,100,101,102,103,104,105,106,107,68,69,52,53,87,88,89,108,91,94,92,93,74,75,35,90];
+const DEX_ORDER=[5,19,20,6,21,22,49,50,51,7,23,24,1,2,33,34,3,4,29,27,28,13,44,11,43,32,8,42,14,31,46,9,10,30,45,36,37,38,39,40,41,15,25,16,17,18,47,26,12,48,54,57,58,55,59,56,60,61,62,63,64,65,66,67,70,71,72,73,76,77,78,79,80,81,82,83,84,85,86,68,69,52,53,87,88,89,91,94,92,93,74,75,35,90,95,96,97,98,99,100,101,102,103,104,105,106,107,108];  // 編號固定：新怪獸一律加在最後面
 const dexNo=id=>DEX_ORDER.indexOf(id)+1;
 const ZONES={
   shallow:{lv:[28,32],t:[[13,25],[7,20],[78,20],[66,15],[23,15],[24,0.3765]]},
@@ -1556,9 +1556,10 @@ function gmBroadcast(){if($('bugDlg'))return;const w=document.createElement('div
 $('gmBcBtn').addEventListener('click',gmBroadcast);
 $('shareBtn').addEventListener('click',async()=>{const url='https://k4963010-a11y.github.io/baodao-monsters/',text='我在玩「飽島怪獸」！台灣原創怪獸冒險，手機打開就能玩，一起來抓怪獸 🐾';try{if(navigator.share){await navigator.share({title:'飽島怪獸',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(text+' '+url);dropToast('已複製遊戲網址，貼給朋友吧！')}catch(e){window.prompt('複製這個網址分享給朋友：',url)}});$('gmDropBtn').addEventListener('click',gmDropNow);
 function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
-  w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
+  w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><p class="mvs" style="margin:6px 0 0;font-size:13px;color:var(--muted)"></p><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
   w.querySelector('h3').textContent=`寄給 ${name}`;const sel=w.querySelector('.sp');for(const i of [...DEX_ORDER,...SP.map((_,j)=>j).filter(j=>j>0&&!DEX_ORDER.includes(j))]){if(!SP[i])continue;const o=document.createElement('option');o.value=i;o.textContent=`No.${dexNo(i)||i} ${SP[i].n}（${SP[i].t}）`;sel.append(o)}
   document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row:last-child span'),close=()=>w.remove();ta.focus();
+  const mvs=w.querySelector('.mvs'),lvI=w.querySelector('.lv'),showMv=()=>{const sp=+sel.value,lv=clamp(+lvI.value||5,1,100);mvs.textContent=sp?`Lv${lv} 會帶的招式（最近學會的 4 招）：${makeMon(sp,lv).moves.join('、')}`:''};sel.addEventListener('change',showMv);lvI.addEventListener('input',showMv);
   w.querySelectorAll('textarea,input').forEach(e=>{e.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});e.addEventListener('keyup',x=>x.stopPropagation())});
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.trim(),sp=+sel.value,lv=clamp(+w.querySelector('.lv').value||5,1,100);if(!text&&!sp){msg.textContent='寫點話或選一隻怪獸喔！';return}msg.textContent='寄送中……';const t=Date.now();
