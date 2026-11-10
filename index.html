@@ -140,6 +140,7 @@ button{touch-action:manipulation}
 .dpad button{background:#23252e;border:0;color:#5b5f6e;font-size:14px;padding:0;touch-action:none;cursor:pointer}
 .dpad .u{grid-area:1/2;border-radius:6px 6px 0 0}.dpad .l{grid-area:2/1;border-radius:6px 0 0 6px}.dpad .r{grid-area:2/3;border-radius:0 6px 6px 0}.dpad .d{grid-area:3/2;border-radius:0 0 6px 6px}
 .dpad .m{grid-area:2/2;background:#23252e}
+.dpad{position:relative}.dpad .dzone{position:absolute;left:50%;top:50%;width:176px;height:176px;margin:-88px 0 0 -88px;border-radius:50%;touch-action:none;z-index:2;-webkit-tap-highlight-color:transparent}.dpad button.on{background:#3a3e4c;color:#9ea4b8}
 .ab{display:flex;gap:16px;transform:rotate(-24deg);margin-right:4px}
 .ab div{display:flex;flex-direction:column;align-items:center;gap:4px;color:#0d3d38;font-size:13px}
 .ab button{width:58px;height:58px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#c7334c,var(--btn) 60%,var(--btn-dk));box-shadow:0 4px 0 #4a0d18;color:#f6d3d9;font-family:var(--f-game);font-size:18px;touch-action:none;cursor:pointer}
@@ -171,6 +172,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .emob{position:absolute;transform:translate(-50%,-100%);font-size:calc(var(--u)*10);line-height:1;padding:calc(var(--u)*1.4) calc(var(--u)*1.6);background:#fff;border-radius:calc(var(--u)*4);box-shadow:0 0 0 calc(var(--u)*.7) #202838;animation:emopop .3s ease-out;z-index:1}
 @keyframes emopop{0%{transform:translate(-50%,-60%) scale(.3)}70%{transform:translate(-50%,-105%) scale(1.15)}100%{transform:translate(-50%,-100%) scale(1)}}
 #menu.right{top:0;right:0;width:calc(var(--u)*72);max-height:calc(var(--u)*144);row-gap:calc(var(--u)*.4);padding-top:calc(var(--u)*5);padding-bottom:calc(var(--u)*5)}
+#menu.right.dense{row-gap:0;padding-top:calc(var(--u)*2.5);padding-bottom:calc(var(--u)*2.5);line-height:1.12}
 #menu.battle{right:0;bottom:0;width:calc(var(--u)*88);height:calc(var(--u)*46);align-content:center}
 #menu.moves{left:0;right:0;bottom:0;height:calc(var(--u)*46);align-content:center}
 #menu.list{right:0;bottom:calc(var(--u)*57);width:calc(var(--u)*138);max-height:calc(var(--u)*87);padding-top:calc(var(--u)*4);padding-bottom:calc(var(--u)*4)}
@@ -287,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-205801';
+import CONFIG from './firebase-config.js?v=20261110-211921';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -455,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-205801";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-211921";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1728,7 +1730,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（選單的「圖鑑網站」也能打開）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+const NEWS=[{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（首頁黃色按鈕）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
@@ -1873,7 +1875,7 @@ function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlin
   if(!shown.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent=RTAB==='on'?'現在沒有人在線上。':'大家都在線上！';ol.append(li);return}
   shown.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
     const rk=document.createElement('span');rk.className='rk';rk.textContent=p.rank;
-    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
+    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.prepend(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
     const ic=document.createElement('div');ic.className='icons';p.party.forEach((sp,j)=>{const im=document.createElement('img');im.src=iconURL(sp);im.alt=SP[sp].n;im.title=`${SP[sp].n} Lv${p.lv[j]||'?'}`;ic.append(im)});
     li.append(rk,row,ic);ol.append(li)});renderFriends()}
 const SLOTS=['s1','s2','s3'];
@@ -1891,11 +1893,18 @@ function press(k){auInit();if(uiStack.length){if(k==='a'||k==='b')sfx('blip');ui
 addEventListener('keydown',e=>{if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;const k=KEY[e.code];if(!k)return;e.preventDefault();if(k in held)held[k]=1;if(!e.repeat||(k in held&&uiStack.length))press(k)});
 addEventListener('keyup',e=>{const k=KEY[e.code];if(k in held)held[k]=0});
 addEventListener('blur',()=>{for(const k in held)held[k]=0});
-document.querySelectorAll('[data-k]').forEach(b=>{const k=b.dataset.k;let rep=0;
+document.querySelectorAll('[data-k]').forEach(b=>{if(b.closest('.dpad'))return;const k=b.dataset.k;let rep=0;
   b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}if(k in held){held[k]=1;clearInterval(rep);rep=setInterval(()=>{if(uiStack.length)press(k)},180)}press(k)});
   const up=()=>{if(k in held)held[k]=0;clearInterval(rep)};['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,up));
   b.addEventListener('contextmenu',e=>e.preventDefault())});
 
+/* 十字鍵：圓形感應區（外觀仍是十字），手指在哪個方向就按哪個方向，滑動可以直接換方向 */
+(()=>{const pad=document.querySelector('.dpad');if(!pad)return;const z=document.createElement('div');z.className='dzone';pad.append(z);let cur=null,rep=0,pid=null;
+  const set=d=>{if(d===cur)return;if(cur)held[cur]=0;clearInterval(rep);cur=d;pad.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===d));if(d){held[d]=1;press(d);rep=setInterval(()=>{if(uiStack.length)press(d)},180)}};
+  const dirOf=e=>{const r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);if(Math.hypot(dx,dy)<r.width*.09)return cur;return Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up')};
+  z.addEventListener('pointerdown',e=>{e.preventDefault();pid=e.pointerId;try{z.setPointerCapture(pid)}catch(_){}set(dirOf(e))});
+  z.addEventListener('pointermove',e=>{if(e.pointerId===pid)set(dirOf(e))});
+  const up=e=>{if(e.pointerId!==pid)return;pid=null;set(null)};['pointerup','pointercancel','lostpointercapture'].forEach(ev=>z.addEventListener(ev,up));z.addEventListener('contextmenu',e=>e.preventDefault())})();
 /* ================= dialog / menus ================= */
 const dlg=$('dlg'),dlgText=$('dlgText'),dlgArrow=$('dlgArrow'),menuEl=$('menu'),sheetEl=$('sheet');
 dlg.addEventListener('click',()=>press('a'));
@@ -1907,18 +1916,18 @@ function say(text){return new Promise(res=>{dlg.hidden=false;dlgArrow.hidden=tru
   const ep=EPOCH;const tk=setInterval(()=>{if(ep!==EPOCH){clearInterval(tk);return}i++;dlgText.textContent=ch.slice(0,i).join('');if(i>=ch.length)fin()},22);
   const h=k=>{if(k!=='a'&&k!=='b')return;if(!done){fin();return}popUI(h);dlgArrow.hidden=true;res()};uiStack.push(h)})}
 async function sayAll(lines){for(const l of lines)await say(l)}
-function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!==false,cols=opt.cols||1,vis=opt.vis||(cols>1?99:String(opt.pos||'').startsWith('list')?6:7);let idx=clamp(opt.start||0,0,items.length-1),top=0;
-  menuEl.className='box '+(opt.pos||'right');menuEl.style.setProperty('--cols',cols);menuEl.hidden=false;
+function choose(items,opt={}){return new Promise(res=>{const cancel=opt.cancel!==false,cols=opt.cols||1;let vis=opt.vis||(cols>1?99:String(opt.pos||'').startsWith('list')?6:7);let idx=clamp(opt.start||0,0,items.length-1),top=0;
+  menuEl.className='box '+(opt.pos||'right')+((opt.pos||'right')==='right'&&items.length>11?' dense':'');menuEl.style.setProperty('--cols',cols);menuEl.hidden=false;
   const render=()=>{if(idx<top)top=idx;if(idx>=top+vis)top=idx-vis+1;menuEl.replaceChildren();
     items.slice(top,top+vis).forEach((t,j)=>{const d=document.createElement('div');const i=top+j;d.className='it'+(i===idx?' sel':'')+(opt.off&&opt.off(i)?' off':'');d.textContent=t;
       d.addEventListener('click',ev=>{ev.stopPropagation();if(idx===i||opt.tap1)close(i);else{idx=i;render()}});menuEl.append(d)});
     if(top>0){const m=document.createElement('span');m.className='more up';m.textContent='▲';menuEl.append(m)}
     if(top+vis<items.length){const m=document.createElement('span');m.className='more dn';m.textContent='▼';menuEl.append(m)}};
-  const close=i=>{popUI(h);menuEl.hidden=true;res(i)};
+  const close=i=>{popUI(h);menuEl.hidden=true;res(i)};if(opt.abort)opt.abort.fire=()=>{if(uiStack.includes(h))close(-2)};
   const h=k=>{const n=items.length;if(cols===1&&k==='up'){idx=(idx-1+n)%n;render();return}if(cols===1&&k==='down'){idx=(idx+1)%n;render();return}
     if(k==='up')idx-=cols;else if(k==='down')idx+=cols;else if(k==='left'&&cols>1)idx-=1;else if(k==='right'&&cols>1)idx+=1;else if(k==='a'){close(idx);return}else if(k==='b'||k==='start'){if(cancel)close(-1);return}
     idx=clamp(idx,0,items.length-1);render()};
-  uiStack.push(h);render()})}
+  uiStack.push(h);render();if(cols===1){vis=Math.min(vis,items.length);let g=0;const over=()=>{const pr=menuEl.parentElement&&menuEl.parentElement.getBoundingClientRect(),r=menuEl.getBoundingClientRect();return !!pr&&pr.height>0&&r.bottom>pr.bottom+1};while(vis>3&&over()&&g++<30){vis--;render()}}})}
 async function yesNo(q){showText(q);const i=await choose(['好','不要'],{pos:mode==='battle'?'list yn yl':'list yn'});hideText();return i===0}
 function sheet(build){return new Promise(res=>{sheetEl.replaceChildren();sheetEl.className='box';build(sheetEl);const hint=document.createElement('div');hint.className='hint';hint.textContent='A：繼續';sheetEl.append(hint);sheetEl.hidden=false;
   const h=k=>{if(k==='a'||k==='b'){popUI(h);sheetEl.hidden=true;sheetEl.onclick=null;res()}};uiStack.push(h);sheetEl.onclick=()=>press('a')})}
@@ -2673,8 +2682,7 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');opts.splice(opts.length-1,0,'圖鑑網站');moneyOn();const MI={'圖鑑網站':'🌐','信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
-  if(o==='圖鑑網站'){try{window.open(DEX_URL,'_blank')}catch(e){}await say('在新分頁打開了「怪獸圖鑑網站」！\n（沒有跳出來的話，請到首頁按「怪獸圖鑑網站」）');return}
+async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
   if(o==='訓練家'){const r=await friendPanel();if(r&&r.fly){await flyToFriend(r.fly)}return}
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
@@ -3347,6 +3355,7 @@ function pvpResolve(S,aH,aG){const ev=[];const other=s=>s==='h'?'g':'h';const te
     else if(mv.ef&&Math.random()<(mv.ch||.3)){const w=stApply(RS(tg),mv.ef,def);if(w)ev.push({k:'sts',side:tg,w,rec:cp(RS(tg))})}}
   for(const s2 of ['h','g']){const m=act(s2),r=S.ss[s2+S.a[s2]];if(m&&m.hp>0&&r&&r.main&&r.main.k==='brn'){m.hp=Math.max(0,m.hp-Math.max(1,Math.floor(maxhp(m)/16)));ev.push({k:'burn',side:s2,hp:m.hp});if(m.hp<=0&&faint(s2,other(s2)))return ev}}
   return ev}
+const PVP_AUTO=10000;
 async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){
   const myTeam=G.party.slice(0,6).map(m=>{const c=sanMon(JSON.parse(JSON.stringify(m)));c.hp=maxhp(c);return c});
   const me=isHost?'h':'g',op=isHost?'g':'h';const S={t:{[me]:myTeam,[op]:oppTeam},a:{h:0,g:0},st:{h:{a:0,d:0},g:{a:0,d:0}}};
@@ -3370,10 +3379,13 @@ async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){
     else if(e.k==='quit')await say(e.side===me?`${G.name} 投降了……`:`${oppName} 投降了！`);
     else if(e.k==='end'){result=e.win===me?'win':'lose'}}};
   while(!result){turn++;let act=null;
-    for(;;){showText(`${nm(cur(me))}\n要做什麼？`);const a=await choose(['戰鬥','怪獸','投降'],{pos:'battle',cols:2,cancel:false});
-      if(a===0){showText('');const k=await choose(cur(me).moves,{pos:'moves',cols:2});if(k<0)continue;act={m:k};break}
-      if(a===1){showText('要換哪一隻上場？');const i=await choose(myTeam.map(m=>`${nm(m)} Lv${m.lv}　${m.hp}/${maxhp(m)}`),{pos:'list'});if(i<0)continue;if(i===S.a[me]||myTeam[i].hp<=0){await say('不能選這一隻。');continue}act={s:i};break}
-      if(await yesNo('真的要投降嗎？')){act={q:1};break}}
+    const ctl={};let tOut=false;const tmr=setTimeout(()=>{tOut=true;if(ctl.fire)ctl.fire()},PVP_AUTO);
+    for(;;){if(tOut){act={m:rnd(0,cur(me).moves.length-1)};hideText();await say(`時間到！${nm(cur(me))} 自動出招了。`);break}
+      showText(`${nm(cur(me))}\n要做什麼？（${PVP_AUTO/1000}秒內沒選會自動出招）`);const a=await choose(['戰鬥','怪獸','投降'],{pos:'battle',cols:2,cancel:false,abort:ctl});if(tOut)continue;
+      if(a===0){showText('');const k=await choose(cur(me).moves,{pos:'moves',cols:2,abort:ctl});if(tOut)continue;if(k<0)continue;act={m:k};break}
+      if(a===1){showText('要換哪一隻上場？');const i=await choose(myTeam.map(m=>`${nm(m)} Lv${m.lv}　${m.hp}/${maxhp(m)}`),{pos:'list',abort:ctl});if(tOut)continue;if(i<0)continue;if(i===S.a[me]||myTeam[i].hp<=0){await say('不能選這一隻。');continue}act={s:i};break}
+      showText('真的要投降嗎？');const q=await choose(['好','不要'],{pos:'list yn yl',abort:ctl});hideText();if(tOut)continue;if(q===0){act={q:1};break}}
+    clearTimeout(tmr);
     showText(`等待 ${oppName} 選擇……`);let ev;
     if(isHost){const g=await waitMsg(m=>m.id===id&&m.from===oppUid&&m.type==='act'&&m.turn===turn,120000);
       if(!g){hideText();await say(`${oppName} 離線了……這場算你贏！`);result='win';break}
