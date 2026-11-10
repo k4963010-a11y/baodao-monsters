@@ -82,6 +82,14 @@ button{touch-action:manipulation}
 #thBanner b{font-weight:normal;font-size:14px;color:var(--shell-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #thBanner em{font-style:normal;font-size:12.5px;color:var(--muted)}
 #thBanner u{text-decoration:none;font-size:22px;color:var(--muted);flex:none}
+#lineBanner{grid-column:1/-1;margin-top:-20px;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);text-decoration:none}
+#lineBanner:hover{border-color:#06c755}
+#lineBanner .lni{flex:none;width:30px;height:30px;border-radius:8px;background:#06c755;color:#fff;display:grid;place-items:center;font-weight:bold;font-size:9.5px;letter-spacing:.2px}
+#lineBanner .thx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+#lineBanner b{font-weight:normal;font-size:14px;color:var(--shell-hi)}
+#lineBanner em{font-style:normal;font-size:12.5px;color:var(--muted)}
+#lineBanner #myPid{color:#f0c040;font-weight:bold;letter-spacing:.5px}
+#lineBanner u{text-decoration:none;font-size:22px;color:var(--muted);flex:none}
 #shareBtn{grid-column:1/-1;margin-top:-20px;background:#3cb4a6;color:#062a26;border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:bold;padding:10px 14px;cursor:pointer}
 #news{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #newsBtn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;text-align:left}
@@ -278,7 +286,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261109-231817';
+import CONFIG from './firebase-config.js?v=20261110-112330';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -351,6 +359,7 @@ if(auth){
 <div class="wrap">
   <section id="news"><button type="button" id="newsBtn"><span>📣</span><b>更新公告</b><em id="newsHead"></em><i id="newsDot" hidden>NEW</i><u>▼</u></button><div id="newsBody" hidden></div></section>
   <a id="thBanner" href="https://www.threads.com/@baodao.monsters" target="_blank" rel="noopener"><span class="thi" aria-hidden="true">@</span><span class="thx"><b>追蹤飽島怪獸的脆 @baodao.monsters</b><em>拜託大家分享，讓更多人一起享受這個遊戲 ^^</em></span><u aria-hidden="true">›</u></a>
+  <a id="lineBanner" href="https://line.me/ti/g/HHdQ7ECAcP" target="_blank" rel="noopener"><span class="lni" aria-hidden="true">LINE</span><span class="thx"><b>歡迎加入飽島怪獸討論群組</b><em>入群記得說明自己的 ID：<span id="myPid">登入後顯示</span></em></span><u aria-hidden="true">›</u></a>
   <button type="button" id="shareBtn">📤 分享飽島怪獸給朋友</button>
   <div class="leftcol">
   <div class="device">
@@ -444,7 +453,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261109-231817";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-112330";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1216,7 +1225,7 @@ const MAPS={
   npcs:[{id:'sh1t0',x:14,y:13,dir:'left',look:'clerk',sight:3,trainer:{name:'卡車司機 阿德',party:[[76, 29], [79, 29]],reward:940,intro:["落石把路堵住了，我的卡車開不過去啦！"],win:["輪胎沒氣了……"],post:["繞小路走吧，這條公路彎來彎去的。"]}},{id:'sh1t1',x:4,y:25,dir:'right',look:'youth',sight:3,trainer:{name:'單車環島 小安',party:[[4, 30], [83, 30]],reward:940,intro:["我要騎腳踏車環島一圈！"],win:["先休息一下……"],post:["前面有一段很暗的短隧道，小心。"]}},{id:'shwarn',x:13,y:1,dir:'down',look:'aide',lines:['公路局：前方蘇花公路有落石，請小心駕駛……','啊，你是走路的？那請繞小路走，一路往南就是花蓮！']}]},
  suhua2:{name:'蘇花公路 第2段・南澳',out:'T',rows:['TTTTTTTTTTT.TTTTTTTTTTX77777','T...R.......R..,T,...,X77777','T.T.T.TTT.R.T.TRR.T,TTX77777','T.T,.,.,R..,T,R...T.,,X77777','T.TTTTT.TRTTT.T,RRRTR.X77777','T.T...,,....T.,,R..,..X77777','T,T.T,TRT.TRR,RRT.RRTTX77777','T,T...,.,.,,T,,.T.T.,.X77777','T,T.TTT,TRT.TTT.T,T,T.X77777','T.T,.,.,.,T.,.T.T.T,R,X77777','T.TTT,TRR.R.T.T,T,R.T,X77777','T..,T..,,.T.T.R,,...T.X77777','TTT,T.TTRTT,RRR,T,TTR.X77777','T,.,,,,,..R.R,..T,..R,X77777','T.R.R.T.T.R,T,RRT.TRT.X77777','T,T..,.,R.T,,.T.,.R...X77777','T.RTTTRTT.R.T,RTR,T.T,X77777','T,.,..T,,.T,T,..,.T.T.X77777','TXXXXaXaXXXaXXXXXaXaXXX77777','TaaaXaXaXaaaaaaaXaXaaaX77777','TaXXXaXXXaXXXXXaXaXXXaX77777','T...R...R....,,,....T.X77777','T.T,RTT.TTTRR.RTTTTRT.X77777','T.T.,,T,,...T..,T....,X77777','T.TTR,RRRTR.TTRTT,TTT.X77777','T.T,T,..T...T,..,.R...X77777','T.T.RTT.T,TTT.TTRTT.R,X77777','T....,T.R..,.,R.R...T.X77777','T,T,TRT,TTTTTRT.T.TTR,X77777','T.,,R..,,,..,,,.T.,,..X77777','TTTTT,TTR,TTTTTTT,T,R,X77777','T.....T.R.R,....,,T.,.X77777','T.RRTRR.R.R,TTRTT,R.TRX77777','T.T,,.,,..T,T...,.T.T.X77777','T.RTTTTTTTT.TTT,T.R.T.X77777','T,..,,.,,.......T.,,..X77777','TTTTTTTTTTT.TTTTTTTTTTX77777'],
   warps:[[11,0,'suhua1',11,31,'up'],[11,36,'suhua3',11,1,'down']],zone:()=>'suhua',fishT:[[78,40],[13,20],[44,10],[24,0.282],[52,0.2115]],
-  items:[{id:'sh2i0', x: 15, y: 1, item:'soy', n: 2}, {id:'sh2i1', x: 21, y: 17, item:'ball3', n: 1}, {id:'sh2i2', x: 5, y: 27, item:'rice', n: 2}],
+  items:[{id:'sh2i0', x: 15, y: 1, item:'soy', n: 2}, {id:'sh2i1', x: 19, y: 17, item:'ball3', n: 1}, {id:'sh2i2', x: 5, y: 27, item:'rice', n: 2}],
   npcs:[{id:'sh2t0',x:11,y:16,dir:'up',look:'fisher',sight:3,trainer:{name:'海釣客 阿伯',party:[[78, 30], [44, 30]],reward:980,intro:["噓——魚要上鉤了！"],win:["魚跑掉了啦！"],post:["懸崖下面的浪很大，連飛翼魚都會被打上來。"]}},{id:'sh2t1',x:21,y:16,dir:'up',look:'lass',sight:3,trainer:{name:'登山客 小芳',party:[[76, 31], [30, 31]],reward:980,intro:["清水斷崖的風景超美！"],win:["腿好痠……"],post:["崖角羊在岩壁上跳來跳去，好厲害。"]}}]},
  suhua3:{name:'蘇花公路 第3段・和平',out:'T',rows:['TTTTTTTTTTT.TTTTTTTTTTX77777','T.R,..,,,.R.R,T....,..X77777','T.T.RTT,TTT.T.T.RRT.T.X77777','T.R.T,T,.,,.T.,.T.,.R.X77777','T,T,T.TTTRTTTTTTT.TTT.X77777','T.T.,.T....,,..,..R,..X77777','T.TTR.T,TTTRTRTRTRT.TTX77777','T.,,T,...,,.,.R.,.T...X77777','TTT.T.TTRTTTT.T.R.R.T,X77777','T,..R,,,..R...R.T,R,.,X77777','T.R,TTTTR.T.RTT,TTTTR.X77777','T..,...,T.,,T,,.,.,,,.X77777','TaXaXXXXXXXXXaXaXXXXXXX77777','TaXaXaaaaaaaaaXaXaaaaaX77777','TaXXXaXXXXXXXaXaXaXXXaX77777','T..,.,R,.,.,T.,,T.T...X77777','T.TTR,T,TRTTTRRTT,R.T.X77777','T..,T.T..,..,.,...T...X77777','TTR.R,T.TTRTT.TTTRTTT,X77777','T,,.T.T,.,.,T,T.,...T.X77777','T.TTT,RTR.TTR.T.TRR.TTX77777','T,R,,,R.,..,,.T,..T...X77777','T.T,T.R,TTT,TRRTT.TRT,X77777','T,T.T.....T,,..,T.T...X77777','T,RRRTTTR.TTT,TTT,T,R,X77777','T..,.,.,....T...T.T.R.X77777','TXXXXaXXXXXXXXXaXaXaXXX77777','TaaaXaaaaaaaaaXaaaXaaaX77777','TaXaXXXXXXXXXaXXXaXXXaX77777','T.T.T.....,.T,..T.R..,X77777','T,R,T.R,RTRTRRT.R.R.R.X77777','T.R.R.R,,.,,..T.T.R,T.X77777','T,T,TRRTT,TTR.T,RTT,T,X77777','T.T...,....,,.T,....R,X77777','T.TTTRTTRTRRT.TRTTTTT.X77777','T.,.T..,,,...,T..,R,..X77777','TRT,TRRRRTTRR.T,T.T.TTX77777','T..,.,,.,...R,R,T.T...X77777','T.TTR,TTRRR.T,T.T.TTR,X77777','T..,,...,,.....,R,..,.X77777','TTTTTTTTTTT.TTTTTTTTTTX77777'],
   warps:[[11,0,'suhua2',11,35,'up'],[11,40,'suhua4',11,1,'down']],zone:()=>'suhua',fishT:[[78,40],[13,20],[44,10],[24,0.282],[52,0.2115]],triggers:[{at:[[10,3]],cond:()=>G.flags.starter&&!G.flags.rival5,run:rival5}],
@@ -1281,7 +1290,9 @@ const HOME_HEAL={map:'home1',x:5,y:4,dir:'up'};
 
 /* ================= monsters ================= */
 /* 升級需要的總經驗：Lv50 以前照舊；Lv50 以上越來越難練（每多 1 級，總經驗再多 4%，Lv60=1.4倍、Lv80=2.2倍、Lv100=3倍） */
-const EXP_HARD=50,EXP_STEP=.04;const lvExp=n=>Math.floor(n*n*n*4/5*(n>EXP_HARD?1+EXP_STEP*(n-EXP_HARD):1));
+const EXP_HARD=50,EXP_STEP=.04;const MV_FX={sleep:'讓對手睡著',para:'讓對手麻痺',conf:'讓對手混亂',atkdown:'降低對手攻擊',defup:'提高自己防禦'};
+const mvTag=x=>{const M_=MOVES[x]||{};return M_.p?'威力'+M_.p:(MV_FX[M_.fx]||'輔助')};
+const lvExp=n=>Math.floor(n*n*n*4/5*(n>EXP_HARD?1+EXP_STEP*(n-EXP_HARD):1));
 const maxhp=m=>Math.floor(SP[m.sp].b[0]*2*m.lv/100)+m.lv+10;
 const st=(m,i)=>Math.floor(SP[m.sp].b[i]*2*m.lv/100)+5;
 const nm=m=>SP[m.sp].n;
@@ -1739,7 +1750,7 @@ async function gmMigrateLocks(){try{const s=await db.collection('locks').get();l
     try{await db.doc(r[1]+'/'+d.id).set(v);await db.doc('locks/'+d.id).delete();n++}catch(e){console.warn('migrate',d.id,e)}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已把 ${n} 筆舊資料搬到新位置`;document.body.append(t);setTimeout(()=>t.remove(),5000)}}catch(e){console.warn('migrate',e)}}
 function subscribeCloud(){
-  $('gmBcBtn').hidden=!GM_UIDS.has(uid);$('gmDropBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
+  $('myPid').textContent=pid(uid);$('gmBcBtn').hidden=!GM_UIDS.has(uid);$('gmDropBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;renderRoster()},1500)},()=>{})}catch(e){}}
@@ -2673,7 +2684,7 @@ async function monSheet(m){await sheet(s=>{const sp=SP[m.sp];s.classList.add('mo
   info.append(hd,tg,el('div',`HP ${m.hp} / ${mh}`,'hpt'),hb);top.append(im,info);
   const stt=el('div',null,'stats');[['攻擊',1],['防禦',2],['速度',3]].forEach(([n,i])=>stt.append(el('span',`${n} ${st(m,i)}`)));
   const need=Math.max(0,lvExp(m.lv+1)-m.exp);
-  const mv=el('div',null,'moves');for(let k=0;k<4;k++){const x=m.moves[k];const d=el('div',null,'mv');if(x){const M_=MOVES[x];d.append(el('b',x),el('i',`${M_.t}${M_.p?'・'+M_.p:'・變化'}`))}else d.append(el('b','—'));mv.append(d)}
+  const mv=el('div',null,'moves');for(let k=0;k<4;k++){const x=m.moves[k];const d=el('div',null,'mv');if(x){const M_=MOVES[x];d.append(el('b',x),el('i',`${M_.t}・${M_.p?M_.p:MV_FX[M_.fx]||'輔助'}`))}else d.append(el('b','—'));mv.append(d)}
   const nx=sp.l.filter(([l,x])=>l>m.lv&&!m.moves.includes(x));const nl=el('div',null,'next');nl.append(el('b','下次學會：'));
   if(!nx.length)nl.append(el('span','（沒有新招式了）'));else{nx.slice(0,2).forEach(([l,x])=>nl.append(el('span',`Lv${l} ${x}`)));if(nx.length>2)nl.append(el('span','Lv?? ？？？？','q'))}
   s.append(top,stt,el('div','招式','sec'),mv,nl,el('div',`升級還差 ${need} 經驗　・　訓練家：${m.ot||'—'}`,'foot'))})}
@@ -2932,13 +2943,13 @@ async function recallTalk(){await say('我是記憶茶阿婆。\n喝一杯我的
   for(;;){const j=await partyPick(`要讓哪一隻想起招式？（一次 ${RECALL_FEE} 元）`,()=>true);if(j<0){await say('想不起來的時候，再來喝茶喔～');return}
     const m=G.party[j];const ls=recallList(m);if(!ls.length){await say(`${nm(m)} 現在沒有可以想起來的招式。`);continue}
     if(G.money<RECALL_FEE){await say(`回想茶一杯 ${RECALL_FEE} 元，錢不夠喔。`);return}
-    moneyOn();showText(`要讓 ${nm(m)} 想起哪一招？`);const k=await choose([...ls.map(x=>`${x}（${MOVES[x].t}・${MOVES[x].p?'威力'+MOVES[x].p:'輔助'}）`),'算了'],{pos:'list'});moneyOff();hideText();
+    moneyOn();showText(`要讓 ${nm(m)} 想起哪一招？`);const k=await choose([...ls.map(x=>`${x}（${MOVES[x].t}・${mvTag(x)}）`),'算了'],{pos:'list'});moneyOff();hideText();
     if(k<0||k>=ls.length)continue;const mv=ls[k];await say(`${nm(m)} 喝了一口回想茶……`);await learnMove(m,mv);
     if(m.moves.includes(mv)){m.old=(m.old||[]).filter(x=>x!==mv);G.money-=RECALL_FEE;sfx('lvl');await say(`付了 ${RECALL_FEE} 元。`);scheduleSave()}else await say('沒有學的話不收錢喔。')}}
 async function learnMove(m,mv){if(m.moves.includes(mv))return;if(m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`);return}
   await say(`${nm(m)} 想學新招式 ${mv}！
 可是已經會 4 招了。`);
-  for(;;){showText(`要忘記哪一招，改學 ${mv}？`);const i=await choose([...m.moves.map(x=>`${x}（${MOVES[x].t}・${MOVES[x].p?'威力'+MOVES[x].p:'輔助'}）`),`不學 ${mv}`],{pos:'list'});
+  for(;;){showText(`要忘記哪一招，改學 ${mv}？`);const i=await choose([...m.moves.map(x=>`${x}（${MOVES[x].t}・${mvTag(x)}）`),`不學 ${mv}`],{pos:'list'});
     if(i>=0&&i<m.moves.length){const old=m.moves[i];showText(`確定要忘記 ${old}，改學 ${mv} 嗎？`);if(await choose(['確定','再想想'],{pos:'list',cancel:false})!==0)continue;
       forgetMove(m,old);m.moves[i]=mv;if(m.pp)delete m.pp[old];sfx('lvl');await say(`1、2……喀！
 ${nm(m)} 忘記了 ${old}，學會了 ${mv}！`);return}
