@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-211921';
+import CONFIG from './firebase-config.js?v=20261110-212053';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -362,7 +362,7 @@ if(auth){
 <div class="wrap">
   <section id="news"><button type="button" id="newsBtn"><span>📣</span><b>更新公告</b><em id="newsHead"></em><i id="newsDot" hidden>NEW</i><u>▼</u></button><div id="newsBody" hidden></div></section>
   <a id="thBanner" href="https://www.threads.com/@baodao.monsters" target="_blank" rel="noopener"><span class="thi" aria-hidden="true">@</span><span class="thx"><b>追蹤飽島怪獸的脆 @baodao.monsters</b><em>拜託大家分享，讓更多人一起享受這個遊戲 ^^</em></span><u aria-hidden="true">›</u></a>
-  <a id="lineBanner" href="https://line.me/ti/g/HHdQ7ECAcP" target="_blank" rel="noopener"><span class="lni" aria-hidden="true">LINE</span><span class="thx"><b>歡迎加入飽島怪獸討論群組</b><em>入群記得說明自己的 ID：<span id="myPid">登入後顯示</span></em></span><u aria-hidden="true">›</u></a>
+  <a id="lineBanner" href="https://line.me/ti/g2/QMgaEosyWctRxO5Wya2RCA0cfiW_KeZ4Jx--SA" target="_blank" rel="noopener"><span class="lni" aria-hidden="true">LINE</span><span class="thx"><b>歡迎加入飽島怪獸 LINE 社群</b><em>加入社群記得說明自己的 ID：<span id="myPid">登入後顯示</span></em></span><u aria-hidden="true">›</u></a>
   <button type="button" id="shareBtn">📤 分享飽島怪獸給朋友</button>
   <a id="dexLink" href="https://k4963010-a11y.github.io/baodao-monsters/dex.html" target="_blank" rel="noopener">📖 怪獸圖鑑網站（全部怪獸、屬性、招式）</a>
   <div class="leftcol">
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-211921";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-212053";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
