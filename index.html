@@ -287,7 +287,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-200904';
+import CONFIG from './firebase-config.js?v=20261110-202143';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -455,7 +455,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-200904";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-202143";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -612,7 +612,8 @@ MOVES['茶香催眠']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['茶壺熱泉']={t:'
 const MV_RENAME={'珍奶砲彈':'雷射光刻','臭豆腐毒霧':'病毒入侵','鳳梨酥盾':'防火牆','蚵仔煎旋風':'晶圓旋斬','雞排鐵掌':'超頻重拳','刈包夾擊':'奈米光束','牛肉麵怒濤':'電路過載','夜市大爆發':'量子爆發'};MOVES['硫火巨盾']={t:'火',p:95};MOVES['月影夜襲']={t:'暗',p:100,ef:'sleep',ch:.15};MOVES['冰河記憶']={t:'冰',p:100,ef:'para',ch:.2};MOVES['金喉疾襲']={t:'格鬥',p:100,acc:1};MOVES['花后綻放']={t:'草',p:110,acc:.9};MOVES['檜木香']={t:'草',p:0,fx:'sleep',acc:.7};MOVES['神木之心']={t:'草',p:90};MOVES['佛光普照']={t:'佛',p:40};MOVES['禪定']={t:'佛',p:0,fx:'defup'};MOVES['念珠連擊']={t:'佛',p:55};MOVES['梵音震心']={t:'佛',p:0,fx:'conf',acc:.8};MOVES['蓮花座']={t:'佛',p:70};MOVES['金剛怒目']={t:'佛',p:0,fx:'atkdown'};MOVES['降魔杵']={t:'佛',p:85,ef:'conf',ch:.2};MOVES['法輪轉']={t:'佛',p:95};MOVES['大悲光']={t:'佛',p:110,acc:.9};MOVES['萬佛朝宗']={t:'佛',p:120,acc:.9};
 MOVES['燭火彈']={t:'火',p:45,ef:'burn',ch:.1};MOVES['火焰長槍']={t:'火',p:85};MOVES['熱氣球升空']={t:'火',p:100,acc:.95,ef:'burn',ch:.2};MOVES['鞭炮連發']={t:'火',p:60};MOVES['炮竹衝']={t:'火',p:75,ef:'burn',ch:.1};MOVES['寒單千響']={t:'火',p:120,acc:.9,ef:'burn',ch:.3};MOVES['割稻斬']={t:'蟲',p:60};MOVES['稻穗連刺']={t:'格鬥',p:75};MOVES['雙鐮收割']={t:'格鬥',p:105,acc:.95};MOVES['鋤地衝']={t:'地面',p:70};MOVES['泥火山崩鋤']={t:'地面',p:110,acc:.9};MOVES['月刃斬']={t:'超能力',p:65};MOVES['月輪迴旋']={t:'超能力',p:90};MOVES['千年月柱']={t:'超能力',p:105,acc:.9,ef:'conf',ch:.3};MOVES['鬼頭斬']={t:'水',p:75};MOVES['破浪居合']={t:'水',p:105,acc:.95};MOVES['長矛角刺']={t:'草',p:75};MOVES['釋迦炸彈']={t:'草',p:95,ef:'para',ch:.3};MOVES['箏骨旋風']={t:'飛',p:70};MOVES['斷線箏刃']={t:'飛',p:100,acc:.95};MOVES['八色虹箭']={t:'飛',p:110,acc:.95};MOVES['虹光羽']={t:'光',p:75};MOVES['虹羽烈焰']={t:'火',p:85,ef:'burn',ch:.2};MOVES['虹羽冰晶']={t:'冰',p:85,ef:'freeze',ch:.15};MOVES['銅鑼雷鳴']={t:'電',p:85,ef:'conf',ch:.2};MOVES['縱谷雲雨']={t:'水',p:85};MOVES['心靈虹波']={t:'超能力',p:85};MOVES['虹靈甘露']={t:'草',p:0,fx:'heal'};if(MOVES['烈火輪']&&!MOVES['烈火輪'].ef&&!MOVES['烈火輪'].fx){MOVES['烈火輪'].ef='burn';MOVES['烈火輪'].ch=0.1}if(MOVES['火山爆發']&&!MOVES['火山爆發'].ef&&!MOVES['火山爆發'].fx){MOVES['火山爆發'].ef='burn';MOVES['火山爆發'].ch=0.2}if(MOVES['烈焰衝']&&!MOVES['烈焰衝'].ef&&!MOVES['烈焰衝'].fx){MOVES['烈焰衝'].ef='burn';MOVES['烈焰衝'].ch=0.1}if(MOVES['炎螢衝']&&!MOVES['炎螢衝'].ef&&!MOVES['炎螢衝'].fx){MOVES['炎螢衝'].ef='burn';MOVES['炎螢衝'].ch=0.1}if(MOVES['火花彈']&&!MOVES['火花彈'].ef&&!MOVES['火花彈'].fx){MOVES['火花彈'].ef='burn';MOVES['火花彈'].ch=0.1}if(MOVES['冰礫']&&!MOVES['冰礫'].ef&&!MOVES['冰礫'].fx){MOVES['冰礫'].ef='freeze';MOVES['冰礫'].ch=0.1}if(MOVES['冰雹']&&!MOVES['冰雹'].ef&&!MOVES['冰雹'].fx){MOVES['冰雹'].ef='freeze';MOVES['冰雹'].ch=0.15}if(MOVES['暴風雪']&&!MOVES['暴風雪'].ef&&!MOVES['暴風雪'].fx){MOVES['暴風雪'].ef='freeze';MOVES['暴風雪'].ch=0.2}if(MOVES['冷泉噴']&&!MOVES['冷泉噴'].ef&&!MOVES['冷泉噴'].fx){MOVES['冷泉噴'].ef='freeze';MOVES['冷泉噴'].ch=0.1}
 const maxPP=mv=>{const m=MOVES[mv];if(!m)return 10;if(mv==='衝撞')return 35;if(!m.p)return m.fx==='heal'?5:m.fx==='sleep'?10:(m.fx==='para'||m.fx==='conf')?15:30;return m.p<=45?30:m.p<=55?25:m.p<=65?20:m.p<=70?15:10};
-const ppOf=(m,mv)=>{const v=m.pp&&m.pp[mv];return Number.isFinite(v)?clamp(v,0,maxPP(mv)):maxPP(mv)};
+const ppMax=(m,mv)=>maxPP(mv)+clamp((m&&m.ppb&&m.ppb[mv])|0,0,5);
+const ppOf=(m,mv)=>{const v=m.pp&&m.pp[mv];return Number.isFinite(v)?clamp(v,0,ppMax(m,mv)):ppMax(m,mv)};
 const PAL=[null,
  ['#fff8e8','#e8a848','#8a5a28','#281810'],['#fff4c8','#f0c030','#8a4c1c','#201008'],
  ['#ffffff','#f8d070','#5888d8','#182030'],['#ffffff','#e84830','#2860d0','#101018'],
@@ -1392,7 +1393,7 @@ function sanMon(m){if(!m||typeof m!=='object')return null;const sp=m.sp|0;if(!SP
   o.exp=clamp(+m.exp||0,lvExp(lv),lvExp(lv+1)-1);o.hp=m.hp==null?maxhp(o):clamp(m.hp|0,0,maxhp(o));
   if(Array.isArray(m.moves)){const mv=[...new Set(m.moves.map(x=>MV_RENAME[x]||x).filter(x=>typeof x==='string'&&MOVES[x]))].slice(0,4);if(mv.length)o.moves=mv}
   if(Array.isArray(m.old)){const od=[...new Set(m.old.map(x=>MV_RENAME[x]||x).filter(x=>typeof x==='string'&&MOVES[x]&&!o.moves.includes(x)))].slice(-30);if(od.length)o.old=od}
-  o.ot=typeof m.ot==='string'?m.ot.slice(0,12):'';if(m.rare)o.rare=m.rare===2?2:1;if(Number.isFinite(m.bx))o.bx=clamp(m.bx|0,0,19);if(m.pp&&typeof m.pp==='object'){o.pp={};for(const k of o.moves)if(Number.isFinite(m.pp[k]))o.pp[k]=clamp(m.pp[k]|0,0,maxPP(k))}return o}
+  o.ot=typeof m.ot==='string'?m.ot.slice(0,12):'';if(m.rare)o.rare=m.rare===2?2:1;if(Number.isFinite(m.bx))o.bx=clamp(m.bx|0,0,19);if(m.pp&&typeof m.pp==='object'){o.pp={};for(const k of o.moves)if(Number.isFinite(m.pp[k]))o.pp[k]=clamp(m.pp[k]|0,0,ppMax(m,k))}if(m.ppb&&typeof m.ppb==='object'){const b={};for(const k in m.ppb)if(MOVES[k]&&(m.ppb[k]|0)>0)b[k]=clamp(m.ppb[k]|0,0,5);if(Object.keys(b).length)o.ppb=b}return o}
 
 /* ================= game state ================= */
 let G=null;
@@ -1409,7 +1410,7 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const flags={};if(d.flags&&typeof d.flags==='object')for(const k in d.flags){if(/^[a-z0-9_]{1,24}$/i.test(k)){const v=d.flags[k];if(typeof v==='boolean'||(typeof v==='number'&&isFinite(v)))flags[k]=v}}
   if(flags.starter&&!party.length)return null;
   const g={ver:2,look:clamp(d.look|0,0,CHARS.length-1),name:(typeof d.name==='string'&&d.name.trim()?d.name.trim():'訓練家').slice(0,8),money:clamp(d.money|0,0,999999),
-   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),ball4:clamp(d.items?.ball4|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99),ppfill:clamp(d.items?.ppfill|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
+   items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),ball4:clamp(d.items?.ball4|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99),ppfill:clamp(d.items?.ppfill|0,0,99),ppup:clamp(d.items?.ppup|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
    seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
@@ -1724,7 +1725,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（選單的「圖鑑網站」也能打開）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
+const NEWS=[{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（選單的「圖鑑網站」也能打開）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
  {v:'1110b',d:'11/10 調整',items:['⭐ 超稀有（0.3%）出現時會說「超稀有怪獸出現！」，抓到後身邊會有黃色星星','罕見（0.4%，原本叫少見）出現時會說「罕見的 ○○ 出現了！」，抓到後一樣會發光','選單可以循環：在最上面按「上」直接跳到最下面','📣 GM 大聲公：GM 的重要消息會用跑馬燈出現在畫面上']},
@@ -2782,10 +2783,16 @@ async function questLog(){const L=QUESTS.filter(q=>qst(q)||G.flags['qr_'+q.id]).
     if(!L.length)s.append(el('p','還沒有接任何任務。\n跟頭上有「！」的人說話，就能接任務喔。'));
     for(const q of L.slice(pg*PER,pg*PER+PER)){const d=qst(q)===9;s.append(el('p',`${d?'✔':'▶'} 第${q.ch}章　${q.name}\n${d?'（完成）':G.flags['qr_'+q.id]?'回去找'+q.who+'領獎勵。':q.hint}`))}})}
 async function usePPFill(inBattle){if(!G.items.ppfill){await say('招式補充用完了！');return false}
-  const need=j=>G.party[j].moves.some(mv=>ppOf(G.party[j],mv)<maxPP(mv));if(!G.party.some((m,j)=>need(j))){await say('大家的招式 PP 都是滿的！');return false}
+  const need=j=>G.party[j].moves.some(mv=>ppOf(G.party[j],mv)<ppMax(G.party[j],mv));if(!G.party.some((m,j)=>need(j))){await say('大家的招式 PP 都是滿的！');return false}
   const t=await partyPick('要給哪一隻用？',need);if(t<0)return false;const m=G.party[t];
-  showText('要補充哪一招？');const k=await choose(m.moves.map(mv=>`${mv} ${ppOf(m,mv)}/${maxPP(mv)}`),{pos:'list'});if(k<0)return false;const mv=m.moves[k],cur=ppOf(m,mv),mx=maxPP(mv);
+  showText('要補充哪一招？');const k=await choose(m.moves.map(mv=>`${mv} ${ppOf(m,mv)}/${ppMax(m,mv)}`),{pos:'list'});if(k<0)return false;const mv=m.moves[k],cur=ppOf(m,mv),mx=ppMax(m,mv);
   if(cur>=mx){await say('這一招的 PP 是滿的！');return false}const add=Math.min(5,mx-cur);m.pp=m.pp||{};m.pp[mv]=cur+add;if(m.pp[mv]>=mx)delete m.pp[mv];G.items.ppfill--;sfx('heal');if(inBattle)updHud();await say(`${nm(m)} 的 ${mv} 補充了 ${add} 次！`);scheduleSave();return true}
+async function usePPUp(){if(!G.items.ppup){await say('招式增量用完了！');return false}
+  const ok=j=>G.party[j].moves.some(mv=>((G.party[j].ppb&&G.party[j].ppb[mv])|0)<5);if(!G.party.some((m,j)=>ok(j))){await say('大家的招式次數都已經加到最多了！');return false}
+  const t=await partyPick('要給哪一隻用？',ok);if(t<0)return false;const m=G.party[t];
+  showText('要增加哪一招的次數？\n（每一招最多加 5 次）');const k=await choose(m.moves.map(mv=>`${mv} 上限${ppMax(m,mv)}（已加${(m.ppb&&m.ppb[mv])|0}/5）`),{pos:'list'});if(k<0)return false;const mv=m.moves[k],b=(m.ppb&&m.ppb[mv])|0;
+  if(b>=5){await say('這一招已經加到最多了！');return false}m.ppb=m.ppb||{};m.ppb[mv]=b+1;if(m.pp&&Number.isFinite(m.pp[mv]))m.pp[mv]++;G.items.ppup--;sfx('lvl');
+  await say(`${nm(m)} 的 ${mv} 次數上限變成 ${ppMax(m,mv)} 了！`);scheduleSave();return true}
 async function useDouhua(){if(!G.items.douhua){await say('豆花吃完了！');return false}
   const t=await partyPick('要給哪一隻吃豆花？',j=>G.party[j].lv<100);if(t<0)return false;const m=G.party[t];G.items.douhua--;
   const old=maxhp(m);m.lv++;m.exp=Math.max(m.exp|0,lvExp(m.lv));m.hp+=maxhp(m)-old;sfx('lvl');await say(`${nm(m)} 吃了豆花，升到了 Lv${m.lv}！`);
@@ -2891,9 +2898,9 @@ async function takeBackSwap(ids){for(const id of ids){const cur=slotMon(id);if(!
 async function partyPick(prompt,ok,cancel=true){for(;;){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list',cancel,start:Math.max(0,G.party.findIndex((m,j)=>ok(j)))});if(i<0)return -1;if(ok(i))return i;await say('不能選這一隻。')}}
 const HEALS=[['potion','傷藥',20,'用了'],['soy','豆漿',30,'喝了'],['rice','米漿',50,'喝了'],['youtiao','燒餅油條',999,'吃了']];
 async function bag(inBattle){for(;;){const rows=[{k:'ball',t:`捉捉球 ×${G.items.ball}`}];if(G.items.ball2)rows.push({k:'ball2',t:`高級球 ×${G.items.ball2}・好抓1.5倍`});if(G.items.ball3)rows.push({k:'ball3',t:`超級球 ×${G.items.ball3}・好抓2倍`});if(G.items.ball4)rows.push({k:'ball4',t:`大師球 ×${G.items.ball4}・必定抓到`});HEALS.forEach(([k,n,h])=>{if(k==='potion'||G.items[k])rows.push({k,t:`${n} ×${G.items[k]|0}・${h>=999?'全滿':'回'+h}`})});
-  if(G.flags.swim)rows.push({k:'swimbook',t:'游泳技能書'});if(G.flags.flybook)rows.push({k:'flybook',t:'飛天技能書'});if(G.items.douhua)rows.push({k:'douhua',t:`豆花 ×${G.items.douhua}・升1級`});if(G.items.ppfill)rows.push({k:'ppfill',t:`招式補充 ×${G.items.ppfill}・一招回5次`});if(!inBattle&&G.flags.letter_has&&!G.flags.letter_done)rows.push({k:'letter',t:'林教授的信'});if(!inBattle&&G.flags.q_egg===1)rows.push({k:'qegg',t:'溫泉蛋'});if(!inBattle&&G.badges)rows.push({k:'badge',t:`徽章（${G.badges} 個）`});
+  if(G.flags.swim)rows.push({k:'swimbook',t:'游泳技能書'});if(G.flags.flybook)rows.push({k:'flybook',t:'飛天技能書'});if(G.items.douhua)rows.push({k:'douhua',t:`豆花 ×${G.items.douhua}・升1級`});if(G.items.ppfill)rows.push({k:'ppfill',t:`招式補充 ×${G.items.ppfill}・一招回5次`});if(G.items.ppup)rows.push({k:'ppup',t:`招式增量 ×${G.items.ppup}・一招上限+1`});if(!inBattle&&G.flags.letter_has&&!G.flags.letter_done)rows.push({k:'letter',t:'林教授的信'});if(!inBattle&&G.flags.q_egg===1)rows.push({k:'qegg',t:'溫泉蛋'});if(!inBattle&&G.badges)rows.push({k:'badge',t:`徽章（${G.badges} 個）`});
   showText('背包');const i=await choose(rows.map(r=>r.t),{pos:'list'});if(i<0)return null;const k=rows[i].k;
-  if(k==='letter'){await say('要交給北投寶貝中心溫醫師的信。封得好好的。');continue}if(k==='swimbook'){if(inBattle){await say('對戰中不能用！');continue}await useSwimBook();continue}if(k==='flybook'){if(inBattle){await say('對戰中不能用！');continue}await useFlyBook();continue}if(k==='qegg'){await say('溫泉阿伯煮的溫泉蛋，要送給淡水的阿嬤。');continue}if(k==='douhua'){if(inBattle){await say('對戰中不能吃豆花！');continue}await useDouhua();continue}if(k==='ppfill'){if(await usePPFill(inBattle)&&inBattle)return {type:'item'};continue}
+  if(k==='letter'){await say('要交給北投寶貝中心溫醫師的信。封得好好的。');continue}if(k==='swimbook'){if(inBattle){await say('對戰中不能用！');continue}await useSwimBook();continue}if(k==='flybook'){if(inBattle){await say('對戰中不能用！');continue}await useFlyBook();continue}if(k==='qegg'){await say('溫泉阿伯煮的溫泉蛋，要送給淡水的阿嬤。');continue}if(k==='douhua'){if(inBattle){await say('對戰中不能吃豆花！');continue}await useDouhua();continue}if(k==='ppfill'){if(await usePPFill(inBattle)&&inBattle)return {type:'item'};continue}if(k==='ppup'){if(inBattle){await say('對戰中不能用！');continue}await usePPUp();continue}
   if(k==='badge'){await say(BADGES.slice(0,G.badges).join('、')+'\n都好好地收在徽章盒裡。');continue}
   if(k==='ball'||k==='ball2'||k==='ball3'||k==='ball4'){if(!inBattle){await say('在對戰中才能丟球！');continue}if(!G.items[k]){await say('用完了！');continue}if(B.trainer){await say('不能抓別人的怪獸！');continue}return {type:'ball',k}}
   const H=HEALS.find(h=>h[0]===k);if(!G.items[k]){await say(`${H[1]}用完了！`);continue}if(!G.party.length)continue;
@@ -2907,7 +2914,7 @@ async function pickQty(n,pr,have){const opts=[1,3,5,10].filter(q=>have+q<=99);co
 function moneyOn(){const b=$('moneyBox');b.textContent=`所持金　${G.money} 元`;b.hidden=false}
 function moneyOff(){$('moneyBox').hidden=true}
 async function shop(){const L=[['ball','捉捉球',100,'抓怪獸用'],['potion','傷藥',150,'回復20'],['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50']];
-  if(G.badges>=2)L.splice(1,0,['ball2','高級球',300,'好抓1.5倍']);if(M.id==='shop3'||M.id==='shop5'||M.id==='shop6'||M.id==='shop7')L.splice(2,0,['ball3','超級球',800,'好抓2倍']);if(M.id==='shop3'&&!G.flags.rod)L.push(['rod','釣竿',1500,'水邊按A釣魚']);if(G.badges>=6)L.push(['ppfill','招式補充',3000,'一招回5次']);
+  if(G.badges>=2)L.splice(1,0,['ball2','高級球',300,'好抓1.5倍']);if(M.id==='shop3'||M.id==='shop5'||M.id==='shop6'||M.id==='shop7')L.splice(2,0,['ball3','超級球',800,'好抓2倍']);if(M.id==='shop3'&&!G.flags.rod)L.push(['rod','釣竿',1500,'水邊按A釣魚']);if(G.badges>=6)L.push(['ppfill','招式補充',3000,'一招回5次'],['ppup','招式增量',10000,'一招上限+1']);
   try{for(;;){moneyOn();showText('要買什麼？');const i=await choose([...L.map(([k,n,pr,d])=>`${n} ${pr}元・${d}（有${G.items[k]|0}）`),'不買了'],{pos:'list'});
   if(i<0||i===L.length){await say('老闆：謝謝光臨！');return}const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if(k==='rod'){G.money-=pr;G.flags.rod=true;moneyOn();sfx('badge');await sayAll(['買了 釣竿！','走到河邊或海邊，面向水按 A，就能釣水系怪獸喔！']);L.splice(i,1);scheduleSave();continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}
   const q=await pickQty(n,pr,G.items[k]|0);if(!q)continue;G.money-=pr*q;G.items[k]=(G.items[k]|0)+q;moneyOn();await say(`買了 ${q} 個${n}！`);scheduleSave()}}finally{moneyOff()}}
@@ -3162,7 +3169,7 @@ async function battle(enemies,trainer){
   B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`);let result=null;
   while(!result){B.fought.add(me);showText(`${nm(me)}\n要做什麼？`);const a=await choose(['戰鬥','背包','怪獸','逃跑'],{pos:'battle',cols:2,cancel:false});let act=null;
     if(a===0){if(me.moves.every(mv=>ppOf(me,mv)<=0)){await say(`${nm(me)} 的招式都沒有 PP 了！\n只能拚命一擊！`);act={type:'move',m:'拚命一擊'}}
-      else{showText('');const k=await choose(me.moves.map(mv=>`${mv} ${ppOf(me,mv)}/${maxPP(mv)}`),{pos:'moves',cols:2});if(k<0)continue;const mv=me.moves[k];
+      else{showText('');const k=await choose(me.moves.map(mv=>`${mv} ${ppOf(me,mv)}/${ppMax(me,mv)}`),{pos:'moves',cols:2});if(k<0)continue;const mv=me.moves[k];
         if(ppOf(me,mv)<=0){await say('這一招已經沒有 PP 了！\n去寶貝中心休息就會恢復。');continue}me.pp=me.pp||{};me.pp[mv]=ppOf(me,mv)-1;act={type:'move',m:mv}}}
     else if(a===1){act=await bag(true);if(!act)continue}
     else if(a===2){const s=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);if(s<0)continue;act={type:'switch',i:s}}
@@ -3260,7 +3267,7 @@ async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);cons
   if(!r||r.type!=='tradedone'){await say('交換取消了。');return}
   if(G.party[i]!==mine){await say('交換失敗了。');return}await doSwap(i,theirs,nm2)}
 /* ---- 給予寶貝 / 給予道具：對方先答應 → 送出方扣掉 → 通知對方收下 ---- */
-const itemName=k=>k==='douhua'?'豆花':k==='ppfill'?'招式補充':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
+const itemName=k=>k==='douhua'?'豆花':k==='ppfill'?'招式補充':k==='ppup'?'招式增量':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
 const giftWait=(pe,id)=>waitMsg(m=>m.id===id&&m.from===pe.id&&['giftok','decline','busy'].includes(m.type),60000);
 async function giftReply(pe,r){if(!r){await say(`${pe.name} 沒有回應。`);return false}if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return false}if(r.type==='decline'){await say(`${pe.name} 說不用了，謝謝！`);return false}return true}
 async function giftOffer(pe){
