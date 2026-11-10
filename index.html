@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-212053';
+import CONFIG from './firebase-config.js?v=20261110-213155';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-212053";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-213155";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3218,6 +3218,8 @@ const DUEL=()=>room&&room.duel;let PV=null;const mailbox=[];let mbWait=null;let 
 function initDuel(){if(duelInit||!DUEL())return;duelInit=true;DUEL().on(m=>{
   if(!m||typeof m!=='object'||typeof m.from!=='string')return;
   if(['invite','trade','gift','giveitem','show'].includes(m.type)){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>m.type==='show'?gotShow(m):m.type==='trade'?gotTrade(m):m.type==='gift'?gotGift(m):m.type==='giveitem'?gotItem(m):gotInvite(m));return}
+  if(m.type==='giftok'&&PEND_OUT[m.id]&&!PEND_OUT[m.id].waiting&&PEND_OUT[m.id].to===m.from){whenFree(()=>finishOut(m.id));return}
+  if((m.type==='giftdone'||m.type==='tradeno')&&PEND_IN[m.id]&&!PEND_IN[m.id].waiting&&PEND_IN[m.id].from===m.from){whenFree(()=>finishIn(m.id,m.type));return}
   mailbox.push(m);if(mbWait)mbWait()})}
 function waitMsg(pred,ms){return new Promise(res=>{const t0=Date.now();const chk=()=>{const i=mailbox.findIndex(pred);if(i>=0){const m=mailbox.splice(i,1)[0];mbWait=null;clearInterval(iv);res(m);return}if(Date.now()-t0>ms){mbWait=null;clearInterval(iv);res(null)}};mbWait=chk;const iv=setInterval(chk,500);chk()})}
 const snapTeam=()=>G.party.slice(0,6).map(m=>({sp:m.sp,lv:m.lv,moves:m.moves.slice(0,4),id:m.id}));
@@ -3286,20 +3288,36 @@ async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);cons
 const itemName=k=>k==='douhua'?'豆花':k==='ppfill'?'招式補充':k==='ppup'?'招式增量':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
 const giftWait=(pe,id)=>waitMsg(m=>m.id===id&&m.from===pe.id&&['giftok','decline','busy'].includes(m.type),60000);
 async function giftReply(pe,r){if(!r){await say(`${pe.name} 沒有回應。`);return false}if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return false}if(r.type==='decline'){await say(`${pe.name} 說不用了，謝謝！`);return false}return true}
+/* 送禮不中斷：對方還沒按收下、或正在對戰時，先記下來，雙方忙完再自動完成（10 分鐘內有效） */
+const PEND_OUT={},PEND_IN={},PEND_MS=10*60000;
+function whenFree(fn){const t0=Date.now();const iv=setInterval(()=>{if(Date.now()-t0>15*60000){clearInterval(iv);return}if(G&&mode==='map'&&!busy&&!uiStack.length&&!PV){clearInterval(iv);event(fn)}},500)}
+async function finishOut(id){const P=PEND_OUT[id];delete PEND_OUT[id];if(!P)return;
+  if(Date.now()>P.exp){DUEL().send(P.to,{type:'tradeno',id});return}
+  if(P.kind==='gift'){const j=G.party.findIndex(x=>x.id===P.monId);if(j<0||G.party.length<2){DUEL().send(P.to,{type:'tradeno',id});await say(`${P.toName} 收下了，可是那隻怪獸已經不在身上，送不出去了。`);return}
+    const mine=G.party.splice(j,1)[0];DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await sayAll([`${P.toName} 收下了你送的禮物！`,`${nm(mine)} 去了 ${P.toName} 那裡……`]);await saveNow();return}
+  if((G.items[P.item]|0)<P.n){DUEL().send(P.to,{type:'tradeno',id});await say(`${P.toName} 收下了，可是道具不夠，送不出去了。`);return}
+  G.items[P.item]-=P.n;DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await say(`${P.toName} 收下了！把 ${itemName(P.item)} ×${P.n} 送過去了。`);await saveNow()}
+async function finishIn(id,type){const P=PEND_IN[id];delete PEND_IN[id];if(!P)return;
+  if(type!=='giftdone'||Date.now()>P.exp){await say(`${P.fromName} 的送禮取消了。`);return}
+  if(P.kind==='gift'){const t=P.mon;t.hp=maxhp(t);delete t.pp;const w=addMon(t);sfx('catch');await sayAll([`收到了 ${P.fromName} 送的 ${monTxt(t)}！${w==='box'?'（身上滿了，送進怪獸箱）':''}`,'要好好照顧牠喔！'])}
+  else{G.items[P.item]=Math.min(99,(G.items[P.item]|0)+P.n);sfx('catch');await say(`收到了 ${P.fromName} 送的 ${itemName(P.item)} ×${P.n}！`)}
+  await saveNow()}
 async function giftOffer(pe){
   if(G.party.length<2){await say('身上只剩一隻怪獸，不能送人喔！');return}
   const i=await pickMine(`要送哪一隻給 ${pe.name}？`);if(i<0)return;const mine=G.party[i];
   if(!(await yesNo(`真的要把 ${monTxt(mine)}\n送給 ${pe.name} 嗎？送了就拿不回來喔！`)))return;
   const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
+  PEND_OUT[id]={kind:'gift',to:pe.id,toName:pe.name,monId:mine.id,exp:Date.now()+PEND_MS,waiting:true};
   DUEL().send(pe.id,{type:'gift',id,name:G.name,mon:JSON.parse(JSON.stringify(mine))});showText(`等待 ${pe.name} 回應……`);
-  const r=await giftWait(pe,id);hideText();if(!(await giftReply(pe,r)))return;
+  const r=await giftWait(pe,id);hideText();if(!r&&PEND_OUT[id]){PEND_OUT[id].waiting=false;await sayAll([`${pe.name} 還沒回應。`,'等他按「收下」，就會自動送過去（10 分鐘內有效）。']);return}delete PEND_OUT[id];if(!(await giftReply(pe,r)))return;
   const j=G.party.indexOf(mine);if(j<0||G.party.length<2){DUEL().send(pe.id,{type:'tradeno',id});await say('送不出去了。');return}
   G.party.splice(j,1);DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`${pe.name} 會好好照顧牠的！`]);await saveNow()}
 async function gotGift(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);
   if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想送你 ${monTxt(theirs)}！\n要收下嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
-  mailbox.length=0;DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
-  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['giftdone','tradeno'].includes(x.type),60000);hideText();
+  mailbox.length=0;PEND_IN[m.id]={kind:'gift',from:m.from,fromName:nm2,mon:theirs,exp:Date.now()+PEND_MS,waiting:true};DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
+  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['giftdone','tradeno'].includes(x.type),20000);hideText();
+  if(!r&&PEND_IN[m.id]){PEND_IN[m.id].waiting=false;await sayAll([`${nm2} 現在正在忙（可能在對戰）。`,'等他忙完，就會自動送過來！']);return}delete PEND_IN[m.id];
   if(!r||r.type!=='giftdone'){await say('沒有收到，送禮取消了。');return}
   theirs.hp=maxhp(theirs);delete theirs.pp;const w=addMon(theirs);sfx('catch');
   await sayAll([`收到了 ${nm2} 送的 ${monTxt(theirs)}！${w==='box'?'（身上滿了，送進怪獸箱）':''}`,'要好好照顧牠喔！']);await saveNow()}
@@ -3308,15 +3326,17 @@ async function itemOffer(pe){
   showText(`要送什麼給 ${pe.name}？`);const i=await choose([...keys.map(k=>`${itemName(k)} ×${G.items[k]}`),'算了'],{pos:'list'});hideText();if(i<0||i===keys.length)return;const k=keys[i];
   const opts=[1,3,5,10].filter(q=>q<=G.items[k]);showText(`${itemName(k)} 要送幾個？`);const qi=await choose([...opts.map(q=>`${q} 個`),'算了'],{pos:'list'});hideText();if(qi<0||qi===opts.length)return;const n=opts[qi];
   const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
+  PEND_OUT[id]={kind:'item',to:pe.id,toName:pe.name,item:k,n,exp:Date.now()+PEND_MS,waiting:true};
   DUEL().send(pe.id,{type:'giveitem',id,name:G.name,item:k,n});showText(`等待 ${pe.name} 回應……`);
-  const r=await giftWait(pe,id);hideText();if(!(await giftReply(pe,r)))return;
+  const r=await giftWait(pe,id);hideText();if(!r&&PEND_OUT[id]){PEND_OUT[id].waiting=false;await sayAll([`${pe.name} 還沒回應。`,'等他按「收下」，就會自動送過去（10 分鐘內有效）。']);return}delete PEND_OUT[id];if(!(await giftReply(pe,r)))return;
   if((G.items[k]|0)<n){DUEL().send(pe.id,{type:'tradeno',id});await say('道具不夠了，送不出去。');return}
   G.items[k]-=n;DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await say(`把 ${itemName(k)} ×${n} 送給 ${pe.name} 了！`);await saveNow()}
 async function gotItem(m){const nm2=String(m.name||'訓練家').slice(0,8);const k=String(m.item||''),n=Math.max(1,Math.min(10,m.n|0));
   if(!itemName(k)){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想送你 ${itemName(k)} ×${n}！\n要收下嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
-  mailbox.length=0;DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
-  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['giftdone','tradeno'].includes(x.type),60000);hideText();
+  mailbox.length=0;PEND_IN[m.id]={kind:'item',from:m.from,fromName:nm2,item:k,n,exp:Date.now()+PEND_MS,waiting:true};DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
+  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['giftdone','tradeno'].includes(x.type),20000);hideText();
+  if(!r&&PEND_IN[m.id]){PEND_IN[m.id].waiting=false;await sayAll([`${nm2} 現在正在忙（可能在對戰）。`,'等他忙完，就會自動送過來！']);return}delete PEND_IN[m.id];
   if(!r||r.type!=='giftdone'){await say('沒有收到，送禮取消了。');return}
   G.items[k]=Math.min(99,(G.items[k]|0)+n);sfx('catch');await say(`收到了 ${nm2} 送的 ${itemName(k)} ×${n}！`);await saveNow()}
 async function doSwap(i,got,who){const gave=G.party[i];got.hp=maxhp(got);delete got.pp;G.party[i]=got;markCaught(got.sp);sfx('catch');
