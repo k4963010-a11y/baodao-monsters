@@ -43,8 +43,8 @@ button{touch-action:manipulation}
 #sheet.mon .hpbar i{display:block;height:100%;background:#48c860}#sheet.mon .hpbar i.mid{background:#e8b830}#sheet.mon .hpbar i.low{background:#e04040}
 #sheet.mon .stats{display:flex;justify-content:space-between;margin:calc(var(--u)*3) 0 calc(var(--u)*2);padding:calc(var(--u)*1.5) calc(var(--u)*3);background:rgba(104,120,168,.12);border-radius:calc(var(--u)*2)}
 #sheet.mon .sec{font-size:.85em;color:var(--c2);margin-bottom:calc(var(--u)*1)}
-#sheet.mon .moves{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.5)}#sheet.mon .mv{border:calc(var(--u)*.5) solid #9aa4c0;border-radius:calc(var(--u)*1.5);padding:calc(var(--u)*1) calc(var(--u)*2);display:flex;justify-content:space-between;gap:calc(var(--u)*1);white-space:nowrap;overflow:hidden}
-#sheet.mon .mv b{font-weight:normal;overflow:hidden;text-overflow:ellipsis}#sheet.mon .mv i{font-style:normal;font-size:.8em;color:var(--c2);flex:none}
+#sheet.mon .moves{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.5)}#sheet.mon .mv{border:calc(var(--u)*.5) solid #9aa4c0;border-radius:calc(var(--u)*1.5);padding:calc(var(--u)*.8) calc(var(--u)*2);display:flex;flex-direction:column;overflow:hidden}
+#sheet.mon .mv b{font-weight:normal;overflow:hidden;text-overflow:ellipsis}#sheet.mon .mv i{font-style:normal;font-size:.72em;line-height:1.2;color:var(--c2)}
 #sheet.mon .next{margin-top:calc(var(--u)*2.5);display:flex;flex-wrap:wrap;gap:calc(var(--u)*1) calc(var(--u)*3);font-size:.9em}#sheet.mon .next b{font-weight:normal;color:var(--c2)}#sheet.mon .next .q{color:var(--c1)}
 #sheet.mon .foot{margin-top:calc(var(--u)*2);font-size:.82em;color:var(--c2)}
 #sheet.letter p{font-size:.92em;line-height:1.45}#sheet.letter .from{font-size:.8em;color:var(--c2)}
@@ -287,7 +287,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261110-203518';
+import CONFIG from './firebase-config.js?v=20261110-205801';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -455,7 +455,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261110-203518";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261110-205801";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1380,6 +1380,9 @@ const HOME_HEAL={map:'home1',x:5,y:4,dir:'up'};
 /* ================= monsters ================= */
 /* 升級需要的總經驗：Lv50 以前照舊；Lv50 以上越來越難練（每多 1 級，總經驗再多 4%，Lv60=1.4倍、Lv80=2.2倍、Lv100=3倍） */
 const EXP_HARD=50,EXP_STEP=.04;const MV_FX={heal:'回復自己一半體力',sleep:'讓對手睡著',para:'讓對手麻痺',conf:'讓對手混亂',atkdown:'降低對手攻擊',defup:'提高自己防禦'};
+const EF_N={burn:'燒傷',freeze:'冰凍',para:'麻痺',sleep:'睡著',conf:'混亂',atkdown:'降低對手攻擊'};
+const mvEff=x=>{const M_=MOVES[x]||{},a=[];if(!M_.p)a.push(MV_FX[M_.fx]||'輔助');if(M_.acc&&M_.acc<1)a.push('命中'+Math.round(M_.acc*100)+'%');if(M_.ef)a.push(Math.round((M_.ch||.3)*100)+'%'+(EF_N[M_.ef]||M_.ef));if(x==='硫火巨盾'||x==='月盾潮擊')a.push('提高自己防禦');return a.join('・')};
+const mvDesc=x=>{const M_=MOVES[x]||{},e=mvEff(x);return (M_.t||'')+'・'+(M_.p?'威力'+M_.p+(e?'・':''):'')+e};
 const mvTag=x=>{const M_=MOVES[x]||{};return M_.p?'威力'+M_.p:(MV_FX[M_.fx]||'輔助')};
 const lvExp=n=>Math.floor(n*n*n*4/5*(n>EXP_HARD?1+EXP_STEP*(n-EXP_HARD):1));
 const maxhp=m=>Math.floor(SP[m.sp].b[0]*2*m.lv/100)+m.lv+10;
@@ -1552,7 +1555,7 @@ $('gmBcBtn').addEventListener('click',gmBroadcast);
 $('shareBtn').addEventListener('click',async()=>{const url='https://k4963010-a11y.github.io/baodao-monsters/',text='我在玩「飽島怪獸」！台灣原創怪獸冒險，手機打開就能玩，一起來抓怪獸 🐾';try{if(navigator.share){await navigator.share({title:'飽島怪獸',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(text+' '+url);dropToast('已複製遊戲網址，貼給朋友吧！')}catch(e){window.prompt('複製這個網址分享給朋友：',url)}});$('gmDropBtn').addEventListener('click',gmDropNow);
 function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';
   w.innerHTML='<div class="in" role="dialog" aria-label="GM 寄信"><h3></h3><textarea maxlength="400" placeholder="要對玩家說的話"></textarea><div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><label>附送怪獸：<select class="sp"><option value="0">（不送）</option></select></label><label>等級 <input class="lv" type="number" min="1" max="100" value="20" style="width:56px"></label></div><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
-  w.querySelector('h3').textContent=`寄給 ${name}`;const sel=w.querySelector('.sp');for(let i=1;i<=N_SP;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i} ${SP[i].n}`;sel.append(o)}
+  w.querySelector('h3').textContent=`寄給 ${name}`;const sel=w.querySelector('.sp');for(const i of [...DEX_ORDER,...SP.map((_,j)=>j).filter(j=>j>0&&!DEX_ORDER.includes(j))]){if(!SP[i])continue;const o=document.createElement('option');o.value=i;o.textContent=`No.${dexNo(i)||i} ${SP[i].n}（${SP[i].t}）`;sel.append(o)}
   document.body.append(w);const ta=w.querySelector('textarea'),msg=w.querySelector('.row:last-child span'),close=()=>w.remove();ta.focus();
   w.querySelectorAll('textarea,input').forEach(e=>{e.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});e.addEventListener('keyup',x=>x.stopPropagation())});
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
@@ -1870,7 +1873,7 @@ function renderRoster(){const ol=$('roster');ol.replaceChildren();const on=onlin
   if(!shown.length){const li=document.createElement('li');li.className='empty';li.style.display='block';li.textContent=RTAB==='on'?'現在沒有人在線上。':'大家都在線上！';ol.append(li);return}
   shown.forEach((p,i)=>{const li=document.createElement('li');if(p.id===uid)li.className='me';
     const rk=document.createElement('span');rk.className='rk';rk.textContent=p.rank;
-    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)&&p.id!==uid){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
+    const row=document.createElement('div');row.className='nm';const b=document.createElement('b');b.textContent=p.name+(p.id===uid?'（你）':'');if(GM_UIDS.has(p.id))b.append(gmTag());if(on[p.id]!==undefined){const o=document.createElement('i');o.className='on';o.textContent=' ● 線上'+(on[p.id]?'・'+on[p.id]:'');b.append(o)}if(GM_UIDS.has(uid)){const gb=document.createElement('button');gb.type='button';gb.className='addfr';gb.textContent='📮';gb.title='GM 寄信／送怪獸';gb.onclick=ev=>{ev.stopPropagation();gmMail(p.id,p.name)};b.append(gb)}if(db&&uid&&p.id!==uid){if(isFriend(p.id)){const ft=document.createElement('small');ft.className='frtag';ft.textContent='★好友';b.append(ft)}else{const ab=document.createElement('button');ab.type='button';ab.className='addfr';ab.textContent='＋好友';ab.onclick=ev=>{ev.stopPropagation();addFriend(p.id,p.name)};b.append(ab)}}if(INVMAP[p.id]){const iv=document.createElement('small');iv.className='inv';iv.textContent=' #'+INVMAP[p.id];b.append(iv)}{const onEl=b.querySelector('.on');if(onEl)b.append(onEl)}const s=document.createElement('span');s.textContent=`收集 ${p.caught}/${N_SP}・徽章 ${p.badges}`;row.append(b,s);
     const ic=document.createElement('div');ic.className='icons';p.party.forEach((sp,j)=>{const im=document.createElement('img');im.src=iconURL(sp);im.alt=SP[sp].n;im.title=`${SP[sp].n} Lv${p.lv[j]||'?'}`;ic.append(im)});
     li.append(rk,row,ic);ol.append(li)});renderFriends()}
 const SLOTS=['s1','s2','s3'];
@@ -1963,7 +1966,7 @@ function drawSwirl(x,y,now){for(let i=0;i<6;i++){const a=now/90+i*Math.PI/3,r=9+
   if(Math.floor(now/150)%2){ctx.fillStyle='#ffe040';ctx.fillRect(Math.round(x)-1,Math.round(y)-16,2,2);ctx.fillRect(Math.round(x)+5,Math.round(y)-13,2,2)}}
 function sweepTags(){for(const k in tags){if(tags[k].live)tags[k].live=false;else{tags[k].d.remove();delete tags[k]}}}
 function buildBoards(){boardsEl.replaceChildren();for(const k in tags)delete tags[k];boardEls=(M.boards||[]).map(([x,y,t,c])=>{const d=document.createElement('div');d.className='bd '+(c||'wood');d.textContent=t;boardsEl.append(d);return {d,x,y,k:''}})}
-function loadMap(id){FISH=null;if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true;if(id==='hualien')G.flags.hualien=true;if(id==='taitung')G.flags.taitung=true;if(id==='sea')G.flags.vz_sea=true;if(id==='guishan')G.flags.vz_guishan=true;if(/^center\d*$/.test(id))G.flags['hc_'+id]=true;try{if(TMAP.some(n=>n.k===id&&n.t===1))G.flags['vt_'+id]=true}catch(e){}}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst|busst|hlst|hhouse|tthouse|ttst)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
+function loadMap(id){FISH=null;if(id==='xinyi'&&G&&G.flags)G.flags.xsdone=true;if(G&&G.flags){if(id==='toucheng')G.flags.tunneldone=true;if(id==='yilan')G.flags.yilan=true;if(id==='hualien')G.flags.hualien=true;if(id==='taitung')G.flags.taitung=true;if(/^[a-z0-9_]{1,21}$/i.test(id))G.flags['vm_'+id]=true;if(id==='sea')G.flags.vz_sea=true;if(id==='guishan')G.flags.vz_guishan=true;if(/^center\d*$/.test(id))G.flags['hc_'+id]=true;try{if(TMAP.some(n=>n.k===id&&n.t===1))G.flags['vt_'+id]=true}catch(e){}}if(MAPS[id].cuts){const Q=MAPS[id];Q.grid=Q.rows.map(r=>r.padEnd(Q.w,Q.out).split(''))}$('moneyBox').hidden=true;M=MAPS[id];temps=[];ents=[];refreshEnts();const mn=$('mapName');if(!M.id.match(/^(home|nbr|oldhouse|museum|shop|center|lab|gym|cake|soy|boutique|house|skillshop|monshop|cityhall|bookstore|cinema|xhouse|teahouse|spa|thouse|yhouse|mrtst|hsrst|ylst|busst|hlst|hhouse|tthouse|ttst)/)||/^gym3/.test(M.id)){mn.textContent=M.name;mn.hidden=false;clearTimeout(nameTimer);nameTimer=setTimeout(()=>mn.hidden=true,1800)}else mn.hidden=true;buildBoards();mapMusic();updatePresence()}
 function placePlayer(p){setTimeout(updatePresence,0);player.x=player.tx=p.x;player.y=player.ty=p.y;player.dir=p.dir||'down';player.moving=false;const [dx,dy]=DIRS[player.dir];const bx=p.x-dx,by=p.y-dy;
   if(walkable(bx,by)){follower.x=follower.tx=bx;follower.y=follower.ty=by}else{follower.x=follower.tx=p.x;follower.y=follower.ty=p.y}}
 async function event(fn){busy=true;try{await fn()}catch(e){console.error(e)}finally{busy=false;hideText();menuEl.hidden=true;for(const k in held)held[k]=0}}
@@ -2197,7 +2200,8 @@ async function useFlyBook(){const ok=j=>FLY_TYPES.includes(SP[G.party[j].sp].t)&
   const j=await partyPick('要教哪一隻「飛天」？（飛・龍・光系）',ok);if(j<0)return;await learnMove(G.party[j],'飛天');scheduleSave()}
 /* 飛天：目前只開放給 GM。之後開放給玩家時把 FLY_OPEN 改成 true（玩家只能飛去過的城市；GM 哪裡都能飛） */
 const FLY_OPEN=false;const flyGM=()=>!!(uid&&GM_UIDS.has(uid));const flyOk=()=>FLY_OPEN||flyGM();
-const flyVisited=map=>{if(flyGM())return true;const k=locOf(map);return !!k&&(k==='tamsui'||!!G.flags['vt_'+k])};
+/* 只能飛到自己真的走過的地圖（vm_<地圖>）；舊存檔：去過的城市與城裡的建築也算 */
+const flyVisited=map=>{if(flyGM())return true;if(G.flags['vm_'+map])return true;const k=locOf(map),n=TMAP.find(t=>t.k===k);return !!n&&n.t===1&&(k==='tamsui'||!!G.flags['vt_'+k])};
 function flyCities(){return TMAP.filter(n=>n.t===1&&MAPS[n.k]&&(flyGM()||G.flags['vt_'+n.k]||n.k==='tamsui'))}
 function flySpot(id,x,y){const Mx=MAPS[id];if(!Mx)return null;const ok=(a,b)=>a>=0&&b>=0&&a<Mx.w&&b<Mx.h&&WALK.has(Mx.grid[b][a])&&!(Mx.warps||[]).some(w=>w[0]===a&&w[1]===b)&&!(Mx.npcs||[]).some(n=>n.x===a&&n.y===b&&!n.cond);
   for(const [dx,dy,d] of [[0,1,'up'],[-1,0,'right'],[1,0,'left'],[0,-1,'down']])if(ok(x+dx,y+dy))return {map:id,x:x+dx,y:y+dy,dir:d};
@@ -2434,7 +2438,7 @@ async function doctorTalk(){
 
 const SKILLS=[['猛力壓',1500],['雷爪',1200],['烈焰衝',1200],['浪花擊',1200],['藤鞭甩',1200],['俯衝',1200],['岩盾撞',1200],['蟲咬',1200],['暗影爪',1800],['鐵頭撞',2000],['日光爆發',3000],['霓虹閃',3000],['葉刃斬',3000],['炎螢衝',3000],['激流衝',3000],['鐘乳落',3000],['十萬伏雷',6000],['烈火輪',6000],['冰雹',6000]];
 async function skillShop(){await sayAll(['技能老師：歡迎來到招式教室！','付學費，我就教你的怪獸新招式。','不過只能學「跟自己同屬性」或「一般系」的招式喔！']);
-  try{for(;;){moneyOn();showText('要學哪一招？');const i=await choose([...SKILLS.map(([mv,pr])=>`${mv}（${MOVES[mv].t}・威力${MOVES[mv].p}）${pr}元`),'不學了'],{pos:'list',vis:6});
+  try{for(;;){moneyOn();showText('要學哪一招？');const i=await choose([...SKILLS.map(([mv,pr])=>`${mv}（${mvDesc(mv)}）${pr}元`),'不學了'],{pos:'list',vis:6});
     if(i<0||i===SKILLS.length){await say('技能老師：歡迎再來！');return}const [mv,pr]=SKILLS[i];if(G.money<pr){await say('學費不夠喔！');continue}
     showText(`要讓哪一隻學「${mv}」？`);const j=await choose(G.party.map(m=>`${monLabel(m)}${MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t?'':'（不能學）'}`),{pos:'list'});if(j<0)continue;const m=G.party[j];
     if(!(MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t)){await say(`${nm(m)} 是${SP[m.sp].t}系，學不會${MOVES[mv].t}系的招式。`);continue}
@@ -2856,7 +2860,7 @@ async function monSheet(m){await sheet(s=>{const sp=SP[m.sp];s.classList.add('mo
   info.append(hd,tg,el('div',`HP ${m.hp} / ${mh}`,'hpt'),hb);top.append(im,info);
   const stt=el('div',null,'stats');[['攻擊',1],['防禦',2],['速度',3]].forEach(([n,i])=>stt.append(el('span',`${n} ${st(m,i)}`)));
   const need=Math.max(0,lvExp(m.lv+1)-m.exp);
-  const mv=el('div',null,'moves');for(let k=0;k<4;k++){const x=m.moves[k];const d=el('div',null,'mv');if(x){const M_=MOVES[x];d.append(el('b',x),el('i',`${M_.t}・${M_.p?M_.p:MV_FX[M_.fx]||'輔助'}`))}else d.append(el('b','—'));mv.append(d)}
+  const mv=el('div',null,'moves');for(let k=0;k<4;k++){const x=m.moves[k];const d=el('div',null,'mv');if(x){const M_=MOVES[x];d.append(el('b',x),el('i',mvDesc(x)))}else d.append(el('b','—'));mv.append(d)}
   const nx=sp.l.filter(([l,x])=>l>m.lv&&!m.moves.includes(x));const nl=el('div',null,'next');nl.append(el('b','下次學會：'));
   if(!nx.length)nl.append(el('span','（沒有新招式了）'));else{nx.slice(0,2).forEach(([l,x])=>nl.append(el('span',`Lv${l} ${x}`)));if(nx.length>2)nl.append(el('span','Lv?? ？？？？','q'))}
   s.append(top,stt,el('div','招式','sec'),mv,nl,el('div',`升級還差 ${need} 經驗　・　訓練家：${m.ot||'—'}`,'foot'))})}
@@ -3130,13 +3134,17 @@ async function recallTalk(){await say('我是記憶茶阿婆。\n喝一杯我的
   for(;;){const j=await partyPick(`要讓哪一隻想起招式？（一次 ${RECALL_FEE} 元）`,()=>true);if(j<0){await say('想不起來的時候，再來喝茶喔～');return}
     const m=G.party[j];const ls=recallList(m);if(!ls.length){await say(`${nm(m)} 現在沒有可以想起來的招式。`);continue}
     if(G.money<RECALL_FEE){await say(`回想茶一杯 ${RECALL_FEE} 元，錢不夠喔。`);return}
-    moneyOn();showText(`要讓 ${nm(m)} 想起哪一招？`);const k=await choose([...ls.map(x=>`${x}（${MOVES[x].t}・${mvTag(x)}）`),'算了'],{pos:'list'});moneyOff();hideText();
+    moneyOn();showText(`要讓 ${nm(m)} 想起哪一招？`);const k=await choose([...ls.map(x=>`${x}（${mvDesc(x)}）`),'算了'],{pos:'list'});moneyOff();hideText();
     if(k<0||k>=ls.length)continue;const mv=ls[k];await say(`${nm(m)} 喝了一口回想茶……`);await learnMove(m,mv);
     if(m.moves.includes(mv)){m.old=(m.old||[]).filter(x=>x!==mv);G.money-=RECALL_FEE;sfx('lvl');await say(`付了 ${RECALL_FEE} 元。`);scheduleSave()}else await say('沒有學的話不收錢喔。')}}
-async function learnMove(m,mv){if(m.moves.includes(mv))return;if(m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！`);return}
+async function learnMove(m,mv){if(m.moves.includes(mv))return;if(m.moves.length<4){m.moves.push(mv);await say(`${nm(m)} 學會了 ${mv}！
+（${mvDesc(mv)}）`);return}
+  await say(`新招式「${mv}」
+${mvDesc(mv)}`);
   await say(`${nm(m)} 想學新招式 ${mv}！
 可是已經會 4 招了。`);
-  for(;;){showText(`要忘記哪一招，改學 ${mv}？`);const i=await choose([...m.moves.map(x=>`${x}（${MOVES[x].t}・${mvTag(x)}）`),`不學 ${mv}`],{pos:'list'});
+  for(;;){showText(`要忘記哪一招，改學 ${mv}？
+（${mvDesc(mv)}）`);const i=await choose([...m.moves.map(x=>`${x}（${mvDesc(x)}）`),`不學 ${mv}`],{pos:'list'});
     if(i>=0&&i<m.moves.length){const old=m.moves[i];showText(`確定要忘記 ${old}，改學 ${mv} 嗎？`);if(await choose(['確定','再想想'],{pos:'list',cancel:false})!==0)continue;
       forgetMove(m,old);m.moves[i]=mv;if(m.pp)delete m.pp[old];sfx('lvl');await say(`1、2……喀！
 ${nm(m)} 忘記了 ${old}，學會了 ${mv}！`);return}
