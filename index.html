@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261111-152733';
+import CONFIG from './firebase-config.js?v=20261111-162705';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261111-152733";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261111-162705";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3026,7 +3026,8 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');moneyOn();const MI={'信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
+async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');if(flyGM())opts.splice(opts.length-1,0,'GM工具');moneyOn();const MI={'GM工具':'🛠️','信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();
+  if(o==='GM工具'){await gmTools();return}
   if(o==='訓練家'){const r=await friendPanel();if(r&&r.fly){await flyToFriend(r.fly)}return}
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
   else if(o===G.name)await trainerCard();
@@ -3232,8 +3233,14 @@ async function moveOrder(m){if(m.moves.length<2){await say('只有一招，不�
   for(;;){showText(`要移動 ${nm(m)} 的哪一招？`);const a=await choose([...m.moves.map((x,i)=>`${i+1}. ${x}`),'完成'],{pos:'list'});hideText();if(a<0||a===m.moves.length)return;
     showText(`「${m.moves[a]}」要放到第幾個？`);const b=await choose(m.moves.map((x,i)=>`${i+1}. ${i===a?'（原本的位置）':x}`),{pos:'list',start:a});hideText();if(b<0||b===a)continue;
     const t=m.moves[a];m.moves[a]=m.moves[b];m.moves[b]=t;sfx('blip');scheduleSave()}}
+async function releaseMon(m){showText(`真的要放生 ${nm(m)} Lv${m.lv}${isRareMon(m)?' ★':''} 嗎？
+放生了就回不來喔！`);const c=await choose(['再想想','確定放生'],{pos:'list',cancel:false});hideText();
+  if(c!==1){await say('還是留著牠吧。');return false}sfx('bump');await sayAll([`${nm(m)} 回頭看了你一眼……`,`${nm(m)} 回到大自然了。再見！`]);return true}
+async function gmTools(){showText('GM 工具');const c=await choose(['拿全部徽章','算了'],{pos:'list'});hideText();if(c!==0)return;
+  G.badges=BADGES.length;for(let i=1;i<=BADGES.length;i++)G.flags['badge'+i]=true;G.flags.cut=true;G.flags.swim=true;G.flags.climb=true;sfx('badge');await say(`GM：拿到全部 ${BADGES.length} 個徽章了！
+（砍樹、游泳、攀岩也都開了）`);await saveNow()}
 async function partyMenu(){for(;;){const items=G.party.map(monLabel);showText('要看哪一隻？');const i=await choose(items,{pos:'list'});if(i<0)return;
-  const m=G.party[i];showText(`${nm(m)} 要做什麼？`);const a=await choose(['查看','設定技能','設為帶頭','返回'],{pos:'list'});
+  const m=G.party[i];showText(`${nm(m)} 要做什麼？`);const a=await choose(['查看','設定技能','設為帶頭','放生','返回'],{pos:'list'});if(a===3){if(G.party.length<=1){await say('身上至少要留一隻怪獸，不能放生喔！');continue}if(await releaseMon(m)){G.party.splice(G.party.indexOf(m),1);scheduleSave()}continue}
   if(a===0)await monSheet(m);else if(a===1)await moveOrder(m);else if(a===2){G.party.splice(i,1);G.party.unshift(m);await say(`${nm(m)} 現在跟在你身後了！`);scheduleSave()}}}
 const BOX_N=30,BOX_SORT=['抓到順序','圖鑑編號','等級高→低'];
 function boxFix(){const cnt={};for(const m of G.box)if(Number.isFinite(m.bx))cnt[m.bx]=(cnt[m.bx]|0)+1;for(const m of G.box)if(!Number.isFinite(m.bx)){let b=0;while((cnt[b]|0)>=BOX_N)b++;m.bx=b;cnt[b]=(cnt[b]|0)+1}}
@@ -3242,7 +3249,9 @@ function freeBox(){let b=0;while(boxSize(b)>=BOX_N)b++;return b}
 function boxCount(){let n=3;for(const m of G.box)n=Math.max(n,(m.bx|0)+1);while([...Array(n).keys()].every(b=>boxSize(b)>=BOX_N))n++;return Math.min(n,20)}
 function boxList(b){const L=G.box.filter(m=>(m.bx|0)===b);const s=G.flags.boxsort|0;if(s===1)L.sort((x,y)=>dexNo(x.sp)-dexNo(y.sp)||y.lv-x.lv);else if(s===2)L.sort((x,y)=>y.lv-x.lv||dexNo(x.sp)-dexNo(y.sp));return L}
 async function pickBox(q,mark,mt){const n=boxCount();showText(q);return await choose([...Array(n).keys()].map(b=>`箱${b+1}（${boxSize(b)}/${BOX_N}）${b===mark?mt:''}`),{pos:'list',start:mark>=0&&mark<n?mark:0})}
-async function boxMenu(){boxFix();for(;;){showText(`怪獸箱（共 ${G.box.length} 隻）・身上 ${G.party.length} 隻\n排序：${BOX_SORT[G.flags.boxsort|0]}`);const a=await choose(['領出怪獸','存放怪獸','換箱子','排序方式','離開'],{pos:'list'});
+async function boxMenu(){boxFix();for(;;){showText(`怪獸箱（共 ${G.box.length} 隻）・身上 ${G.party.length} 隻\n排序：${BOX_SORT[G.flags.boxsort|0]}`);const a=await choose(['領出怪獸','存放怪獸','換箱子','排序方式','放生怪獸','離開'],{pos:'list'});
+  if(a===4){if(!G.box.length){await say('怪獸箱是空的。');continue}const b=await pickBox('要從哪一箱放生？',-1,'');if(b<0)continue;const L=boxList(b);if(!L.length){await say(`箱${b+1} 是空的。`);continue}showText(`箱${b+1}　要放生哪一隻？`);const i=await choose(L.map(m=>`No.${dexNo(m.sp)} ${nm(m)} Lv${m.lv}${isRareMon(m)?' ★':''}`),{pos:'list',vis:6});if(i<0)continue;if(await releaseMon(L[i])){G.box.splice(G.box.indexOf(L[i]),1);scheduleSave()}continue}
+  if(a===5)return;
   if(a===3){G.flags.boxsort=((G.flags.boxsort|0)+1)%3;await say(`排序改成「${BOX_SORT[G.flags.boxsort]}」。`);scheduleSave();continue}
   if(a===0||a===2){if(!G.box.length){await say('怪獸箱是空的。');continue}const b=await pickBox(a===0?'要打開哪一箱？':'要從哪一箱拿出來換？',-1,'');if(b<0)continue;
     for(;;){const L=boxList(b);if(!L.length){await say(`箱${b+1} 是空的。`);break}showText(`箱${b+1}（${L.length}/${BOX_N}）　${a===0?'要領出哪一隻？':'要換箱子的是哪一隻？'}`);
