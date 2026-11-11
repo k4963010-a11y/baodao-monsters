@@ -23,6 +23,7 @@ jobs:
           mkdir _site
           cp index.html auth.html firebase-config.js version.json .nojekyll apple-touch-icon.png favicon.png icon-192.png icon-512.png manifest.webmanifest dex.html _site/
           cp -r dex _site/dex
+          cp -r mon _site/mon
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

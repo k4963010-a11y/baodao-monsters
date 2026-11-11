@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261111-205107';
+import CONFIG from './firebase-config.js?v=20261111-210105';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -370,7 +370,7 @@ if(auth){
     <div class="bezel">
       <div class="led"><i></i>POWER<button class="bugbtn" id="bugBtn" type="button">回報bug及遊戲建議</button><button class="bugbtn bcbtn" id="gmBcBtn" type="button" hidden>📣 GM大聲公</button><button class="bugbtn bcbtn" id="gmDropBtn" type="button" hidden>🎁 天降球</button></div>
       <div class="screen" id="screen" tabindex="0" aria-label="遊戲畫面">
-        <canvas id="cv" width="160" height="144"></canvas>
+        <canvas id="cv" width="480" height="432"></canvas>
         <div id="fxtxt"></div><div id="cvtxt"></div>
         <div id="bcBar" hidden><span></span></div>
         <div id="boards"></div>
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261111-205107";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261111-210105";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2076,7 +2076,9 @@ function renderSwap(){const v=$('swapView');if(!v)return;v.replaceChildren();SLO
   else{const b=document.createElement('b');b.textContent=`箱子 ${i+1}`;const s=document.createElement('span');s.textContent='空的';d.append(b,s)}v.append(d)})}
 
 /* ================= screen / input ================= */
-const screenEl=$('screen'),cv=$('cv'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
+const screenEl=$('screen'),cv=$('cv'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.scale(3,3);/* 畫布內部 3 倍解析度：畫法不變，對戰怪獸可以用 192 格高畫質圖 */
+const MONH={};function monImg(sp,k){const key=sp+k;let e=MONH[key];if(!e){e=MONH[key]={im:new Image(),ok:false};e.im.onload=()=>{e.ok=true};e.im.onerror=()=>{e.bad=true};if(/^https?:/.test(location.protocol))e.im.src=`mon/${sp}_${k}.webp`}return e.ok?e.im:(k==='b'?SPRB[sp]:SPR[sp])}
+function hiDraw(img,x,y,w,h){if(img&&img.naturalWidth>64){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,x,y,w,h);ctx.imageSmoothingEnabled=false}else if(img)ctx.drawImage(img,x,y,w,h)}
 new ResizeObserver(()=>screenEl.style.setProperty('--u',(screenEl.clientWidth/160)+'px')).observe(screenEl);
 const held={up:0,down:0,left:0,right:0};const uiStack=[];
 const KEY={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',KeyZ:'a',Space:'a',Enter:'a',NumpadEnter:'a',KeyX:'b',Escape:'b',Backspace:'b',KeyC:'start',KeyM:'start'};
@@ -3318,21 +3320,21 @@ function drawBattle(now){const qk=B.quake>now;if(qk){const qa=B.qa||1;ctx.save()
   {const sl=B.tIn?Math.max(0,1-(now-B.tIn)/450):0;if(B.tShow&&B.tKey&&TRN[B.tKey]&&TRN[B.tKey].complete)ctx.drawImage(TRN[B.tKey],92+Math.round(sl*80),4,64,64);
    if(B.pShow){const pb=TRN['b'+((G&&G.look)|0)];if(pb&&pb.complete){ctx.save();ctx.beginPath();ctx.rect(0,0,160,104);ctx.clip();ctx.drawImage(pb,10-Math.round(sl*80),40,64,64);ctx.restore()}}}
   const sh=s=>B.shake[s]>now?Math.round(Math.sin(now/18)*3):0;const lg=s=>{const L=B.lunge;if(!L||L.side!==s)return [0,0];const k=Math.sin(clamp((now-L.t0)/L.dur,0,1)*Math.PI);return s==='e'?[Math.round(-k*16),Math.round(k*10)]:[Math.round(k*16),Math.round(-k*10)]};const blink=s=>B.shake[s]>now&&Math.floor(now/60)%2;
-  if(B.enemy&&!B.ehidden&&B.fxHide!=='e'&&!blink('e')){const ex=98+sh('e')+lg('e')[0],ey=15+lg('e')[1];if(FACE_RIGHT.has(B.enemy.sp)){ctx.save();ctx.translate(ex+52,ey);ctx.scale(-1,1);ctx.drawImage(SPR[B.enemy.sp],0,0,52,52);ctx.restore()}else ctx.drawImage(SPR[B.enemy.sp],ex,ey,52,52)}
-  if(B.me&&!B.mehidden&&B.fxHide!=='p'&&!blink('p')&&SPRB[B.me.sp])ctx.drawImage(SPRB[B.me.sp],14+sh('p')+lg('p')[0],46+lg('p')[1],56,56);
-  else if(B.me&&!B.mehidden&&B.fxHide!=='p'&&!blink('p')){ctx.save();ctx.translate(70+sh('p')+lg('p')[0],lg('p')[1]);ctx.scale(-1,1);ctx.drawImage(SPR[B.me.sp],0,46,56,56);ctx.restore()}
+  if(B.enemy&&!B.ehidden&&B.fxHide!=='e'&&!blink('e')){const ex=98+sh('e')+lg('e')[0],ey=15+lg('e')[1];if(FACE_RIGHT.has(B.enemy.sp)){ctx.save();ctx.translate(ex+52,ey);ctx.scale(-1,1);hiDraw(monImg(B.enemy.sp,'f'),0,0,52,52);ctx.restore()}else hiDraw(monImg(B.enemy.sp,'f'),ex,ey,52,52)}
+  if(B.me&&!B.mehidden&&B.fxHide!=='p'&&!blink('p')&&SPRB[B.me.sp])hiDraw(monImg(B.me.sp,'b'),14+sh('p')+lg('p')[0],46+lg('p')[1],56,56);
+  else if(B.me&&!B.mehidden&&B.fxHide!=='p'&&!blink('p')){ctx.save();ctx.translate(70+sh('p')+lg('p')[0],lg('p')[1]);ctx.scale(-1,1);hiDraw(monImg(B.me.sp,'f'),0,46,56,56);ctx.restore()}
   if(B.ball){const {x,y,rot}=B.ball;ctx.save();ctx.translate(x-8,y-10);ctx.translate(8,10);ctx.rotate(rot||0);ctx.translate(-8,-10);ctx.drawImage(B.ballImg||BALLIMG,0,0);ctx.restore()}drawFx(now);drawFx2(now);if(B.evo)drawEvo(now);if(qk)ctx.restore()}
 const SIL={};function silhouette(sp){if(SIL[sp]&&SIL[sp].src===SPR[sp])return SIL[sp].c;const c=mk(SPR[sp].width,SPR[sp].height),g=c.getContext('2d');g.drawImage(SPR[sp],0,0);g.globalCompositeOperation='source-in';g.fillStyle='#ffffff';g.fillRect(0,0,c.width,c.height);SIL[sp]={src:SPR[sp],c};return c}
 function drawEvo(now){const E=B.evo;const cx=80,cy=58;ctx.fillStyle='rgba(16,20,40,.55)';ctx.fillRect(0,0,160,144);
-  if(!E.t0){ctx.drawImage(SPR[E.a],cx-32,cy-32,64,64);return}
+  if(!E.t0){hiDraw(monImg(E.a,'f'),cx-32,cy-32,64,64);return}
   const t=(now-E.t0)/1000;
   // light rays behind
   ctx.save();ctx.translate(cx,cy);ctx.rotate(t*1.5);for(let i=0;i<12;i++){ctx.rotate(Math.PI/6);ctx.fillStyle=i%2?'rgba(255,240,150,.25)':'rgba(140,220,255,.25)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(90,-8);ctx.lineTo(90,8);ctx.fill()}ctx.restore();
   if(t<2.6){const spd=4+t*t*6,ang=t*spd;const sx=Math.cos(ang);const useB=t>1.4&&Math.cos(ang*0.5+t*9)>0;const sp=useB?E.b:E.a;
     const glow=Math.min(1,t/1.2);ctx.save();ctx.translate(cx,cy);ctx.scale(Math.abs(sx)<.08?.08:sx,1);ctx.globalAlpha=1;ctx.drawImage(SPR[sp],-32,-32,64,64);ctx.globalAlpha=glow;ctx.drawImage(silhouette(sp),-32,-32,64,64);ctx.restore();ctx.globalAlpha=1;
     for(let i=0;i<10;i++){const a=i*0.628+t*3,r=40-((t*30+i*7)%36);ctx.fillStyle=i%2?'#fff8b0':'#a8e8ff';ctx.fillRect(Math.round(cx+Math.cos(a)*r),Math.round(cy+Math.sin(a)*r),2,2)}}
-  else if(t<3.1){const k=(t-2.6)/.5;ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);ctx.fillStyle=`rgba(255,255,255,${1-k})`;ctx.fillRect(0,0,160,144)}
-  else{ctx.drawImage(SPR[E.b],cx-32,cy-32,64,64);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*2,r=36+Math.sin(t*4+i)*4;const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;ctx.fillStyle='#fff6a0';ctx.fillRect(Math.round(x)-1,Math.round(y)-3,2,6);ctx.fillRect(Math.round(x)-3,Math.round(y)-1,6,2)}}}
+  else if(t<3.1){const k=(t-2.6)/.5;hiDraw(monImg(E.b,'f'),cx-32,cy-32,64,64);ctx.fillStyle=`rgba(255,255,255,${1-k})`;ctx.fillRect(0,0,160,144)}
+  else{hiDraw(monImg(E.b,'f'),cx-32,cy-32,64,64);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*2,r=36+Math.sin(t*4+i)*4;const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;ctx.fillStyle='#fff6a0';ctx.fillRect(Math.round(x)-1,Math.round(y)-3,2,6);ctx.fillRect(Math.round(x)-3,Math.round(y)-1,6,2)}}}
 const FXOF={'鏡塘水波':'wave','白鷺疾翔':'feather','水車輪轉':'wheel','千塘激流':'wave','螺旋槳風':'feather','跑道燈閃':'shine','碎石噴射':'rock','隕石俯衝':'rock','音爆衝刺':'tclaw','探照燈光':'shine','夜航突襲':'claw','雷達波':'burst','旋轉雷達盤':'wheel','行李甩擊':'ram','轉盤衝撞':'wheel','冷凍貨櫃':'glacier','堡壘壓制':'rock','毒液噴':'meatball','毒牙咬':'claw','劇毒衝擊':'burst','蜜桃毒牙':'claw','竹環纏繞':'pinch','桃毒流星錘':'meatball','閘門撞擊':'ram','開閘放水':'wave','洩洪水龍捲':'wave','龍閘怒濤':'wave','桐花粉':'heart','蜂針刺':'pinch','五月飛雪':'glacier','金光蜂劍':'gold','蜂王蜜':'heart','鱟甲盾':'shine','隱形突襲':'tclaw','跑道幽靈':'moon','消失之翼':'feather','嫩藤鞭':'pinch','小龍棘':'claw','萬棘水晶刃':'tclaw','叢林龍吼':'burst','臭氣彈':'meatball','小圓盾撞':'ram','腐蝕毒霧':'burst','熔岩盾擊':'blaze','長槍觸角':'ram','粉卵泡泡':'wave','卵寶石彈':'meatball','深淵漩渦':'wave','赤卵毒潮':'wave','燭火彈':'fire','火焰長槍':'blaze','熱氣球升空':'blaze','鞭炮連發':'fire','炮竹衝':'fire','寒單千響':'blaze','割稻斬':'claw','稻穗連刺':'pinch','雙鐮收割':'tclaw','鋤地衝':'ram','泥火山崩鋤':'rock','月刃斬':'claw','月輪迴旋':'wheel','千年月柱':'moon','鬼頭斬':'wave','破浪居合':'wave','長矛角刺':'ram','釋迦炸彈':'meatball','箏骨旋風':'feather','斷線箏刃':'tclaw','八色虹箭':'gold','虹光羽':'shine','虹羽烈焰':'blaze','虹羽冰晶':'glacier','銅鑼雷鳴':'bolt','縱谷雲雨':'wave','心靈虹波':'burst','虹靈甘露':'heart','游泳':'wave','月盾潮擊':'shieldwave','龍鳴長鞭':'dwhip','深淵冰雷':'torpedo','肉圓炸彈':'meatball','雷射光刻':'bolt','病毒入侵':'glare','晶圓旋斬':'wheel','超頻重拳':'ram','奈米光束':'shine','電路過載':'bolt','量子爆發':'burst','硫火巨盾':'shieldfire','月影夜襲':'moon','冰河記憶':'glacier','金喉疾襲':'gold','芒花旋風':'leaf','夕陽餘暉':'sun','蘭陽大浪':'wave','三星蔥爆':'burst','雷鰻甩尾':'bolt','空手劈':'ram','爆裂拳':'ram','崖角衝':'rock','斷崖飛踢':'ram','飛魚躍':'wave','燕返':'feather','峽谷疾風':'feather','念力':'shine','催眠紋':'glare','心靈波':'burst','石神預知':'burst','焰冠爪':'blaze','金針花舞':'leaf','花后綻放':'leaf','檜木香':'heart','神木之心':'whip','佛光普照':'holy','禪定':'shine','念珠連擊':'beads','梵音震心':'holy','蓮花座':'holy','金剛怒目':'glare','降魔杵':'ram','法輪轉':'wheel','大悲光':'holy','萬佛朝宗':'holy','茶香催眠':'heart','茶壺熱泉':'wave','泥巴彈':'rock','挖洞衝':'ram','鑽地撞':'ram','大地裂':'rock','潛盾突破':'rock','驚嚇':'glare','鬼影撞':'tclaw','燈火迷魂':'glare','幽冥燈':'fire','冥界之光':'burst','稻浪拍':'wave','稻穗長槍':'claw','熱泉噴':'bubble','龜山怒濤':'wave','蔥香辣擊':'leaf','冰礫':'rock','冷泉噴':'bubble','冰晶束縛':'shine','冰雹':'rock','暴風雪':'wave','衝撞':'ram','猛力壓':'ram','岩盾撞':'ram','俯衝':'dive','亂抓':'claw','雷爪':'tclaw','鉗夾':'pinch','齜牙':'glare','變硬':'shine','靜電彈':'bolt','羽毛刺':'feather','茶葉鏢':'leaf','藤鞭甩':'whip','螢火':'fire','烈焰衝':'blaze','泡泡噴':'bubble','浪花擊':'wave','碎石丟':'rock','太陽球':'sun','愛心飛飛':'heart','日光爆發':'burst','撒嬌':'heart','蛋殼滾':'ram','許願星':'sun','拚命一擊':'ram','葉刃斬':'leaf','炎螢衝':'blaze','激流衝':'wave','吸血咬':'claw','暗夜翼擊':'dive','芒花飛舞':'leaf','鐘乳落':'rock','霓虹閃':'bolt','松果砲':'leaf','蒼龍吐息':'burst','蟲咬':'claw','鱗粉舞':'shine','暗影爪':'tclaw','齒輪轉':'pinch','鐵頭撞':'ram','鋼鐵重擊':'rock','山脊碾壓':'rock','雲霧棍':'ram','潮汐巨鉗':'pinch','風獅咆哮':'leaf','晶洞崩落':'rock','願星審判':'burst','聖雲爪':'tclaw','天雲聖光':'burst','飛撲':'ram','頭槌':'ram','神速突擊':'ram','全力衝撞':'ram','終極破壞':'burst','搖籃曲':'heart','落石雨':'rock','大地震動':'rock','岩崩天降':'rock','電光石火':'bolt','電磁波':'bolt','十萬伏雷':'bolt','雷霆萬鈞':'bolt','旋風翅':'feather','暴風':'dive','天空神擊':'dive','麻痺花粉':'leaf','安眠花粉':'leaf','森林之怒':'leaf','神木衝擊':'whip','火花彈':'fire','鬼火迷魂':'fire','烈火輪':'blaze','火山爆發':'blaze','水槍':'bubble','漩渦迷陣':'wave','海嘯':'wave','怒濤巨浪':'wave','閃光彈':'sun','曙光砲':'burst','眩光':'shine','聖光之劍':'burst','搖籃光':'heart','龍爪':'tclaw','龍之怒':'burst','神龍天降':'burst','刺針':'claw','麻痺針':'claw','催眠鱗粉':'shine','蟲鳴震':'shine','百蟲大軍':'claw','偷襲':'tclaw','黑夜催眠':'glare','詭異舞步':'glare','暗黑波':'tclaw','午夜惡夢':'tclaw','金屬爪':'claw','鐵壁':'shine','磁力波':'bolt','鋼鐵加農砲':'rock','太陽刺擊':'blaze','日冕爆裂':'burst','燈河流火':'blaze','月光催眠':'glare','新月爪':'tclaw','象鼻重擊':'rock','叩叩啄':'feather','竹影刺':'tclaw','黃泉象踏':'rock','閻羅凝視':'glare','晨鐘震':'shine','竹刃連斬':'tclaw'};
 const FXSND={dwhip:'slash',shieldwave:'water',torpedo:'zap',meatball:'bump',pearls:'water',shieldfire:'fire',moon:'slash',glacier:'sparkle',gold:'slash',holy:'sparkle',beads:'slash',wheel:'zap',ram:'bump',dive:'bump',claw:'slash',tclaw:'zap',pinch:'slash',glare:'bump',shine:'sparkle',bolt:'zap',feather:'slash',leaf:'slash',whip:'slash',fire:'fire',blaze:'fire',bubble:'water',wave:'water',rock:'bump',sun:'sparkle',heart:'sparkle',burst:'sparkle'};
 async function playFx1(mv,side){const k=FXOF[mv]||'ram';const now=performance.now();const P0=(MOVES[mv]&&MOVES[mv].p)|0,tier=P0>=100?3:P0>=80?2:1;const dur=({ram:460,dive:520,blaze:1000,burst:1050,bolt:800,rock:1150,wave:950,fire:950,holy:1000,beads:900,wheel:950,moon:1150,glacier:1150,gold:950,shieldfire:1250,meatball:1150,pearls:1000,shieldwave:1250,torpedo:1300,dwhip:1200}[k]||800)+(tier===3?450:tier===2?200:0);
@@ -3554,7 +3556,7 @@ function fxDrawCut(now,C,TX){const c=ctx,H=fxH(now,5);const t=H.cl((now-C.t0)/C.
   for(let i=0;i<16;i++){const y=y0-sk+H.R(i)*(y1-y0+sk*2),x=((now*(fromL?.35:-.35)+H.R(i+20)*400)%240+240)%240-40;H.L([x,y],[x+(fromL?-1:1)*(20+H.R(i+3)*24),y],'rgba(255,255,255,.55)',1)}
   H.glow(fromL?50:110,62,46,lk.h,.6);c.restore();
   H.L([-30,y0+sk],[190,y0-sk],'#ffffff',2);H.L([-30,y1+sk],[190,y1-sk],'#ffffff',2);
-  const img=SPR[C.sp];if(img){const flip=fromL!==FACE_RIGHT.has(C.sp);const sz=88+t*6;c.save();c.translate((fromL?48:112)+(fromL?1:-1)*t*5,60);if(flip)c.scale(-1,1);c.drawImage(img,-sz/2,-sz/2,sz,sz);c.restore()}
+  const img=SPR[C.sp]&&monImg(C.sp,'f');if(img){const flip=fromL!==FACE_RIGHT.has(C.sp);const sz=88+t*6;c.save();c.translate((fromL?48:112)+(fromL?1:-1)*t*5,60);if(flip)c.scale(-1,1);hiDraw(img,-sz/2,-sz/2,sz,sz);c.restore()}
   c.restore();if(t>.22&&t<.34)H.flash(.65*(1-(t-.22)/.12));
   if(kin>.7&&kout<.4){const tx=Math.round((fromL?116:44)+off),n=C.mv.length,sz=Math.min(15,Math.floor(72/n));TX.push([tx,57,C.mv,'#ffffff',sz,'skewX(-10deg)']);TX.push([tx,75,'必 殺 技',lk.h,7])}}
 /* ---- 六種形式 ---- */
@@ -3596,7 +3598,7 @@ const FX_FORMDRAW={
    c.beginPath();c.moveTo(x-d*90,bot);c.lineTo(x-d*90,bot-10);c.quadraticCurveTo(x-d*20,bot-30,x,top+30);c.quadraticCurveTo(x+d*8,top,cr,top+6);c.quadraticCurveTo(cr+d*14,top+16,cr-d*2,top+26);c.quadraticCurveTo(x+d*14,top+20,x+d*12,top+40);c.quadraticCurveTo(x+d*20,bot-20,x+d*36,bot);c.closePath();c.fillStyle=g;c.fill();
    c.strokeStyle='#ffffff';c.lineWidth=2;c.beginPath();c.moveTo(x,top+30);c.quadraticCurveTo(x+d*8,top,cr,top+6);c.quadraticCurveTo(cr+d*14,top+16,cr-d*2,top+26);c.stroke();
    for(let i=0;i<14;i++){const k=i/14;H.dot(cr-d*k*26+Math.sin(H.now/60+i)*2,top+6+k*k*30+H.R(i)*4,2.2-k,'#ffffff')}for(let i=0;i<12;i++)H.dot(x+d*(30+H.R(i)*20),bot-H.R(i+5)*20,1.3,'#e8f8ff')}
-  else{const img=f.sp&&SPR[f.sp]?fxTint(f.sp,lk.c):null;if(img){H.glow(x,52,56,lk.c,.55);for(let j=3;j>=0;j--){c.save();c.globalAlpha=j?.3-j*.06:.95;c.translate(x-d*j*16,52);const fr=(f.side==='p')!==FACE_RIGHT.has(f.sp);if(fr)c.scale(-1,1);if(j)c.drawImage(img,-50,-50,100,100);else{c.globalAlpha=.95;c.drawImage(SPR[f.sp],-46,-46,92,92)}c.restore()}H.glow(x,52,44,lk.h,.3)}
+  else{const img=f.sp&&SPR[f.sp]?fxTint(f.sp,lk.c):null;if(img){H.glow(x,52,56,lk.c,.55);for(let j=3;j>=0;j--){c.save();c.globalAlpha=j?.3-j*.06:.95;c.translate(x-d*j*16,52);const fr=(f.side==='p')!==FACE_RIGHT.has(f.sp);if(fr)c.scale(-1,1);if(j)c.drawImage(img,-50,-50,100,100);else{c.globalAlpha=.95;hiDraw(monImg(f.sp,'f'),-46,-46,92,92)}c.restore()}H.glow(x,52,44,lk.h,.3)}
    for(let i=0;i<10;i++){const y=10+H.R(i)*100;H.L([x-d*(60+H.R(i+3)*40),y],[x-d*20,y],fxA('#ffffff',.5),1)}}
   if(Math.abs(x-T.x)<34){H.glow(T.x,T.y,26,lk.h,.8);H.burst(T.x,T.y,(H.now/160)%1,10,lk.h,26);H.quake(f.ult?2.8:2)}},
  domain(t,S,T,f,H){const lk=f.look,dom=lk.dom;if(t<.42)return;const u=H.cl((t-.42)/.44);
@@ -3626,7 +3628,7 @@ const FX_SIGDRAW={
   for(let i=0;i<14;i++){const v=i/13,x=H.lerp(S.x+f.dir*14,T.x+f.dir*30,v),y=H.lerp(S.g+2,T.g+4,v),on=((t*3.2-v)%1+1)%1<.22;for(const s of [-1,1]){H.dot(x+s*2,y+s*7*(1-v*.5),on?1.8:1,on?'#fff060':'rgba(120,140,170,.7)');if(on)H.glow(x+s*2,y+s*7*(1-v*.5),6,'#fff060',.6)}}
   if(t<.3){const a=(1-t/.3)*(Math.sin(H.now/18)>0?1:.35);fxSprite(o,S.x,S.y,sz,a)}
   if(t>.28&&t<.6){const u=H.eio((t-.28)/.32);for(let j=4;j>=0;j--){const v=Math.max(0,u-j*.06);const x=H.lerp(S.x,T.x+f.dir*26,v),y=H.lerp(S.y,T.y-4,v)-Math.sin(v*Math.PI)*24;c.save();c.globalAlpha=.22-j*.035;c.translate(x,y);if(f.side==='p')c.scale(-1,1);if(f.sp&&SPR[f.sp])c.drawImage(fxTint(f.sp,'#c8d8ff'),-20,-20,40,40);c.restore()}}
-  const bx=T.x+f.dir*26,by=T.y-4;if(t>=.56&&t<.86){const a=H.cl((t-.56)/.08)*(t>.8?(1-t)/.06:1);c.save();c.globalAlpha=a;c.translate(bx,by);if(f.side==='p')c.scale(-1,1);if(f.sp&&SPR[f.sp])c.drawImage(SPR[f.sp],-22,-22,44,44);c.restore()}
+  const bx=T.x+f.dir*26,by=T.y-4;if(t>=.56&&t<.86){const a=H.cl((t-.56)/.08)*(t>.8?(1-t)/.06:1);c.save();c.globalAlpha=a;c.translate(bx,by);if(f.side==='p')c.scale(-1,1);if(f.sp&&SPR[f.sp])hiDraw(monImg(f.sp,'f'),-22,-22,44,44);c.restore()}
   if(t>.64&&t<.92){const u=(t-.64)/.28;for(const s of [-1,1]){const k=H.cl(u/.25);H.L([T.x-16,T.y-16*s],[H.lerp(T.x-16,T.x+16,k),H.lerp(T.y-16*s,T.y+16*s,k)],fxA('#e8f4ff',1-u),4*(1-u)+.6)}H.impact(T.x,T.y,u,{c:'#a8b8c8',h:'#ffffff'},true);if(u<.12)H.flash(.6);if(u<.5)H.quake(2.6)}
   if(t>=.86)fxSprite(o,S.x,S.y,sz,(t-.86)/.1)},
  tungsnow(t,S,T,f,H){const c=H.c,n=Math.floor(64*H.cl(t*2.6));
