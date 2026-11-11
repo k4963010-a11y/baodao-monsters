@@ -291,7 +291,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261111-213409';
+import CONFIG from './firebase-config.js?v=20261111-214044';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -459,7 +459,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261111-213409";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261111-214044";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3989,7 +3989,7 @@ function pvpResolve(S,aH,aG){const ev=[];const other=s=>s==='h'?'g':'h';const te
     else if(mv.ef&&Math.random()<(mv.ch||.3)){const w=stApply(RS(tg),mv.ef,def);if(w)ev.push({k:'sts',side:tg,w,rec:cp(RS(tg))})}}
   for(const s2 of ['h','g']){const m=act(s2),r=S.ss[s2+S.a[s2]];if(m&&m.hp>0&&r&&r.main&&r.main.k==='brn'){m.hp=Math.max(0,m.hp-Math.max(1,Math.floor(maxhp(m)/16)));ev.push({k:'burn',side:s2,hp:m.hp});if(m.hp<=0&&faint(s2,other(s2)))return ev}}
   return ev}
-const PVP_AUTO=10000;
+const PVP_AUTO=5000;
 let PV_LOOK=null;
 async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){
   const myTeam=G.party.slice(0,6).map(m=>{const c=sanMon(JSON.parse(JSON.stringify(m)));c.hp=maxhp(c);return c});
