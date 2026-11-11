@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261111-170530';
+import CONFIG from './firebase-config.js?v=20261111-181138';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261111-170530";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261111-181138";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2656,9 +2656,10 @@ async function doctorTalk(){
 
 const SKILLS=[['猛力壓',1500],['雷爪',1200],['烈焰衝',1200],['浪花擊',1200],['藤鞭甩',1200],['俯衝',1200],['岩盾撞',1200],['蟲咬',1200],['暗影爪',1800],['鐵頭撞',2000],['日光爆發',3000],['霓虹閃',3000],['葉刃斬',3000],['炎螢衝',3000],['激流衝',3000],['鐘乳落',3000],['十萬伏雷',6000],['烈火輪',6000],['冰雹',6000]];
 async function skillShop(){await sayAll(['技能老師：歡迎來到招式教室！','付學費，我就教你的怪獸新招式。','不過只能學「跟自己同屬性」或「一般系」的招式喔！']);
-  try{for(;;){moneyOn();showText('要學哪一招？');const i=await choose([...SKILLS.map(([mv,pr])=>`${mv}（${mvDesc(mv)}）${pr}元`),'不學了'],{pos:'list',vis:6});
+  try{for(;;){moneyOn();showText('要學哪一招？');const i=await choose([...SKILLS.map(([mv,pr])=>`${mv} ${pr}元・${MOVES[mv].t}${MOVES[mv].p||''}`),'不學了'],{pos:'list',vis:6});
     if(i<0||i===SKILLS.length){await say('技能老師：歡迎再來！');return}const [mv,pr]=SKILLS[i];if(G.money<pr){await say('學費不夠喔！');continue}
-    showText(`要讓哪一隻學「${mv}」？`);const j=await choose(G.party.map(m=>`${monLabel(m)}${MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t?'':'（不能學）'}`),{pos:'list'});if(j<0)continue;const m=G.party[j];
+    showText(`${mv}：${mvDesc(mv)}
+要讓哪一隻學？`);const j=await choose(G.party.map(m=>`${monLabel(m)}${MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t?'':'（不能學）'}`),{pos:'list'});if(j<0)continue;const m=G.party[j];
     if(!(MOVES[mv].t==='一般'||MOVES[mv].t===SP[m.sp].t)){await say(`${nm(m)} 是${SP[m.sp].t}系，學不會${MOVES[mv].t}系的招式。`);continue}
     if(m.moves.includes(mv)){await say(`${nm(m)} 已經會這招了！`);continue}
     if(m.moves.length>=4){showText(`要忘掉哪一招？`);const f=await choose([...m.moves,'算了'],{pos:'list'});if(f<0||f===m.moves.length)continue;const old=m.moves[f];showText(`確定要忘記 ${old}，改學 ${mv} 嗎？`);if(await choose(['確定','再想想'],{pos:'list',cancel:false})!==0)continue;forgetMove(m,old);m.moves[f]=mv;if(m.pp)delete m.pp[old];G.money-=pr;moneyOn();await say(`${nm(m)} 忘掉了 ${old}……\n學會了 ${mv}！`)}
@@ -2815,23 +2816,23 @@ async function zenMaster(){
   const m=makeMon(74,36,G.name);const w=addMon(m);G.flags.zengift=true;sfx('badge');await say(`${G.name} 得到了 靈光舍利！${w==='box'?'（身上滿了，送進怪獸箱）':''}`);
   await sayAll(['教授法師：牠是很有靈性的寶貝。','有一天，牠會長成守護大家的金剛舍利尊。']);scheduleSave(200)}
 /* ---- 華泰名品城 ---- */
-async function buyList(L,hello,bye){if(hello)await say(hello);try{for(;;){moneyOn();showText('要買什麼？');const i=await choose([...L.map(([k,n,pr,d])=>`${n} ${pr}元${d?'・'+d:''}（有${G.items[k]|0}）`),'不買了'],{pos:'list'});
+async function buyList(L,hello,bye){if(hello)await say(hello);try{for(;;){moneyOn();showText('要買什麼？');const i=await choose([...L.map(([k,n,pr,d])=>`${n} ${pr}元${d?'・'+d:''} 有${G.items[k]|0}`),'不買了'],{pos:'list'});
   if(i<0||i===L.length){await say(bye||'謝謝光臨！');return}const [k,n,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if((G.items[k]|0)>=99){await say('拿不下了！');continue}
   const q=await pickQty(n,pr,G.items[k]|0);if(!q)continue;G.money-=pr*q;G.items[k]=(G.items[k]|0)+q;moneyOn();await say(`買了 ${q} 個${n}！`);scheduleSave()}}finally{moneyOff()}}
 const SALE_DAY=3;
 async function ballShop7(){const sale=new Date().getDay()===SALE_DAY,f=sale?.5:.8;
   await buyList([['ball','捉捉球',Math.round(100*f)],['ball2','高級球',Math.round(300*f)],['ball3','超級球',Math.round(800*f)]],sale?'店員：今天是每週三特賣日！所有的球都半價！':'店員：歡迎光臨寶貝球名品店！全館八折，每週三特賣日半價喔！','店員：謝謝光臨，下次再來！')}
-async function drugShop7(){await buyList([['potion','傷藥',150,'回復20'],['full','全復藥',1200,'回復全滿'],['cure','解狀態藥',300,'對戰中治好異常狀態']],'藥師：歡迎光臨！受傷的寶貝交給我們！')}
-async function sportShop7(){await buyList([['ppfill','招式補充',3000,'一招回5次'],['ppup','招式增量',10000,'一招上限+1']],'店員：運動用品店！讓你的寶貝更有體力！')}
-async function foodShop7(){await buyList([['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50'],['youtiao','燒餅油條',400,'回復全滿'],['boba','珍珠奶茶',1500,'招式PP全滿'],['douhua','豆花',5000,'升1級']],'老闆：美食街！豆漿、豆花、還有新口味——珍珠奶茶！')}
+async function drugShop7(){await buyList([['potion','傷藥',150,'回復20'],['full','全復藥',1200,'全滿'],['cure','解狀態藥',300,'治狀態']],'藥師：歡迎光臨！受傷的寶貝交給我們！')}
+async function sportShop7(){await buyList([['ppfill','招式補充',3000,'一招回5次'],['ppup','招式增量',10000,'上限+1']],'店員：運動用品店！讓你的寶貝更有體力！')}
+async function foodShop7(){await buyList([['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50'],['youtiao','燒餅油條',1500,'全滿'],['boba','珍珠奶茶',6000,'PP全滿'],['douhua','豆花',15000,'升1級']],'老闆：美食街！豆漿、豆花、還有新口味——珍珠奶茶！')}
 async function styleShop7(){await sayAll(['造型師：歡迎光臨服飾造型店！','30 種造型隨便你挑，今天試穿免費喔！']);if(!(await yesNo('要換造型嗎？'))){await say('造型師：想換的時候再來！');return}G.look=await chooseLook();sfx('badge');await say('造型師：好看！很適合你！');scheduleSave(200)}
 function premMoves(){const cnt={};SP.forEach(sp=>{if(sp&&sp.l)for(const mv of new Set(sp.l.map(x=>x[1])))cnt[mv]=(cnt[mv]|0)+1});const have=new Set(SKILLS.map(x=>x[0]));
-  return Object.keys(MOVES).filter(k=>MOVES[k].p>=90&&(cnt[k]|0)>=3&&!have.has(k)&&k!=='飛天'&&k!=='拚命一擊').sort((a,b)=>MOVES[a].t.localeCompare(MOVES[b].t)||MOVES[a].p-MOVES[b].p).map(k=>[k,MOVES[k].p*100])}
+  return Object.keys(MOVES).filter(k=>MOVES[k].p>=90&&(cnt[k]|0)>=3&&!have.has(k)&&k!=='飛天'&&k!=='拚命一擊').sort((a,b)=>MOVES[a].t.localeCompare(MOVES[b].t)||MOVES[a].p-MOVES[b].p).map(k=>[k,MOVES[k].p*300])}
 async function moveShop7(){await sayAll(['招式老師：這裡是招式精品店，只賣最強的招式！','學費比較貴，但是威力保證！']);const keep=SKILLS.slice();SKILLS.length=0;SKILLS.push(...premMoves());try{await skillShop()}finally{SKILLS.length=0;SKILLS.push(...keep)}}
 const MONSHOP7=[[115,35,6000],[111,35,6000],[109,35,6000],[118,35,8000]];
 async function monShop7(){await sayAll(['店長：歡迎光臨怪獸精品店！','這些都是桃園才有的怪獸，每一種只賣一隻喔！']);
   try{for(;;){moneyOn();const L=MONSHOP7.filter(([sp])=>!G.flags['ms7_'+sp]);if(!L.length){await say('店長：全部賣完了！謝謝你的支持！');return}
-    showText('要帶哪一隻回家？');const i=await choose([...L.map(([sp,lv,pr])=>`${SP[sp].n} Lv${lv}　${pr}元（限量1隻）`),'只是看看'],{pos:'list'});if(i<0||i===L.length){await say('店長：歡迎再來！');return}
+    showText('要帶哪一隻回家？');const i=await choose([...L.map(([sp,lv,pr])=>`${SP[sp].n} Lv${lv} ${pr}元`),'只是看看'],{pos:'list'});if(i<0||i===L.length){await say('店長：歡迎再來！');return}
     const [sp,lv,pr]=L[i];if(G.money<pr){await say('錢不夠喔！');continue}if(!(await yesNo(`${pr} 元買 ${SP[sp].n} Lv${lv}，確定嗎？`)))continue;
     G.money-=pr;const m=makeMon(sp,lv,G.name);const w=addMon(m);G.flags['ms7_'+sp]=1;moneyOn();sfx('catch');await say(`${SP[sp].n} 成為你的夥伴了！${w==='box'?'（身上滿了，送進怪獸箱）':''}`);scheduleSave()}}finally{moneyOff()}}
 function pickW(T){const tot=T.reduce((a,x)=>a+x[2],0);let r=Math.random()*tot;for(const x of T){if((r-=x[2])<0)return x}return T[0]}
