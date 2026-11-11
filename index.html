@@ -289,7 +289,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261111-181138';
+import CONFIG from './firebase-config.js?v=20261111-191019';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -457,7 +457,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261111-181138";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261111-191019";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2824,7 +2824,7 @@ async function ballShop7(){const sale=new Date().getDay()===SALE_DAY,f=sale?.5:.
   await buyList([['ball','捉捉球',Math.round(100*f)],['ball2','高級球',Math.round(300*f)],['ball3','超級球',Math.round(800*f)]],sale?'店員：今天是每週三特賣日！所有的球都半價！':'店員：歡迎光臨寶貝球名品店！全館八折，每週三特賣日半價喔！','店員：謝謝光臨，下次再來！')}
 async function drugShop7(){await buyList([['potion','傷藥',150,'回復20'],['full','全復藥',1200,'全滿'],['cure','解狀態藥',300,'治狀態']],'藥師：歡迎光臨！受傷的寶貝交給我們！')}
 async function sportShop7(){await buyList([['ppfill','招式補充',3000,'一招回5次'],['ppup','招式增量',10000,'上限+1']],'店員：運動用品店！讓你的寶貝更有體力！')}
-async function foodShop7(){await buyList([['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50'],['youtiao','燒餅油條',1500,'全滿'],['boba','珍珠奶茶',6000,'PP全滿'],['douhua','豆花',15000,'升1級']],'老闆：美食街！豆漿、豆花、還有新口味——珍珠奶茶！')}
+async function foodShop7(){await buyList([['soy','豆漿',120,'回復30'],['rice','米漿',200,'回復50'],['youtiao','燒餅油條',1500,'全滿'],['boba','珍珠奶茶',6000,'PP全滿']],'老闆：美食街！豆漿、米漿，還有新口味——珍珠奶茶！')}
 async function styleShop7(){await sayAll(['造型師：歡迎光臨服飾造型店！','30 種造型隨便你挑，今天試穿免費喔！']);if(!(await yesNo('要換造型嗎？'))){await say('造型師：想換的時候再來！');return}G.look=await chooseLook();sfx('badge');await say('造型師：好看！很適合你！');scheduleSave(200)}
 function premMoves(){const cnt={};SP.forEach(sp=>{if(sp&&sp.l)for(const mv of new Set(sp.l.map(x=>x[1])))cnt[mv]=(cnt[mv]|0)+1});const have=new Set(SKILLS.map(x=>x[0]));
   return Object.keys(MOVES).filter(k=>MOVES[k].p>=90&&(cnt[k]|0)>=3&&!have.has(k)&&k!=='飛天'&&k!=='拚命一擊').sort((a,b)=>MOVES[a].t.localeCompare(MOVES[b].t)||MOVES[a].p-MOVES[b].p).map(k=>[k,MOVES[k].p*300])}
