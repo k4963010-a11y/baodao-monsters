@@ -291,7 +291,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-083341';
+import CONFIG from './firebase-config.js?v=20261112-095207';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -459,7 +459,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-083341";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-095207";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1924,7 +1924,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1112a',d:'11/12 修正',items:['✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
+const NEWS=[{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
  {v:'1111fx',d:'招式演出大改版',items:['👥 好友清單改成線上的排在最前面','💥 威力 80 以上的強招換成全新演出：天降、地裂、連擊、光束、召喚、領域 6 種形式','⚡ 威力 100 以上的大招先放「必殺特寫」：怪獸大頭像＋招式名橫幅登場！','🌟 15 個專屬招式有自己的專屬動畫：隕石俯衝、八色虹箭、跑道幽靈、五月飛雪、神龍天降、寒單千響、千年月柱…快去找找看！']},{v:'1111ch7',d:'第七章 桃園・機場航廈',items:['✈️ 第七章開放！拿到寒單徽章後，到台東市的「台東機場」搭飛機去桃園','🧳 桃園機場航廈 6 段雙層迷宮：手扶梯、行李轉盤、電動步道、自動門開關、安檢門、黑漆漆的停車場、登機門謎題','🚇 走出航廈搭機場捷運到青埔：飛之道館（館主雲翎）、普中精舍（打坐念佛領靈光舍利）、華泰名品城 outlet','🦎 大漢溪外來種棲息地：入侵三聖獸會在全台灣到處跑、一遇到就逃跑！讓牠睡著或麻痺就跑不掉','🔁 入侵三聖獸「交換給朋友」才會進化，快找兄弟朋友一起換！','🐾 20 隻新怪獸：埤塘鷺、螺槳蜻、塔台夜鷹、彩殼行李蝸、蜜桃竹絲、閘門鯝、桐花蜂姬……','🧋 新道具：珍珠奶茶（招式PP全滿）、全復藥、解狀態藥；名品城還有扭蛋機和每天免費抽獎','🚄 打完第七章：高鐵台北↔桃園通車、台東↔桃園飛機可以來回搭']},{v:'1110j',d:'飛天開放',items:['🪽 飛天重新開放！帶著會「飛天」的怪獸，選單就會出現「飛天」','只能飛到自己去過的城市，或好友的旁邊（好友在的那張地圖，你也要走過才行）','🎁 送怪獸、送道具不會再中斷：對方還沒收下或正在對戰，忙完之後會自動完成','⏱ 真人對戰 10 秒沒出招會自動出招；十字鍵改成圓形感應，可以滑動換方向']},{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（首頁黃色按鈕）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
@@ -3744,6 +3744,8 @@ function recallList(m){const sps=[m.sp];for(let k=0;k<5;k++){const pre=SP.findIn
 /* 記憶茶只能想起前期的招式（威力 RECALL_MAXP 以下），強招、大絕招要靠升級或華泰招式商店 */
 const RECALL_MAXP=75;const recallOK=mv=>!!MOVES[mv]&&(MOVES[mv].p|0)<=RECALL_MAXP;
 const RECALL_FEE=500;
+/* 打贏野生怪撿到的錢＝等級×WILD_COIN（±20%）。11/12 從 10 調成 5：原本 Lv45 一隻 450 元，三隻就能買全復藥，太好賺 */
+const WILD_COIN=5;
 async function recallTalk(){await say('我是記憶茶阿婆。\n喝一杯我的回想茶，怪獸就會想起以前的招式喔！\n（太厲害的招式，阿婆就沒辦法了～）');
   for(;;){const j=await partyPick(`要讓哪一隻想起招式？（一次 ${RECALL_FEE} 元）`,()=>true);if(j<0){await say('想不起來的時候，再來喝茶喔～');return}
     const m=G.party[j];const ls=recallList(m);if(!ls.length){await say(`${nm(m)} 現在沒有可以想起來的招式。`);continue}
@@ -3814,7 +3816,7 @@ async function battle(enemies,trainer){
         ei++;foe=enemies[ei];B.enemy=foe;B.fought=new Set([me]);B.stage.e={a:0,d:0};markSeen(foe.sp);B.ehidden=false;updHud();await say(`${trainer.name} 派出了 ${nm(foe)}！`)}else result='win'}
     if(me.hp<=0){B.mehidden=true;updHud();await say(`${nm(me)} 倒下了！`);
       if(result!=='win'){if(G.party.some(m=>m.hp>0)){const s=await partyPick('要派出哪一隻？',i=>G.party[i].hp>0,false);mi=s;me=G.party[mi];B.me=me;B.stage.p={a:0,d:0};B.mehidden=false;updHud();await say(`去吧！${nm(me)}！`)}else result='lose'}}}
-  if(result==='win'){music('victory');if(trainer){if(trainer.win)await sayAll(trainer.win);if(trainer.reward){G.money+=trainer.reward;await say(`打贏了 ${trainer.name}！得到 ${trainer.reward} 元。`)}}else{const c=foe.lv*10;G.money+=c;await say(`撿到了 ${c} 元！`)}}
+  if(result==='win'){music('victory');if(trainer){if(trainer.win)await sayAll(trainer.win);if(trainer.reward){G.money+=trainer.reward;await say(`打贏了 ${trainer.name}！得到 ${trainer.reward} 元。`)}}else{const c=Math.round(foe.lv*WILD_COIN*(.8+Math.random()*.4));G.money+=c;await say(`撿到了 ${c} 元！`)}}
   if(result==='lose'){if(trainer&&trainer.noLose){if(trainer.lose)await sayAll(trainer.lose)}else{await sayAll([`${G.name} 的怪獸都沒有力氣了……`,'眼前一片漆黑……']);const lost=G.badges<2?0:Math.floor(G.money/4);G.money-=lost;if(lost>0)await say(`慌慌張張地跑回去，路上掉了 ${lost} 元……`);else if(G.badges<2)await say('（新手保護：拿到第 2 個徽章之前，輸了也不會掉錢喔！）')}}
   for(const m of G.party){if(m.evo){delete m.evo;const ev=SP[m.sp].evo;if(!ev)continue;B.me=m;B.mehidden=true;B.ehidden=true;B.eGone=true;updHud();B.evo={a:m.sp,b:ev[1],t0:0};await say(`咦？${nm(m)} 的樣子……`);hideText();
     B.evo.t0=performance.now();music('evo');await wait(3300);const old=nm(m);const oldMax=maxhp(m);m.sp=ev[1];m.hp+=maxhp(m)-oldMax;markCaught(m.sp);updHud();pInfo.hidden=true;music('evofan');await say(`恭喜！${old} 進化成 ${nm(m)} 了！`);for(const [l,mv] of SP[m.sp].l){if(l===m.lv&&!m.moves.includes(mv))await learnMove(m,mv)}B.evo=null}}
