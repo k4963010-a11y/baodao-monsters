@@ -291,7 +291,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-115920';
+import CONFIG from './firebase-config.js?v=20261112-134338';
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -459,7 +459,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-115920";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-134338";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -723,7 +723,7 @@ const ZONES={
   sister:{lv:[46,49],t:[[129,40],[131,35],[86,25],[130,0.4]]},
   sisterw:{lv:[46,49],t:[[109,30],[66,30],[71,25],[72,15],[110,0.4]]},
   zhushan:{lv:[47,50],t:[[29,40],[79,45],[137,15],[80,0.4]]},
-  zhushans:{lv:[47,50],t:[[29,40],[79,45],[137,15],[80,0.4],[140,0.3]]},
+  zhushans:{lv:[47,50],t:[[29,40],[79,45],[137,15],[80,0.4],[140,3]]},
   xinz:{lv:[47,50],t:[[133,30],[32,25],[29,25],[11,10],[43,10],[134,0.4]]},
   lakew:{lv:[48,51],t:[[66,40],[109,35],[72,25],[142,0.4]]},
   bike:{lv:[48,51],t:[[61,35],[143,30],[36,20],[37,15],[144,0.4]]},
@@ -2092,7 +2092,7 @@ function bugReport(){if($('bugDlg'))return;const w=document.createElement('div')
     catch(e){msg.textContent='送出失敗，請稍後再試一次。'}}}
 /* ---- 📮 信箱：給玩家的信（新的放最上面；沒看過的選單會顯示 ❗） ---- */
 const LETTERS=[
- {id:'sr8',d:'11/12',from:'GM 凱凱',title:'第八章稀有寶貝公告',body:['各位訓練家好！第八章「嘉義阿里山・南投日月潭」開放了！','','★ 超稀有（0.3%，只在第八章）','　推日金甲：祝山日出的 5 分鐘內，祝山步道的草叢','　特性「破曉」：剛上場那回合一定先出手、攻擊力加倍！','','★ 傳說（0.3%，每人一隻）','　水沙連白鹿：完成拉魯島召喚儀式後，伊達邵北邊的「月光林」','　特性「湖月守護」：每回合回血、異常狀態兩回合就消失','','◆ 罕見（0.4%）','　蒸汽鳴蟬、燎原炬蕈：小火車貨車、奮起湖、姊妹潭','　螺旋山馬陸：獨立山、新中橫公路','　千年檜龍：神木區　　月潭杵鳴：日月潭湖面','　纜車巢蛾：自行車道、纜車山頂','','◆ 少見：檜苗龍（神木區）、筍劍舞姬（埔里筍田）','◆ 釣魚：姊妹潭可以釣到冰屬性的愛玉晶靈，打龍超好用！','','祝大家好運！']},
+ {id:'sr8',d:'11/12',from:'GM 凱凱',title:'第八章稀有寶貝公告',body:['各位訓練家好！第八章「嘉義阿里山・南投日月潭」開放了！','','★ 超稀有（只在第八章）','　推日金甲：趕上祝山日出後的 5 分鐘內，祝山步道的草叢（3%）','　特性「破曉」：剛上場那回合一定先出手、攻擊力加倍！','','★ 傳說（0.3%，每人一隻）','　水沙連白鹿：完成拉魯島召喚儀式後，伊達邵北邊的「月光林」','　特性「湖月守護」：每回合回血、異常狀態兩回合就消失','','◆ 罕見（0.4%）','　蒸汽鳴蟬、燎原炬蕈：小火車貨車、奮起湖、姊妹潭','　螺旋山馬陸：獨立山、新中橫公路','　千年檜龍：神木區　　月潭杵鳴：日月潭湖面','　纜車巢蛾：自行車道、纜車山頂','','◆ 少見：檜苗龍（神木區）、筍劍舞姬（埔里筍田）','◆ 釣魚：姊妹潭可以釣到冰屬性的愛玉晶靈，打龍超好用！','','祝大家好運！']},
  {id:'sr7',d:'11/11',from:'GM 凱凱',title:'第七章稀有怪獸公告',body:['各位訓練家好！第七章「桃園・機場航廈」開放了！','','★ 超稀有（0.3%，只在第七章）','　隱翼鱟龍：機場航廈全區（入境大廳～登機門區）的地毯和停車場','　傳說中的「跑道幽靈」，防禦力是全遊戲最高！','','★ 入侵三聖獸（會到處跑、一遇到就逃走）','　粉卵螺、翠鬣寶寶、臭盾蟲：先到青埔南邊的外來種棲息地找牠們，之後牠們會在全台灣到處跑','　交換給朋友才會進化成 赤卵潮淵、萬棘叢林龍、紫紋腐甲魔！','','◆ 罕見（0.4%）','　音爆蜻皇：入境大廳、轉機通道','　雷達夜鷹神：管制區、登機門區','　冷鏈堡壘蝸：行李轉盤區、停車場','　千塘水車鷺：青埔青塘園、大溪','　洩洪閘龍：石門水庫（游泳、釣魚）','','◆ 任務限定：桐花蜂姬（大溪的擂茶阿婆）','◆ 普中精舍：打坐 5 分鐘＋念佛 3 分鐘，領取靈光舍利','','祝大家好運！']},
  {id:'sr6',d:'11/10',from:'GM 凱凱',title:'第六章稀有怪獸公告',body:['各位訓練家好！第六章「台東・花東縱谷」開放了！','','★ 超稀有（0.3%，只在第六章）','　八色虹靈：花東縱谷全區（玉里～鹿野高台）的草叢，還有熱氣球上的「鹿野上空」','　傳說住在縱谷雲裡的八色鳳凰，八種屬性的招式都會用！','','◆ 罕見（0.4%）','　竹箏鳶：只在「鹿野上空」（要先幫熱氣球師傅找回零件）','　惡地泥鋤獸：玉里、玉里峽谷','　金穗鐮將：池上伯朗大道的稻田','　焰球鹿：關山、鹿野高台','　月輪螳神：縱谷大瀑布、卑南遺址公園','　千響烈兔：卑南遺址公園','','◆ 只在台東這邊釣得到：浪鬼刀（縱谷的溪流、台東海邊）','◆ 任務限定：釋迦角仙（台東市的釋迦果農）','','全部怪獸和招式都可以在「怪獸圖鑑網站」查：','https://k4963010-a11y.github.io/baodao-monsters/dex.html','','祝大家好運！']},
  {id:'sr1',d:'11/8',from:'GM 凱凱',title:'超稀有怪獸情報',body:['各位訓練家好！','飽島上每一章都藏著一隻「超稀有」怪獸，只有 0.3% 的機率會出現，而且只住在那一章：','','第一章　霧紋豹（2號道路北、北投地熱谷）','第二章　刺刺陽（陽明山、紗帽山洞、台北公園）','第三章　月面靈貍（象山步道、信義區）','第四章　霧林山椒魚（坪林、雪山隧道、礁溪、宜蘭公園）','第五章　峽谷金貂（蘇花公路、花蓮公園）','','釣魚：有機會釣到超稀有的「水燈靈」','搖樹：有機會搖下超稀有的「月影鴞」','','超稀有非常難遇到，也非常難抓！','出發前一定要把寶貝球準備齊全，高級球、超級球多帶一點喔！','','祝大家好運！']}
@@ -2862,7 +2862,7 @@ async function shakeTree(){if(!G.flags.shake){await say('一棵大樹。\n樹葉
   if(Math.random()<.55){await say('樹葉沙沙作響……\n什麼都沒有掉下來。');return}
   sfx('badge');await say('啪噠！有怪獸從樹上掉下來了！');ZONES.tree={lv:fieldLv(),t:TREE_T};await wildEncounter('tree')}
 let RARE_NEXT=false;
-async function wildEncounter(zk){const z=ZONES[zk];const tot=z.t.reduce((s,a)=>s+a[1],0);let r=Math.random()*tot,sp=z.t[0][0],sw=0;for(const [s,w] of z.t){if((r-=w)<0){sp=s;sw=w;break}}RARE_NEXT=sw/tot<=0.0035?'super':sw/tot<=0.006?'uncommon':false;
+async function wildEncounter(zk){const z=ZONES[zk];const tot=z.t.reduce((s,a)=>s+a[1],0);let r=Math.random()*tot,sp=z.t[0][0],sw=0;for(const [s,w] of z.t){if((r-=w)<0){sp=s;sw=w;break}}RARE_NEXT=(sw/tot<=0.0035||sp===140)?'super':sw/tot<=0.006?'uncommon':false;
   const f_=makeMon(sp,rnd(z.lv[0],z.lv[1]));if(z.xm)f_.xm=z.xm;await battle([f_],null)}
 
 /* ================= story ================= */
@@ -3642,7 +3642,7 @@ async function dex(){let at=0;for(;;){const items=DEX_ORDER.map((id,i)=>{const s
 const RARE_LINE=new Set([26,12,48,49,50,51,52,53,68,69,87,88,89,90,93,107,108,122,140,146]);  // 只能靠稀有出場拿到的種類（含進化型）
 const isRareMon=m=>!!m&&(!!m.rare||RARE_LINE.has(m.sp)||INVADE.has(m.sp));
 /* 稀有等級：2=超稀有(黃色星星)、1=罕見/稀有(白色光圈)、0=一般。舊存檔沒記等級的，用「這種怪獸有沒有在哪裡是超稀有」判斷 */
-let SUPER_SP=null;function superSp(){if(!SUPER_SP){SUPER_SP=new Set();for(const z in ZONES){const t=ZONES[z]&&ZONES[z].t;if(!t)continue;const tot=t.reduce((s,a)=>s+a[1],0);for(const [sp,w] of t)if(w/tot<=.0035)SUPER_SP.add(sp)}}return SUPER_SP}
+let SUPER_SP=null;function superSp(){if(!SUPER_SP){SUPER_SP=new Set([140]);for(const z in ZONES){const t=ZONES[z]&&ZONES[z].t;if(!t)continue;const tot=t.reduce((s,a)=>s+a[1],0);for(const [sp,w] of t)if(w/tot<=.0035)SUPER_SP.add(sp)}}return SUPER_SP}
 const INVADE=new Set([123,124,125,126,127,128]);const rareTier=m=>m&&INVADE.has(m.sp)?3:!isRareMon(m)?0:(m.rare===2||superSp().has(m.sp))?2:1;
 function darkHalo(x,y,now){ctx.save();const a=.6+.15*Math.sin(now/200);const g=ctx.createRadialGradient(x,y,2,x,y,15);g.addColorStop(0,'rgba(90,20,130,'+a+')');g.addColorStop(.55,'rgba(20,4,30,'+a+')');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,15,13,0,0,7);ctx.fill();ctx.restore()}
 function darkSpark(x,y,now){const t=now/1000;for(let i=0;i<5;i++){const a=t*1.4+i*1.26,r=9+3*Math.sin(t*2+i);const on=(Math.sin(t*4+i*1.9)+1)/2;if(on<.3)continue;const sx=Math.round(x+Math.cos(a)*r),sy=Math.round(y+Math.sin(a)*r*.75-on*3);ctx.fillStyle='#000000';ctx.fillRect(sx-1,sy-1,4,4);ctx.fillStyle=on>.65?'#b050e0':'#3a1050';ctx.fillRect(sx,sy,2,2)}}
