@@ -298,7 +298,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-202250';
+import CONFIG from './firebase-config.js?v=20261112-204729';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-202250";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-204729";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1860,21 +1860,25 @@ function sanTx(t){const o={};if(!t||typeof t!=='object')return o;const now=Date.
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
 /* ================= 防作弊：檢查存檔有沒有不可能出現的東西 =================
    red = 正常玩不可能出現（直接判定作弊）；yellow = 可疑，GM 自己判斷 */
-const NO_WILD=new Set([35,75,90,120,121,123,124,125,126,127,128]);   // 玉山蒼龍（傳說未開放）、金剛舍利尊（中台禪寺未開放）、愛歹丸（GM 限定）
+const NO_WILD=new Set([35,90]);   // 玉山蒼龍（傳說未開放）、金剛舍利尊（中台禪寺未開放）、愛歹丸（GM 限定）
 const GM_OT='GM 凱凱';
 const lvCap=b=>25+(b|0)*12;          // 等級「可疑」門檻：0徽章25、5徽章85
 function lineSps(sp){const sps=[sp];for(let k=0;k<5;k++){const pre=SP.findIndex(s=>s&&s.evo&&sps.includes(s.evo[1])&&!sps.includes(SP.indexOf(s)));if(pre<0)break;sps.push(pre)}return sps}
 function legalMoves(m){const ok=new Set(),t=SP[m.sp].t;for(const s of lineSps(m.sp))for(const [l,mv] of SP[s].l)if(l<=m.lv)ok.add(mv);
   for(const [mv] of SKILLS)if(MOVES[mv]&&(MOVES[mv].t==='一般'||MOVES[mv].t===t))ok.add(mv);
+  try{for(const [mv] of premMoves())if(MOVES[mv]&&(MOVES[mv].t==='一般'||MOVES[mv].t===t))ok.add(mv)}catch(e){}
   if(SWIM_TYPES.includes(t))ok.add('游泳');if(FLY_TYPES.includes(t))ok.add('飛天');
   for(const q of QUESTS){const g=q.give||{};if(g.tutor&&g.tutor.t.includes(t))ok.add(g.tutor.m);if(g.mon&&SPN(g.mon.n)===m.sp)(g.mon.moves||[]).forEach(x=>ok.add(x))}return ok}
 /* d=存檔（原始或 sanG 過）；gifts=[{sp,lv}] GM 真的寄給這個玩家的怪獸（沒給就不檢查 GM 怪獸） */
+/* 志凱說沒問題的玩家（11/12：小郭=朋友有 GM 送的愛歹丸、小貓咪=兒子、xxoo 的招手蟹是他送的） */
+const CHEAT_TRUST=new Set(['小郭','小貓咪','xxoo']);
 function cheatCheck(d,gifts){const red=[],yellow=[],mons=[];if(!d||typeof d!=='object')return {red,yellow,mons};
   const badges=d.badges|0;if(badges>OPEN_CH)red.push(`徽章 ${badges} 個（目前只開放到第 ${OPEN_CH} 章）`);
   if((+d.money||0)>999999)red.push(`錢 ${d.money} 元（超過上限）`);
   const it=d.items&&typeof d.items==='object'?d.items:{};for(const k in it)if((+it[k]||0)>99)red.push(`道具 ${k} ×${it[k]}（超過99）`);
   const gl=gifts?gifts.map(g=>({sp:g.sp|0,lv:g.lv|0,used:false})):null;
   const scan=(arr,where)=>(Array.isArray(arr)?arr:[]).forEach((raw,i)=>{const m=sanMon(raw);if(!m)return;const why=[];let sev=0;
+    if(m.sp===90)return;
     if(m.ot===GM_OT){if(gl){const g=gl.find(x=>!x.used&&x.sp===m.sp);if(g){g.used=true;if(g.lv>=50){why.push(`GM 信件送的 Lv${g.lv}（若不是你寄的=舊漏洞偽造）`);sev=Math.max(sev,1)}}else{why.push('標示 GM 送的，但查不到 GM 寄送紀錄');sev=2}}
       if(sev)mons.push({where,i,m,why,sev});return}
     if(NO_WILD.has(m.sp)){why.push(`${SP[m.sp].n} 是正常玩法拿不到的`);sev=2}
@@ -1882,6 +1886,7 @@ function cheatCheck(d,gifts){const red=[],yellow=[],mons=[];if(!d||typeof d!=='o
     if(m.lv>lvCap(badges)){why.push(`Lv${m.lv}，${badges} 個徽章正常約 Lv${lvCap(badges)} 內`);sev=Math.max(sev,1)}
     if(sev)mons.push({where,i,m,why,sev})});
   scan(d.party,'party');scan(d.box,'box');
+  {/* AIDAI_ONE：愛歹丸每人一隻 */const ad=[...(Array.isArray(d.party)?d.party:[]),...(Array.isArray(d.box)?d.box:[])].filter(x=>x&&(x.sp|0)===90).length;if(ad>1)red.push(`愛歹丸有 ${ad} 隻（每人只會送一隻）`)}
   for(const x of mons)(x.sev===2?red:yellow).push(`${x.where==='party'?'身上':'怪獸箱'} ${SP[x.m.sp].n} Lv${x.m.lv}：${x.why.join('；')}`);
   return {red,yellow,mons}}
 function markCaught(sp){markSeen(sp);if(!G.caught.includes(sp))G.caught.push(sp)}
@@ -2002,6 +2007,7 @@ function gmMail(to,name){if($('bugDlg'))return;const w=document.createElement('d
   w.querySelectorAll('textarea,input').forEach(e=>{e.addEventListener('keydown',x=>{x.stopPropagation();if(x.key==='Escape')close()});e.addEventListener('keyup',x=>x.stopPropagation())});
   w.querySelector('.no').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});
   w.querySelector('.go').onclick=async()=>{const text=ta.value.trim(),sp=+sel.value,lv=clamp(+w.querySelector('.lv').value||5,1,100);if(!text&&!sp){msg.textContent='寫點話或選一隻怪獸喔！';return}msg.textContent='寄送中……';const t=Date.now();
+    if(sp===90){try{const pd=await db.doc('players/'+to).get();const d0=pd.exists?(pd.data()||{}):{};const n=[...(d0.party||[]),...(d0.box||[])].filter(x=>x&&(x.sp|0)===90).length;if(n>=1){msg.textContent=`${name||'這位玩家'} 已經有愛歹丸了（每人只能有一隻），不能再送。`;return}}catch(e){msg.textContent='查不到玩家資料，請再試一次。';return}}
     try{await db.doc('mail/mail_'+String(to).slice(0,40)+'_'+t).set({to,from:'GM 凱凱',title:sp?'GM 送你一份禮物':'GM 的信',body:text||(sp?`送你一隻 ${SP[sp].n}，好好照顧牠！`:''),...(sp?{gift:{sp,lv}}:{}),t});
       w.querySelector('.in').innerHTML='<h3>寄出了！</h3><p>玩家打開選單的「信箱」就會收到'+(sp?'怪獸':'信')+'。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close}catch(e){msg.textContent='寄送失敗，請再試一次。'}}}
 function gmReply(b){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回覆玩家"><h3></h3><p class="q"></p><textarea maxlength="400" placeholder="寫下要回給玩家的話，會寄到他的遊戲信箱"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">寄出</button></div></div>';
@@ -2056,7 +2062,7 @@ let CHEAT_GIFTS={};
 async function cheatScan(){if(!GM_UIDS.has(uid)||!db)return;const sub=$('cheatSub'),ul=$('cheatList');sub.textContent='掃描中……';ul.replaceChildren();
   try{const [ps,ms]=await Promise.all([db.collection('players').get(),db.query('mail',{}).get()]);CHEAT_GIFTS={};
     ms.docs.forEach(x=>{const v=x.data();if(v&&v.gift&&typeof v.to==='string')(CHEAT_GIFTS[v.to]=CHEAT_GIFTS[v.to]||[]).push({sp:v.gift.sp|0,lv:v.gift.lv|0})});
-    const rows=[];ps.docs.forEach(x=>{if(GM_UIDS.has(x.id))return;const d=x.data();if(!d||d.ver!==2)return;const c=cheatCheck(d,CHEAT_GIFTS[x.id]||[]);if(c.red.length||c.yellow.length)rows.push({id:x.id,d,c})});
+    const rows=[];ps.docs.forEach(x=>{if(GM_UIDS.has(x.id))return;const d=x.data();if(!d||d.ver!==2)return;if(CHEAT_TRUST.has(String(d.name||'').trim()))return;const c=cheatCheck(d,CHEAT_GIFTS[x.id]||[]);if(c.red.length||c.yellow.length)rows.push({id:x.id,d,c})});
     rows.sort((a,b)=>b.c.red.length-a.c.red.length||b.c.yellow.length-a.c.yellow.length);
     sub.textContent=`掃描了 ${ps.docs.length} 位玩家：${rows.filter(r=>r.c.red.length).length} 位確定有問題（紅）、${rows.filter(r=>!r.c.red.length).length} 位可疑（黃）。`;
     for(const r of rows){const li=document.createElement('li');const b=document.createElement('b');b.textContent=String(r.d.name||'訓練家').slice(0,8);const i=document.createElement('i');i.textContent=`ID ${r.id.slice(0,6).toUpperCase()}・徽章${r.d.badges|0}・${r.d.steps|0}步`+(r.d.gmFix?'・GM 修正過':'');li.append(b,i);
