@@ -25,6 +25,7 @@ jobs:
           cp -r dex _site/dex
           cp -r mon _site/mon
           cp -r trn _site/trn
+          cp -r vendor _site/vendor
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

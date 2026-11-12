@@ -286,12 +286,20 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
     <button type="button" id="aoff" class="link">先不登入，單機玩</button>
   </form>
 </div>
+<script>
+/* 連不上 Firebase（網路不穩、被擋）時不要卡在開場：12 秒後給「重新整理」和「單機玩」 */
+(function(){setTimeout(function(){if(window.__fbOK)return;var a=document.getElementById('auth'),m=document.getElementById('amsg'),g=document.getElementById('ago'),o=document.getElementById('aoff');
+  if(a)a.hidden=false;if(m)m.textContent=window.__fbLoaded?'連線很慢，伺服器一直沒有回應……':'連不上伺服器（可能是網路不穩）。';
+  if(g){g.textContent='重新整理再試一次';g.disabled=false;g.onclick=function(e){e.preventDefault();location.reload()}}
+  if(o){o.textContent='先不登入，單機玩（不會存到雲端）';o.onclick=function(){if(a)a.hidden=true;if(window.__resolveCloud)window.__resolveCloud(null)}}},12000)})();
+</script>
 <script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-134338';
+import {initializeApp} from './vendor/fb10122/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
+import CONFIG from './firebase-config.js?v=20261112-151142';
+window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -344,7 +352,7 @@ $('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(
 
 if(auth){
   let first=true;
-  onAuthStateChanged(auth,u=>{if(!first)return;first=false;
+  onAuthStateChanged(auth,u=>{window.__fbOK=1;if(!first)return;first=false;
     if(u){let nm='';try{nm=localStorage.getItem('baodao_acct_'+u.uid)||''}catch(e){}enter(u,nm)}
     else{authEl.hidden=false;try{if(sessionStorage.getItem('baodao_kicked')){sessionStorage.removeItem('baodao_kicked');$('amsg').textContent='你的帳號已在另一台裝置登入，這裡先登出了。'}}catch(e){}setTimeout(()=>$('au').focus(),50)}});
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
@@ -459,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-134338";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-151142";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1844,8 +1852,11 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   if(flags.starter&&!party.length)return null;
   const g={ver:2,look:clamp(d.look|0,0,CHARS.length-1),name:(typeof d.name==='string'&&d.name.trim()?d.name.trim():'訓練家').slice(0,8),money:clamp(d.money|0,0,999999),
    items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),ball4:clamp(d.items?.ball4|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99),ppfill:clamp(d.items?.ppfill|0,0,99),ppup:clamp(d.items?.ppup|0,0,99),full:clamp(d.items?.full|0,0,99),cure:clamp(d.items?.cure|0,0,99),boba:clamp(d.items?.boba|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
-   seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0};
+   seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0,tx:sanTx(d.tx)};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
+function sanTx(t){const o={};if(!t||typeof t!=='object')return o;const now=Date.now();
+  for(const k of Object.keys(t).slice(-40)){if(!/^[a-z0-9]{4,12}$/.test(k))continue;const v=t[k];if(!v||typeof v!=='object')continue;const st=['esc','done','got','back'].includes(v.st)?v.st:null;if(!st)continue;
+    const tt=+v.t||0;if(st!=='esc'&&now-tt>3*864e5)continue;const g=sanMon(v.give);if(!g)continue;o[k]={st,give:g,peer:String(v.peer||'').slice(0,40),pn:String(v.pn||'').slice(0,8),t:tt,slot:clamp(v.slot|0,0,5)}}return o}
 function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
 /* ================= 防作弊：檢查存檔有沒有不可能出現的東西 =================
    red = 正常玩不可能出現（直接判定作弊）；yellow = 可疑，GM 自己判斷 */
@@ -2161,7 +2172,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
+const NEWS=[{v:'1112tx',d:'11/12 交換更安全',items:['🔒 交換寶貝改成更安全的方式：雙方都存檔成功才完成，中途斷線或關掉遊戲，寶貝會自動回到身上','⏱️ 交換確認要在 40 秒內決定，太久會自動取消','🔄 交換前請雙方都按「更新」到最新版；交換時身上至少要帶 2 隻寶貝','🌐 連不上伺服器時不會再卡在開場畫面，可以重試或先單機玩']},{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
  {v:'1111fx',d:'招式演出大改版',items:['👥 好友清單改成線上的排在最前面','💥 威力 80 以上的強招換成全新演出：天降、地裂、連擊、光束、召喚、領域 6 種形式','⚡ 威力 100 以上的大招先放「必殺特寫」：怪獸大頭像＋招式名橫幅登場！','🌟 15 個專屬招式有自己的專屬動畫：隕石俯衝、八色虹箭、跑道幽靈、五月飛雪、神龍天降、寒單千響、千年月柱…快去找找看！']},{v:'1111ch7',d:'第七章 桃園・機場航廈',items:['✈️ 第七章開放！拿到寒單徽章後，到台東市的「台東機場」搭飛機去桃園','🧳 桃園機場航廈 6 段雙層迷宮：手扶梯、行李轉盤、電動步道、自動門開關、安檢門、黑漆漆的停車場、登機門謎題','🚇 走出航廈搭機場捷運到青埔：飛之道館（館主雲翎）、普中精舍（打坐念佛領靈光舍利）、華泰名品城 outlet','🦎 大漢溪外來種棲息地：入侵三聖獸會在全台灣到處跑、一遇到就逃跑！讓牠睡著或麻痺就跑不掉','🔁 入侵三聖獸「交換給朋友」才會進化，快找兄弟朋友一起換！','🐾 20 隻新怪獸：埤塘鷺、螺槳蜻、塔台夜鷹、彩殼行李蝸、蜜桃竹絲、閘門鯝、桐花蜂姬……','🧋 新道具：珍珠奶茶（招式PP全滿）、全復藥、解狀態藥；名品城還有扭蛋機和每天免費抽獎','🚄 打完第七章：高鐵台北↔桃園通車、台東↔桃園飛機可以來回搭']},{v:'1110j',d:'飛天開放',items:['🪽 飛天重新開放！帶著會「飛天」的怪獸，選單就會出現「飛天」','只能飛到自己去過的城市，或好友的旁邊（好友在的那張地圖，你也要走過才行）','🎁 送怪獸、送道具不會再中斷：對方還沒收下或正在對戰，忙完之後會自動完成','⏱ 真人對戰 10 秒沒出招會自動出招；十字鍵改成圓形感應，可以滑動換方向']},{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（首頁黃色按鈕）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
@@ -4280,7 +4291,7 @@ async function battle(enemies,trainer){
 const DUEL=()=>room&&room.duel;let PV=null;const mailbox=[];let mbWait=null;let duelInit=false;
 function initDuel(){if(duelInit||!DUEL())return;duelInit=true;DUEL().on(m=>{
   if(!m||typeof m!=='object'||typeof m.from!=='string')return;
-  if(['invite','trade','gift','giveitem','show'].includes(m.type)){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>m.type==='show'?gotShow(m):m.type==='trade'?gotTrade(m):m.type==='gift'?gotGift(m):m.type==='giveitem'?gotItem(m):gotInvite(m));return}
+  if(['invite','trade','trade2','gift','giveitem','show'].includes(m.type)){if(PV||mode!=='map'||busy||uiStack.length){DUEL().send(m.from,{type:'busy',id:m.id});return}event(()=>m.type==='show'?gotShow(m):m.type==='trade'||m.type==='trade2'?gotTrade(m):m.type==='gift'?gotGift(m):m.type==='giveitem'?gotItem(m):gotInvite(m));return}
   if(m.type==='giftok'&&PEND_OUT[m.id]&&!PEND_OUT[m.id].waiting&&PEND_OUT[m.id].to===m.from){whenFree(()=>finishOut(m.id));return}
   if((m.type==='giftdone'||m.type==='tradeno')&&PEND_IN[m.id]&&!PEND_IN[m.id].waiting&&PEND_IN[m.id].from===m.from){whenFree(()=>finishIn(m.id,m.type));return}
   mailbox.push(m);if(mbWait)mbWait()})}
@@ -4331,27 +4342,57 @@ async function gotShow(m){const nm2=String(m.name||'訓練家').slice(0,8);const
   await say(`看完 ${nm2} 的寶貝了！`);scheduleSave()}
 async function pickMine(prompt){showText(prompt);const i=await choose(G.party.map(monLabel),{pos:'list'});hideText();return i}
 const monTxt=m=>`${nm(m)} Lv${m.lv}`;
+const TX_A_MS=40000,TX_B_MS=80000;
+/* 存檔並確認真的寫進雲端（交換、送禮一定要先存成功才繼續） */
+async function saveSure(){if(!db)return true;for(let i=0;i<150&&saving;i++)await wait(100);if(staleStop)return false;const r0=cloudRev;await saveNow();for(let i=0;i<200&&saving;i++)await wait(100);return cloudRev>r0}
+/* 讀對方雲端存檔裡的交換紀錄；網路錯誤回傳 undefined */
+async function peerTx(p,id){try{const sn=await db.doc('players/'+p).get();if(!sn.exists)return null;const d=sn.data()||{};return (d.tx&&d.tx[id])||null}catch(e){return undefined}}
 async function tradeOffer(pe){
   const i=await pickMine(`要拿哪一隻跟 ${pe.name} 交換？`);if(i<0)return;const mine=G.party[i];
   const id=Math.random().toString(36).slice(2,10);mailbox.length=0;
-  DUEL().send(pe.id,{type:'trade',id,name:G.name,mon:JSON.parse(JSON.stringify(mine))});showText(`等待 ${pe.name} 回應……
-（按 B 取消）`);
-  const r=await waitB(waitMsg(m=>m.id===id&&m.from===pe.id&&['tradeok','decline','busy'].includes(m.type),60000));hideText();if(r==='cancel'){DUEL().send(pe.id,{type:'tradeno',id});await say('取消交換了。');return}
-  if(!r){await say(`${pe.name} 沒有回應。`);return}
+  DUEL().send(pe.id,{type:'trade2',id,name:G.name,mon:JSON.parse(JSON.stringify(mine))});showText(`等待 ${pe.name} 回應……\n（按 B 取消）`);
+  const r=await waitB(waitMsg(m=>m.id===id&&m.from===pe.id&&['tradeok','decline','busy','oldver'].includes(m.type),60000));hideText();
+  if(r==='cancel'||!r){DUEL().send(pe.id,{type:'tradeno',id});await say(r?'取消交換了。':`${pe.name} 沒有回應。`);return}
   if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return}
+  if(r.type==='oldver'){await say(`${pe.name} 的遊戲版本比較舊，\n請他按「更新」之後再交換。`);return}
   if(r.type==='decline'){await say(`${pe.name} 不想交換。`);return}
-  const got=sanMon(r.mon);if(!got){DUEL().send(pe.id,{type:'tradeno',id});await say('交換失敗了。');return}
-  const ok=await yesNo(`${pe.name} 要用 ${monTxt(got)}\n換你的 ${monTxt(mine)}，確定嗎？`);
-  if(!ok||G.party[i]!==mine){DUEL().send(pe.id,{type:'tradeno',id});await say('取消交換了。');return}
-  DUEL().send(pe.id,{type:'tradedone',id});await doSwap(i,got,pe.name)}
-async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);
-  if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
+  const t0=Date.now();showText('確認對方的寶貝……');const pt=await peerTx(pe.id,id);hideText();
+  const got=pt&&pt.st==='esc'&&pt.peer===uid?sanMon(pt.give):null;
+  if(!got){DUEL().send(pe.id,{type:'tradeno',id});await say('交換失敗了（找不到對方準備好的寶貝）。');return}
+  showText(`${pe.name} 要用 ${monTxt(got)}\n換你的 ${monTxt(mine)}，確定嗎？（${TX_A_MS/1000} 秒內決定）`);
+  const ctl={};const tm=setTimeout(()=>{if(ctl.fire)ctl.fire()},Math.max(1000,TX_A_MS-(Date.now()-t0)));
+  const c=await choose(['好','不要'],{pos:'list yn',abort:ctl});clearTimeout(tm);hideText();
+  const late=Date.now()-t0>TX_A_MS;
+  if(c!==0||late||G.party[i]!==mine){DUEL().send(pe.id,{type:'tradeno',id});await say(late||c===-2?'太久沒有決定，交換取消了。':'取消交換了。');return}
+  G.tx=G.tx||{};got.hp=maxhp(got);delete got.pp;G.party[i]=got;G.tx[id]={st:'done',give:JSON.parse(JSON.stringify(mine)),peer:pe.id,pn:String(pe.name||'').slice(0,8),t:Date.now(),slot:i};
+  showText('交換中……請不要關掉遊戲');const ok=await saveSure();hideText();
+  if(!ok){G.party[i]=mine;delete G.tx[id];DUEL().send(pe.id,{type:'tradeno',id});await say('網路不穩，交換取消了。\n（寶貝都還在你身上）');return}
+  DUEL().send(pe.id,{type:'tradedone',id});markCaught(got.sp);sfx('catch');
+  await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`換到了 ${monTxt(got)}！`,'要好好照顧牠喔！']);await tradeEvo(got);await saveNow()}
+async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);G.tx=G.tx||{};
+  if(m.type==='trade'){DUEL().send(m.from,{type:'oldver',id:m.id});await say(`${nm2} 想跟你交換寶貝，\n可是他的遊戲版本比較舊，請他按「更新」。`);return}
+  if(!theirs||typeof m.id!=='string'||!/^[a-z0-9]{4,12}$/.test(m.id)||G.tx[m.id]){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想用 ${monTxt(theirs)}\n跟你交換怪獸，要看看嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
+  if(G.party.length<2){DUEL().send(m.from,{type:'decline',id:m.id});await say('身上至少要有 2 隻寶貝才能交換喔！\n（先到寶貝中心的電腦多帶一隻）');return}
   const i=await pickMine(`要拿哪一隻換 ${monTxt(theirs)}？`);if(i<0){DUEL().send(m.from,{type:'decline',id:m.id});return}const mine=G.party[i];
-  mailbox.length=0;DUEL().send(m.from,{type:'tradeok',id:m.id,mon:JSON.parse(JSON.stringify(mine))});showText(`等待 ${nm2} 確認……`);
-  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['tradedone','tradeno'].includes(x.type),60000);hideText();
-  if(!r||r.type!=='tradedone'){await say('交換取消了。');return}
-  if(G.party[i]!==mine){await say('交換失敗了。');return}await doSwap(i,theirs,nm2)}
+  G.party.splice(i,1);G.tx[m.id]={st:'esc',give:JSON.parse(JSON.stringify(mine)),peer:m.from,pn:nm2,t:Date.now(),slot:i};
+  showText('準備交換中……請不要關掉遊戲');const ok=await saveSure();hideText();
+  if(!ok){G.party.splice(i,0,mine);delete G.tx[m.id];DUEL().send(m.from,{type:'decline',id:m.id});await say('網路不穩，交換取消了。');return}
+  mailbox.length=0;DUEL().send(m.from,{type:'tradeok',id:m.id,mon:JSON.parse(JSON.stringify(mine))});showText(`等待 ${nm2} 確認……\n（請不要關掉遊戲）`);
+  const r=await waitMsg(x=>x.id===m.id&&x.from===m.from&&['tradedone','tradeno'].includes(x.type),TX_B_MS);hideText();
+  await txResolve(m.id,r?r.type:'timeout',true)}
+/* 託管中的交換：看對方雲端存檔決定「拿到對方的寶貝」或「自己的寶貝回來」 */
+async function txResolve(id,hint,talk){const T=G.tx&&G.tx[id];if(!T||T.st!=='esc')return;
+  for(let k=0;k<3;k++){const pt=await peerTx(T.peer,id);
+    if(pt===undefined){await wait(1500);continue}
+    if(pt&&pt.st==='done'&&pt.peer===uid){const got=sanMon(pt.give);if(got){got.hp=maxhp(got);delete got.pp;T.st='got';T.t=Date.now();if(G.party.length<6)G.party.splice(Math.min(T.slot,G.party.length),0,got);else addMon(got);markCaught(got.sp);sfx('catch');await saveSure();
+      await sayAll([`${nm(T.give)} 去了 ${T.pn} 那裡……`,`換到了 ${monTxt(got)}！`,'要好好照顧牠喔！']);await tradeEvo(got);await saveNow();return}}
+    if(hint==='timeout'&&Date.now()-T.t<TX_B_MS)return;
+    const back=sanMon(T.give);if(!back)return;T.st='back';T.t=Date.now();const w=addMon(back);await saveSure();
+    await say(`和 ${T.pn} 的交換沒有完成，\n${nm(back)} 回到你身邊了。${w==='box'?'（身上滿了，放進怪獸箱）':''}`);return}
+  if(talk)await say('網路不穩，交換的結果等一下會自動處理。')}
+async function txRecover(){for(const id of Object.keys(G.tx||{})){const T=G.tx[id];if(T&&T.st==='esc'&&Date.now()-T.t>=TX_B_MS)await txResolve(id,'timeout',true)}}
+setInterval(()=>{try{if(G&&G.tx&&db&&mode==='map'&&!busy&&!uiStack.length&&!PV&&Object.values(G.tx).some(t=>t&&t.st==='esc'&&Date.now()-t.t>=TX_B_MS))event(txRecover)}catch(e){}},10000);
 /* ---- 給予寶貝 / 給予道具：對方先答應 → 送出方扣掉 → 通知對方收下 ---- */
 const itemName=k=>k==='cure'?'解狀態藥':k==='boba'?'珍珠奶茶':k==='douhua'?'豆花':k==='ppfill'?'招式補充':k==='ppup'?'招式增量':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
 const giftWait=(pe,id)=>waitMsg(m=>m.id===id&&m.from===pe.id&&['giftok','decline','busy'].includes(m.type),60000);
@@ -4362,9 +4403,9 @@ function whenFree(fn){const t0=Date.now();const iv=setInterval(()=>{if(Date.now(
 async function finishOut(id){const P=PEND_OUT[id];delete PEND_OUT[id];if(!P)return;
   if(Date.now()>P.exp){DUEL().send(P.to,{type:'tradeno',id});return}
   if(P.kind==='gift'){const j=G.party.findIndex(x=>x.id===P.monId);if(j<0||G.party.length<2){DUEL().send(P.to,{type:'tradeno',id});await say(`${P.toName} 收下了，可是那隻怪獸已經不在身上，送不出去了。`);return}
-    const mine=G.party.splice(j,1)[0];DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await sayAll([`${P.toName} 收下了你送的禮物！`,`${nm(mine)} 去了 ${P.toName} 那裡……`]);await saveNow();return}
+    const mine=G.party.splice(j,1)[0];if(!(await saveSure())){G.party.splice(j,0,mine);DUEL().send(P.to,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await sayAll([`${P.toName} 收下了你送的禮物！`,`${nm(mine)} 去了 ${P.toName} 那裡……`]);await saveNow();return}
   if((G.items[P.item]|0)<P.n){DUEL().send(P.to,{type:'tradeno',id});await say(`${P.toName} 收下了，可是道具不夠，送不出去了。`);return}
-  G.items[P.item]-=P.n;DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await say(`${P.toName} 收下了！把 ${itemName(P.item)} ×${P.n} 送過去了。`);await saveNow()}
+  G.items[P.item]-=P.n;if(!(await saveSure())){G.items[P.item]+=P.n;DUEL().send(P.to,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await say(`${P.toName} 收下了！把 ${itemName(P.item)} ×${P.n} 送過去了。`);await saveNow()}
 async function finishIn(id,type){const P=PEND_IN[id];delete PEND_IN[id];if(!P)return;
   if(type!=='giftdone'||Date.now()>P.exp){await say(`${P.fromName} 的送禮取消了。`);return}
   if(P.kind==='gift'){const t=P.mon;t.hp=maxhp(t);delete t.pp;const w=addMon(t);sfx('catch');await sayAll([`收到了 ${P.fromName} 送的 ${monTxt(t)}！${w==='box'?'（身上滿了，送進怪獸箱）':''}`,'要好好照顧牠喔！']);await tradeEvo(t)}
@@ -4380,8 +4421,9 @@ async function giftOffer(pe){
 （按 B 取消）`);
   const r=await waitB(giftWait(pe,id));hideText();if(r==='cancel'){delete PEND_OUT[id];DUEL().send(pe.id,{type:'tradeno',id});await say('取消了，東西沒有送出去。');return}if(!r&&PEND_OUT[id]){PEND_OUT[id].waiting=false;await sayAll([`${pe.name} 還沒回應。`,'等他按「收下」，就會自動送過去（10 分鐘內有效）。']);return}delete PEND_OUT[id];if(!(await giftReply(pe,r)))return;
   const j=G.party.indexOf(mine);if(j<0||G.party.length<2){DUEL().send(pe.id,{type:'tradeno',id});await say('送不出去了。');return}
-  G.party.splice(j,1);DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`${pe.name} 會好好照顧牠的！`]);await saveNow()}
-async function gotGift(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);
+  G.party.splice(j,1);showText('送出中……請不要關掉遊戲');const sv=await saveSure();hideText();if(!sv){G.party.splice(j,0,mine);DUEL().send(pe.id,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`${pe.name} 會好好照顧牠的！`]);await saveNow()}
+const GOT_IDS=new Set();
+async function gotGift(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);if(GOT_IDS.has(m.id)){DUEL().send(m.from,{type:'decline',id:m.id});return}GOT_IDS.add(m.id);
   if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想送你 ${monTxt(theirs)}！\n要收下嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
   mailbox.length=0;PEND_IN[m.id]={kind:'gift',from:m.from,fromName:nm2,mon:theirs,exp:Date.now()+PEND_MS,waiting:true};DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
@@ -4400,8 +4442,8 @@ async function itemOffer(pe){
 （按 B 取消）`);
   const r=await waitB(giftWait(pe,id));hideText();if(r==='cancel'){delete PEND_OUT[id];DUEL().send(pe.id,{type:'tradeno',id});await say('取消了，東西沒有送出去。');return}if(!r&&PEND_OUT[id]){PEND_OUT[id].waiting=false;await sayAll([`${pe.name} 還沒回應。`,'等他按「收下」，就會自動送過去（10 分鐘內有效）。']);return}delete PEND_OUT[id];if(!(await giftReply(pe,r)))return;
   if((G.items[k]|0)<n){DUEL().send(pe.id,{type:'tradeno',id});await say('道具不夠了，送不出去。');return}
-  G.items[k]-=n;DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await say(`把 ${itemName(k)} ×${n} 送給 ${pe.name} 了！`);await saveNow()}
-async function gotItem(m){const nm2=String(m.name||'訓練家').slice(0,8);const k=String(m.item||''),n=Math.max(1,Math.min(10,m.n|0));
+  G.items[k]-=n;if(!(await saveSure())){G.items[k]+=n;DUEL().send(pe.id,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await say(`把 ${itemName(k)} ×${n} 送給 ${pe.name} 了！`);await saveNow()}
+async function gotItem(m){const nm2=String(m.name||'訓練家').slice(0,8);if(GOT_IDS.has(m.id)){DUEL().send(m.from,{type:'decline',id:m.id});return}GOT_IDS.add(m.id);const k=String(m.item||''),n=Math.max(1,Math.min(10,m.n|0));
   if(!itemName(k)){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想送你 ${itemName(k)} ×${n}！\n要收下嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
   mailbox.length=0;PEND_IN[m.id]={kind:'item',from:m.from,fromName:nm2,item:k,n,exp:Date.now()+PEND_MS,waiting:true};DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
@@ -4593,7 +4635,7 @@ function drawTitle(now){const g=tbg,t=now/1000;
   for(const [cx0,cy,front,sp] of TCLOUDS)if(front)tcloud(g,((cx0-t*sp*20)%200+200)%200-30,cy,34,.7);drawMist(g,t,1)}
 function askName(){return new Promise(res=>{nameForm.hidden=false;const inp=$('trainerName');inp.value='';setTimeout(()=>inp.focus(),50);
   nameForm.onsubmit=e=>{e.preventDefault();const v=inp.value.trim().slice(0,8);if(!v){inp.focus();return}nameForm.hidden=true;inp.blur();screenEl.focus();res(v)}})}
-function enterWorld(){titleEl.hidden=true;loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600);if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_shari1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmShari1)},2600)}
+function enterWorld(){titleEl.hidden=true;setTimeout(()=>{try{if(G&&G.tx&&db&&Object.values(G.tx).some(t=>t&&t.st==='esc'))whenFree(txRecover)}catch(e){}},4000);loadMap(G.pos.map);placePlayer(G.pos);mode='map';if('~8'.includes(tileAt(player.x,player.y))){G.flags.surf=true;const sw=G.party.find(m=>m.moves.includes('游泳'))||G.party[0];if(sw)G.flags.surfsp=sw.sp}if(G&&!G.dream)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(dreamFix)},900);if(G&&!G.dream&&db&&uid&&!GM_UIDS.has(uid)&&!G.flags.gmfr)gmFriend();if(G&&!G.dream&&db&&uid&&GM_UIDS.has(uid))gmFriendAll();if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_fly1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmFly1)},1600);if(G&&!G.dream&&GM_UIDS.has(uid)&&!G.flags.gm_shari1)setTimeout(()=>{if(G&&mode==='map'&&!busy)event(gmShari1)},2600)}
 /* 每位玩家自動跟 GM 成為好友（只做一次） */
 async function gmFriend(){const gm=[...GM_UIDS][0];if(!gm||!db||!uid||!G)return;const k=pairKey(uid,gm),[a,b]=k.split('_');
   try{await db.doc('friends/fr_'+k).set({a,b,m:[a,b],an:a===gm?'凱凱':G.name,bn:b===gm?'凱凱':G.name,t:Date.now()});G.flags.gmfr=true;scheduleSave(500)}catch(e){}}

@@ -31,12 +31,20 @@
     <button type="button" id="aoff" class="link">先不登入，單機玩</button>
   </form>
 </div>
+<script>
+/* 連不上 Firebase（網路不穩、被擋）時不要卡在開場：12 秒後給「重新整理」和「單機玩」 */
+(function(){setTimeout(function(){if(window.__fbOK)return;var a=document.getElementById('auth'),m=document.getElementById('amsg'),g=document.getElementById('ago'),o=document.getElementById('aoff');
+  if(a)a.hidden=false;if(m)m.textContent=window.__fbLoaded?'連線很慢，伺服器一直沒有回應……':'連不上伺服器（可能是網路不穩）。';
+  if(g){g.textContent='重新整理再試一次';g.disabled=false;g.onclick=function(e){e.preventDefault();location.reload()}}
+  if(o){o.textContent='先不登入，單機玩（不會存到雲端）';o.onclick=function(){if(a)a.hidden=true;if(window.__resolveCloud)window.__resolveCloud(null)}}},12000)})();
+</script>
 <script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {initializeApp} from './vendor/fb10122/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
+import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
 import CONFIG from './firebase-config.js';
+window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
 const authEl=$('auth'),form=$('authForm');
@@ -89,7 +97,7 @@ $('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(
 
 if(auth){
   let first=true;
-  onAuthStateChanged(auth,u=>{if(!first)return;first=false;
+  onAuthStateChanged(auth,u=>{window.__fbOK=1;if(!first)return;first=false;
     if(u){let nm='';try{nm=localStorage.getItem('baodao_acct_'+u.uid)||''}catch(e){}enter(u,nm)}
     else{authEl.hidden=false;try{if(sessionStorage.getItem('baodao_kicked')){sessionStorage.removeItem('baodao_kicked');$('amsg').textContent='你的帳號已在另一台裝置登入，這裡先登出了。'}}catch(e){}setTimeout(()=>$('au').focus(),50)}});
   form.addEventListener('submit',async e=>{e.preventDefault();const u=$('au').value.trim(),p=$('ap').value;const msg=$('amsg');
