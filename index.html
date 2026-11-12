@@ -298,7 +298,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-205237';
+import CONFIG from './firebase-config.js?v=20261112-210011';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-205237";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-210011";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1863,15 +1863,16 @@ function markSeen(sp){if(!G.seen.includes(sp))G.seen.push(sp)}
 const NO_WILD=new Set([35,90]);   // 玉山蒼龍（傳說未開放）、金剛舍利尊（中台禪寺未開放）、愛歹丸（GM 限定）
 const GM_OT='GM 凱凱';
 const lvCap=b=>25+(b|0)*12;          // 等級「可疑」門檻：0徽章25、5徽章85
-function lineSps(sp){const sps=[sp];for(let k=0;k<5;k++){const pre=SP.findIndex(s=>s&&s.evo&&sps.includes(s.evo[1])&&!sps.includes(SP.indexOf(s)));if(pre<0)break;sps.push(pre)}return sps}
+function lineSps(sp){const sps=[sp];for(let k=0;k<5;k++){const pre=SP.findIndex(s=>s&&s.evo&&sps.includes(s.evo[1])&&!sps.includes(SP.indexOf(s)));if(pre<0)break;sps.push(pre)}try{for(const a in TRADE_EVO)if(sps.includes(TRADE_EVO[a])&&!sps.includes(+a))sps.push(+a)}catch(e){}return sps}
 function legalMoves(m){const ok=new Set(),t=SP[m.sp].t;for(const s of lineSps(m.sp))for(const [l,mv] of SP[s].l)if(l<=m.lv)ok.add(mv);
   for(const [mv] of SKILLS)if(MOVES[mv]&&(MOVES[mv].t==='一般'||MOVES[mv].t===t))ok.add(mv);
   try{for(const [mv] of premMoves())if(MOVES[mv]&&(MOVES[mv].t==='一般'||MOVES[mv].t===t))ok.add(mv)}catch(e){}
+  /* OLD_BASIC：11/6 招式改版前學到的一般系基本招（亂抓等），舊存檔會留著，算合法 */for(const k in MOVES){const q=MOVES[k];if(q.t==='一般'&&(q.p|0)>0&&q.p<=60)ok.add(k)}
   if(SWIM_TYPES.includes(t))ok.add('游泳');if(FLY_TYPES.includes(t))ok.add('飛天');
   for(const q of QUESTS){const g=q.give||{};if(g.tutor&&g.tutor.t.includes(t))ok.add(g.tutor.m);if(g.mon&&SPN(g.mon.n)===m.sp)(g.mon.moves||[]).forEach(x=>ok.add(x))}return ok}
 /* d=存檔（原始或 sanG 過）；gifts=[{sp,lv}] GM 真的寄給這個玩家的怪獸（沒給就不檢查 GM 怪獸） */
 /* 志凱說沒問題的玩家（11/12：小郭=朋友有 GM 送的愛歹丸、小貓咪=兒子、xxoo 的招手蟹是他送的） */
-const CHEAT_TRUST=new Set(['小郭','小貓咪','xxoo']);
+const CHEAT_TRUST=new Set(['小郭','小貓咪','xxoo','豆漿師父','豆漿師傅']);
 function cheatCheck(d,gifts){const red=[],yellow=[],mons=[];if(!d||typeof d!=='object')return {red,yellow,mons};
   const badges=d.badges|0;if(badges>OPEN_CH)red.push(`徽章 ${badges} 個（目前只開放到第 ${OPEN_CH} 章）`);
   if((+d.money||0)>999999)red.push(`錢 ${d.money} 元（超過上限）`);
