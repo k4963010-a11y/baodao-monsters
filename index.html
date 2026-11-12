@@ -298,7 +298,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261112-204729';
+import CONFIG from './firebase-config.js?v=20261112-205237';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261112-204729";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261112-205237";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -4369,10 +4369,12 @@ async function tradeOffer(pe){
   if(r==='cancel'||!r){DUEL().send(pe.id,{type:'tradeno',id});await say(r?'取消交換了。':`${pe.name} 沒有回應。`);return}
   if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return}
   if(r.type==='oldver'){await say(`${pe.name} 的遊戲版本比較舊，\n請他按「更新」之後再交換。`);return}
-  if(r.type==='decline'){await say(`${pe.name} 不想交換。`);return}
+  if(r.type==='decline'){await say(r.why==='aidai'?`${pe.name} 已經有愛歹丸了（每人只能有一隻）。`:`${pe.name} 不想交換。`);return}
   const t0=Date.now();showText('確認對方的寶貝……');const pt=await peerTx(pe.id,id);hideText();
   const got=pt&&pt.st==='esc'&&pt.peer===uid?sanMon(pt.give):null;
   if(!got){DUEL().send(pe.id,{type:'tradeno',id});await say('交換失敗了（找不到對方準備好的寶貝）。');return}
+  if(got.sp===90&&mine.sp!==90&&hasAidai()){DUEL().send(pe.id,{type:'tradeno',id});await say(`你已經有愛歹丸了（每人只能有一隻），
+不能再換一隻喔。`);return}
   showText(`${pe.name} 要用 ${monTxt(got)}\n換你的 ${monTxt(mine)}，確定嗎？（${TX_A_MS/1000} 秒內決定）`);
   const ctl={};const tm=setTimeout(()=>{if(ctl.fire)ctl.fire()},Math.max(1000,TX_A_MS-(Date.now()-t0)));
   const c=await choose(['好','不要'],{pos:'list yn',abort:ctl});clearTimeout(tm);hideText();
@@ -4385,7 +4387,9 @@ async function tradeOffer(pe){
   await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`換到了 ${monTxt(got)}！`,'要好好照顧牠喔！']);await tradeEvo(got);await saveNow()}
 async function gotTrade(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);G.tx=G.tx||{};
   if(m.type==='trade'){DUEL().send(m.from,{type:'oldver',id:m.id});await say(`${nm2} 想跟你交換寶貝，\n可是他的遊戲版本比較舊，請他按「更新」。`);return}
-  if(!theirs||typeof m.id!=='string'||!/^[a-z0-9]{4,12}$/.test(m.id)||G.tx[m.id]){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
+  if(!theirs||typeof m.id!=='string'||!/^[a-z0-9]{4,12}$/.test(m.id)||G.tx[m.id]){DUEL().send(m.from,{type:'decline',id:m.id});return}
+  if(theirs.sp===90&&hasAidai()){DUEL().send(m.from,{type:'decline',id:m.id,why:'aidai'});await say(`${nm2} 想用愛歹丸跟你交換，
+可是你已經有一隻了（每人只能有一隻）。`);return}sfx('badge');
   if(!(await yesNo(`${nm2} 想用 ${monTxt(theirs)}\n跟你交換怪獸，要看看嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
   if(G.party.length<2){DUEL().send(m.from,{type:'decline',id:m.id});await say('身上至少要有 2 隻寶貝才能交換喔！\n（先到寶貝中心的電腦多帶一隻）');return}
   const i=await pickMine(`要拿哪一隻換 ${monTxt(theirs)}？`);if(i<0){DUEL().send(m.from,{type:'decline',id:m.id});return}const mine=G.party[i];
@@ -4410,7 +4414,8 @@ setInterval(()=>{try{if(G&&G.tx&&db&&mode==='map'&&!busy&&!uiStack.length&&!PV&&
 /* ---- 給予寶貝 / 給予道具：對方先答應 → 送出方扣掉 → 通知對方收下 ---- */
 const itemName=k=>k==='cure'?'解狀態藥':k==='boba'?'珍珠奶茶':k==='douhua'?'豆花':k==='ppfill'?'招式補充':k==='ppup'?'招式增量':BALLS[k]?BALLS[k][0]:((HEALS.find(h=>h[0]===k)||[])[1]||null);
 const giftWait=(pe,id)=>waitMsg(m=>m.id===id&&m.from===pe.id&&['giftok','decline','busy'].includes(m.type),60000);
-async function giftReply(pe,r){if(!r){await say(`${pe.name} 沒有回應。`);return false}if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return false}if(r.type==='decline'){await say(`${pe.name} 說不用了，謝謝！`);return false}return true}
+async function giftReply(pe,r){if(!r){await say(`${pe.name} 沒有回應。`);return false}if(r.type==='busy'){await say(`${pe.name} 現在正在忙。`);return false}if(r.type==='decline'){await say(r.why==='aidai'?`${pe.name} 已經有愛歹丸了（每人只能有一隻），
+送不出去喔。`:`${pe.name} 說不用了，謝謝！`);return false}return true}
 /* 送禮不中斷：對方還沒按收下、或正在對戰時，先記下來，雙方忙完再自動完成（10 分鐘內有效） */
 const PEND_OUT={},PEND_IN={},PEND_MS=10*60000;
 function whenFree(fn){const t0=Date.now();const iv=setInterval(()=>{if(Date.now()-t0>15*60000){clearInterval(iv);return}if(G&&mode==='map'&&!busy&&!uiStack.length&&!PV){clearInterval(iv);event(fn)}},500)}
@@ -4422,6 +4427,7 @@ async function finishOut(id){const P=PEND_OUT[id];delete PEND_OUT[id];if(!P)retu
   G.items[P.item]-=P.n;if(!(await saveSure())){G.items[P.item]+=P.n;DUEL().send(P.to,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(P.to,{type:'giftdone',id});sfx('catch');await say(`${P.toName} 收下了！把 ${itemName(P.item)} ×${P.n} 送過去了。`);await saveNow()}
 async function finishIn(id,type){const P=PEND_IN[id];delete PEND_IN[id];if(!P)return;
   if(type!=='giftdone'||Date.now()>P.exp){await say(`${P.fromName} 的送禮取消了。`);return}
+  if(P.kind==='gift'&&P.mon&&P.mon.sp===90&&hasAidai()){await say(`你已經有愛歹丸了，${P.fromName} 送的這隻收不下。`);return}
   if(P.kind==='gift'){const t=P.mon;t.hp=maxhp(t);delete t.pp;const w=addMon(t);sfx('catch');await sayAll([`收到了 ${P.fromName} 送的 ${monTxt(t)}！${w==='box'?'（身上滿了，送進怪獸箱）':''}`,'要好好照顧牠喔！']);await tradeEvo(t)}
   else{G.items[P.item]=Math.min(99,(G.items[P.item]|0)+P.n);sfx('catch');await say(`收到了 ${P.fromName} 送的 ${itemName(P.item)} ×${P.n}！`)}
   await saveNow()}
@@ -4436,8 +4442,10 @@ async function giftOffer(pe){
   const r=await waitB(giftWait(pe,id));hideText();if(r==='cancel'){delete PEND_OUT[id];DUEL().send(pe.id,{type:'tradeno',id});await say('取消了，東西沒有送出去。');return}if(!r&&PEND_OUT[id]){PEND_OUT[id].waiting=false;await sayAll([`${pe.name} 還沒回應。`,'等他按「收下」，就會自動送過去（10 分鐘內有效）。']);return}delete PEND_OUT[id];if(!(await giftReply(pe,r)))return;
   const j=G.party.indexOf(mine);if(j<0||G.party.length<2){DUEL().send(pe.id,{type:'tradeno',id});await say('送不出去了。');return}
   G.party.splice(j,1);showText('送出中……請不要關掉遊戲');const sv=await saveSure();hideText();if(!sv){G.party.splice(j,0,mine);DUEL().send(pe.id,{type:'tradeno',id});await say('網路不穩，送禮取消了。');return}DUEL().send(pe.id,{type:'giftdone',id});sfx('catch');await sayAll([`${nm(mine)} 去了 ${pe.name} 那裡……`,`${pe.name} 會好好照顧牠的！`]);await saveNow()}
-const GOT_IDS=new Set();
+const GOT_IDS=new Set();const hasAidai=()=>!!G&&[...G.party,...(G.box||[])].some(x=>x&&x.sp===90);
 async function gotGift(m){const nm2=String(m.name||'訓練家').slice(0,8);const theirs=sanMon(m.mon);if(GOT_IDS.has(m.id)){DUEL().send(m.from,{type:'decline',id:m.id});return}GOT_IDS.add(m.id);
+  if(theirs&&theirs.sp===90&&hasAidai()){DUEL().send(m.from,{type:'decline',id:m.id,why:'aidai'});await say(`${nm2} 想送你愛歹丸，
+可是你已經有一隻了（每人只能有一隻）。`);return}
   if(!theirs){DUEL().send(m.from,{type:'decline',id:m.id});return}sfx('badge');
   if(!(await yesNo(`${nm2} 想送你 ${monTxt(theirs)}！\n要收下嗎？`))){DUEL().send(m.from,{type:'decline',id:m.id});return}
   mailbox.length=0;PEND_IN[m.id]={kind:'gift',from:m.from,fromName:nm2,mon:theirs,exp:Date.now()+PEND_MS,waiting:true};DUEL().send(m.from,{type:'giftok',id:m.id});showText(`等待 ${nm2} 送過來……`);
