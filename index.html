@@ -298,7 +298,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261113-092051';
+import CONFIG from './firebase-config.js?v=20261113-092846';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261113-092051";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261113-092846";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2179,7 +2179,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1113flee',d:'11/13 入侵三聖獸',items:['💫 入侵三聖獸一有機會就會逃跑，現在讓牠「暈頭轉向」（混亂）也逃不掉了（睡著、麻痺、冰凍也一樣）']},{v:'1113roam',d:'11/13 入侵三聖獸',items:['🦎 入侵三聖獸比較遇得到了：你換地圖時牠們不會每次都跑走；在牠所在的地方，草叢遇到的機率提高','📍 找不到牠們？先到桃園外來種棲息地問保育員，或看圖鑑的分布地圖（遊走中・現在在哪）']},{v:'1113epp',d:'11/13 對戰規則',items:['🔋 野生寶貝、訓練家、館主的招式也有次數了（跟玩家一樣），大招用完就只能用其他招，全部用完只能「拚命一擊」']},{v:'1113pvp',d:'11/13 真人對戰',items:['⏱️ 對手太久沒出招（手機切到背景、網路卡住），會自動幫他出招，不會一直卡在「等待對手選擇」','📴 連續 3 次沒反應就算對方離線，這場你贏','🔄 兩個人都要按「更新」到最新版，對戰才會順']},{v:'1113evo',d:'11/13 修正',items:['🦋 等級已經到了卻沒有進化的寶貝（例如升級後還沒進化就關掉遊戲），現在打完一場對戰就會補進化（感謝人生如夢回報）']},{v:'1112pvp',d:'11/12 真人對戰',items:['⚔️ 真人對戰時寶貝倒下，可以自己選下一隻上場（10 秒內沒選會自動派出），對手那回合會等你','📖 圖鑑網站更新到 146 隻（含第八章新寶貝）']},{v:'1112riv',d:'11/12 勁敵阿翔',items:['🧢 以前在路上錯過阿翔的話，第一次走進下一個城市（台北城、宜蘭市、花蓮市、台東市、青埔、奮起湖）他會在那裡等你，不會再突然在奇怪的地方冒出來（感謝夏天的建議）']},{v:'1112sun',d:'11/12 調整',items:['🌞 信義怪獸屋不再販售刺刺陽（稀有種要靠自己在野外找！）']},{v:'1112drop',d:'今晚 8:30 天降寶貝球！',items:['🎁 11/12（四）晚上 8:30，淡水鎮天降寶貝球！8:25 開始預告','⏱️ 活動 10 分鐘，共 70 顆球，面向球按 A 撿','🟣 其中藏著 1 顆大師球，誰會搶到呢？']},{v:'1112tx',d:'11/12 交換更安全',items:['🔒 交換寶貝改成更安全的方式：雙方都存檔成功才完成，中途斷線或關掉遊戲，寶貝會自動回到身上','⏱️ 交換確認要在 40 秒內決定，太久會自動取消','🔄 交換前請雙方都按「更新」到最新版；交換時身上至少要帶 2 隻寶貝','🌐 連不上伺服器時不會再卡在開場畫面，可以重試或先單機玩']},{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
+const NEWS=[{v:'1113flee',d:'11/13 入侵三聖獸',items:['💫 入侵三聖獸一有機會就會逃跑；讓牠睡著、冰凍、暈頭轉向或麻痺時逃不掉，但這些狀態幾回合後會解除（麻痺 2～4 回合），解除後牠又會逃','🔄 每次遇到三聖獸都是新的狀態，上次弄的睡著、麻痺不會帶過來（血量還是會記住）']},{v:'1113roam',d:'11/13 入侵三聖獸',items:['📍 找不到牠們？先到桃園外來種棲息地問保育員，或看圖鑑的分布地圖（遊走中・現在在哪）']},{v:'1113epp',d:'11/13 對戰規則',items:['🔋 野生寶貝、訓練家、館主的招式也有次數了（跟玩家一樣），大招用完就只能用其他招，全部用完只能「拚命一擊」']},{v:'1113pvp',d:'11/13 真人對戰',items:['⏱️ 對手太久沒出招（手機切到背景、網路卡住），會自動幫他出招，不會一直卡在「等待對手選擇」','📴 連續 3 次沒反應就算對方離線，這場你贏','🔄 兩個人都要按「更新」到最新版，對戰才會順']},{v:'1113evo',d:'11/13 修正',items:['🦋 等級已經到了卻沒有進化的寶貝（例如升級後還沒進化就關掉遊戲），現在打完一場對戰就會補進化（感謝人生如夢回報）']},{v:'1112pvp',d:'11/12 真人對戰',items:['⚔️ 真人對戰時寶貝倒下，可以自己選下一隻上場（10 秒內沒選會自動派出），對手那回合會等你','📖 圖鑑網站更新到 146 隻（含第八章新寶貝）']},{v:'1112riv',d:'11/12 勁敵阿翔',items:['🧢 以前在路上錯過阿翔的話，第一次走進下一個城市（台北城、宜蘭市、花蓮市、台東市、青埔、奮起湖）他會在那裡等你，不會再突然在奇怪的地方冒出來（感謝夏天的建議）']},{v:'1112sun',d:'11/12 調整',items:['🌞 信義怪獸屋不再販售刺刺陽（稀有種要靠自己在野外找！）']},{v:'1112drop',d:'今晚 8:30 天降寶貝球！',items:['🎁 11/12（四）晚上 8:30，淡水鎮天降寶貝球！8:25 開始預告','⏱️ 活動 10 分鐘，共 70 顆球，面向球按 A 撿','🟣 其中藏著 1 顆大師球，誰會搶到呢？']},{v:'1112tx',d:'11/12 交換更安全',items:['🔒 交換寶貝改成更安全的方式：雙方都存檔成功才完成，中途斷線或關掉遊戲，寶貝會自動回到身上','⏱️ 交換確認要在 40 秒內決定，太久會自動取消','🔄 交換前請雙方都按「更新」到最新版；交換時身上至少要帶 2 隻寶貝','🌐 連不上伺服器時不會再卡在開場畫面，可以重試或先單機玩']},{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
  {v:'1111fx',d:'招式演出大改版',items:['👥 好友清單改成線上的排在最前面','💥 威力 80 以上的強招換成全新演出：天降、地裂、連擊、光束、召喚、領域 6 種形式','⚡ 威力 100 以上的大招先放「必殺特寫」：怪獸大頭像＋招式名橫幅登場！','🌟 15 個專屬招式有自己的專屬動畫：隕石俯衝、八色虹箭、跑道幽靈、五月飛雪、神龍天降、寒單千響、千年月柱…快去找找看！']},{v:'1111ch7',d:'第七章 桃園・機場航廈',items:['✈️ 第七章開放！拿到寒單徽章後，到台東市的「台東機場」搭飛機去桃園','🧳 桃園機場航廈 6 段雙層迷宮：手扶梯、行李轉盤、電動步道、自動門開關、安檢門、黑漆漆的停車場、登機門謎題','🚇 走出航廈搭機場捷運到青埔：飛之道館（館主雲翎）、普中精舍（打坐念佛領靈光舍利）、華泰名品城 outlet','🦎 大漢溪外來種棲息地：入侵三聖獸會在全台灣到處跑、一遇到就逃跑！讓牠睡著或麻痺就跑不掉','🔁 入侵三聖獸「交換給朋友」才會進化，快找兄弟朋友一起換！','🐾 20 隻新怪獸：埤塘鷺、螺槳蜻、塔台夜鷹、彩殼行李蝸、蜜桃竹絲、閘門鯝、桐花蜂姬……','🧋 新道具：珍珠奶茶（招式PP全滿）、全復藥、解狀態藥；名品城還有扭蛋機和每天免費抽獎','🚄 打完第七章：高鐵台北↔桃園通車、台東↔桃園飛機可以來回搭']},{v:'1110j',d:'飛天開放',items:['🪽 飛天重新開放！帶著會「飛天」的怪獸，選單就會出現「飛天」','只能飛到自己去過的城市，或好友的旁邊（好友在的那張地圖，你也要走過才行）','🎁 送怪獸、送道具不會再中斷：對方還沒收下或正在對戰，忙完之後會自動完成','⏱ 真人對戰 10 秒沒出招會自動出招；十字鍵改成圓形感應，可以滑動換方向']},{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（首頁黃色按鈕）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
@@ -3129,23 +3129,23 @@ const roamPick=a=>a[Math.floor(Math.random()*a.length)];
 function roamLoc(sp){roamGraph();return ROAM_LOCS[G.flags['rl'+sp]|0]||ROAM_HOME}
 function roamSet(sp,id){roamGraph();const k=ROAM_LOCS.indexOf(id);G.flags['rl'+sp]=k<0?ROAM_LOCS.indexOf(ROAM_HOME):k}
 function roamMove(sp){roamGraph();const nb=ROAM_G[roamLoc(sp)]||[];roamSet(sp,(!nb.length||Math.random()<.12)?roamPick(ROAM_LOCS):roamPick(nb))}
-function roamTick(id){if(!G||id===ROAM_LAST)return;ROAM_LAST=id;for(const sp of ROAM)if((G.flags['rm'+sp]|0)===1&&Math.random()<.35)roamMove(sp)}
+function roamTick(id){if(!G||id===ROAM_LAST)return;ROAM_LAST=id;for(const sp of ROAM)if((G.flags['rm'+sp]|0)===1)roamMove(sp)}
 const roamName=sp=>(MAPS[roamLoc(sp)]||{}).name||'某個地方';
 function roamHit(){if(!G||!M||!G.party.some(m=>m.hp>0))return 0;const tl=tileAt(player.x,player.y);const ok=',G:ㄍㄐㄆ'.includes(tl)||(G.flags.surf&&'~8'.includes(tl))||(M.park&&tl==='a');if(!ok)return 0;
-  for(const sp of ROAM){if((G.flags['rm'+sp]|0)===1&&roamLoc(sp)===M.id&&Math.random()<.12)return sp}return 0}
+  for(const sp of ROAM){if((G.flags['rm'+sp]|0)===1&&roamLoc(sp)===M.id&&Math.random()<.05)return sp}return 0}
 async function roamMeet(e){const sp=+e.deco.slice(2);e.alert=true;sfx('blip');await wait(650);e.alert=false;
   await sayAll([`${SP[sp].n}：「！！」`,{123:'翠鬣寶寶嚇了一跳，「噗通」一聲跳進河裡，游走了！',125:'臭盾蟲「噗——」地噴出一團臭煙，趁你摀住鼻子的時候跑掉了！',127:'粉卵螺「咻」地鑽進水田裡，一下子就不見了！'}[sp],'牠開始在全台灣到處跑來跑去了……']);
   G.flags['rm'+sp]=1;roamMove(sp);markSeen(sp);refreshEnts();scheduleSave(200);
   if(!G.flags.roamtip){G.flags.roamtip=true;await sayAll(['（入侵三聖獸會在全台灣到處跑，你每換一張地圖，牠就跟著換地方。）','（在牠所在地方的草叢或水面，就有機會遇到！看過之後，圖鑑的分布會顯示牠現在在哪。）'])}}
 async function roamBattle(sp){const m=makeMon(sp,ROAM_LV);sfx('lvl');for(let i=0;i<3;i++){fadeA=.75;await wait(90);fadeA=0;await wait(90)}await say(`★ 稀有種出現！ ★
 ${SP[sp].n} 的身上散發著黑色的光……`);const hp=G.flags['rh'+sp]|0;if(hp>0)m.hp=Math.min(maxhp(m),hp-1);if(m.hp<=0)m.hp=1;
-  ROAM_NEXT={sp,st:ROAM_ST[G.flags['rs'+sp]|0]};if(!G.flags.roamb){G.flags.roamb=true;await say(`是入侵三聖獸 ${SP[sp].n}！\n牠一有機會就會逃走——讓牠睡著、麻痺或暈頭轉向就跑不掉！`)}
+  ROAM_NEXT={sp,st:null};if(!G.flags.roamb){G.flags.roamb=true;await say(`是入侵三聖獸 ${SP[sp].n}！\n牠一有機會就會逃走——讓牠睡著、麻痺或暈頭轉向就跑不掉！`)}
   const res=await battle([m],null);
   if(res==='caught'){G.flags['rm'+sp]=2;await say(`抓到入侵三聖獸 ${SP[sp].n} 了！\n聽說把牠交換給朋友，牠就會進化……`)}
   else if(m.hp<=0){G.flags['rh'+sp]=0;G.flags['rs'+sp]=0;roamSet(sp,ROAM_HOME);await say(`${SP[sp].n} 倒下後又爬了起來，慢慢逃回棲息地休息了……`)}
   else{G.flags['rh'+sp]=m.hp+1;G.flags['rs'+sp]=Math.max(0,ROAM_ST.indexOf(m._st||null));roamMove(sp)}
   scheduleSave(200)}
-const ROAM_FLEE=1;function roamFlee(foe){const r=B.status&&B.status.get(foe);foe._st=r&&r.main?r.main.k:null;if(r&&((r.main&&['slp','par','frz'].includes(r.main.k))||r.cnf>0))return false;return Math.random()<ROAM_FLEE}
+const ROAM_FLEE=1;async function roamParTick(f){if(!f||f.hp<=0)return;const r=recOf(f);if(r.main&&r.main.k==='par'){r.pn=r.pn||rnd(2,4);r.pt=(r.pt|0)+1;if(r.pt>=r.pn){r.main=null;r.pt=0;r.pn=0;updHud();await say(`${pre('e')}${nm(f)} 的麻痺解除了！`)}}else{r.pt=0;r.pn=0}}function roamFlee(foe){const r=B.status&&B.status.get(foe);foe._st=r&&r.main?r.main.k:null;if(r&&((r.main&&['slp','par','frz'].includes(r.main.k))||r.cnf>0))return false;return Math.random()<ROAM_FLEE}
 async function habGuard(){await sayAll(['保育員：這裡是大漢溪外來種棲息地。','有三隻從外地來的「入侵三聖獸」住在這裡：','西邊稻田的粉卵螺、中間河岸的翠鬣寶寶、東邊果園的臭盾蟲。','牠們跑得超快，會在全台灣到處亂跑！','牠們最厲害的是適應新環境——','聽說只要被交換到別的訓練家手上，就會進化成完全不同的樣子！']);
   const L=ROAM.filter(sp=>(G.flags['rm'+sp]|0)===1).map(sp=>`${SP[sp].n}：剛剛有人在「${roamName(sp)}」看到牠！`);if(L.length)await sayAll(['保育員：我們的巡邏隊回報——',...L]);
   if(ROAM.every(sp=>(G.flags['rm'+sp]|0)===2))await say('保育員：三隻都被你收服了！牠們跟著你，應該比較不會亂跑了。')}
@@ -4287,7 +4287,7 @@ async function battle(enemies,trainer){
     else if(act.type==='item'||act.type==='none'){await doMove(foe,me,em,'e')}
     else{const first=turnFirst(me,foe,act.m,em);
       if(first){await doMove(me,foe,act.m,'p');if(foe.hp>0)await doMove(foe,me,em,'e')}else{await doMove(foe,me,em,'e');if(me.hp>0)await doMove(me,foe,act.m,'p')}}
-    await burnTick(me,'p');await burnTick(foe,'e');await lakeGuard(me,'p');await lakeGuard(foe,'e');
+    await burnTick(me,'p');await burnTick(foe,'e');await lakeGuard(me,'p');await lakeGuard(foe,'e');if(B.roam)await roamParTick(foe);
     if(foe.hp<=0){B.ehidden=true;await say(`${pre('e')}${nm(foe)} 倒下了！`);B.fought.add(me);{const ps=[...B.fought].filter(m=>m.hp>0&&G.party.includes(m));if(!(trainer&&trainer.dream))for(const p of ps)await gainExp(p,foe,!!trainer,ps.length)}
       if(trainer&&ei<enemies.length-1){const nx=enemies[ei+1];
         if(me.hp>0&&G.party.some((x,j)=>j!==mi&&x.hp>0)&&await yesNo(`${trainer.name} 準備派出 ${nm(nx)}。\n要換怪獸嗎？`)){const sw=await partyPick('要換哪一隻上場？',i=>i!==mi&&G.party[i].hp>0);
