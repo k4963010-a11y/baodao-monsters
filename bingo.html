@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>夜市寶貝賓果</title>
+<link rel="icon" href="favicon.png">
+<style>
+:root{--bg:#2a0f3a;--board:#8a2bb0;--cell:#fff7e6;--gold:#ffd84a}
+html,body{margin:0;background:var(--bg);color:#fff;font-family:system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{background:radial-gradient(circle at 50% -10%,#6a2a8a,var(--bg) 60%);min-height:100vh;min-height:100dvh}
+.wrap{max-width:420px;margin:0 auto;padding:10px 12px 24px;box-sizing:border-box}
+h1{margin:4px 0 2px;font-size:24px;text-align:center;color:var(--gold);text-shadow:2px 2px 0 #b03020}
+.sub{text-align:center;font-size:12px;opacity:.85}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:14px;gap:6px}
+.pill{background:#0005;border-radius:999px;padding:4px 10px}
+.board{background:var(--board);border-radius:12px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;box-shadow:0 4px 0 #4a1060}
+.cell{position:relative;background:var(--cell);border-radius:6px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cell img{width:92%;image-rendering:pixelated;opacity:.55;filter:grayscale(.3)}
+.cell.on img{opacity:1;filter:none}
+.cell.on{background:#ffe9a8;box-shadow:inset 0 0 0 3px #f0a020}
+.cell.on::after{content:'';position:absolute;inset:10%;border:3px solid #e03030;border-radius:50%;opacity:.75}
+.cell.win{background:#ff7a7a;animation:pulse .5s infinite alternate}
+.cell.ting{box-shadow:inset 0 0 0 3px #3ad0ff}
+@keyframes pulse{to{transform:scale(.9)}}
+.msg{min-height:44px;text-align:center;font-size:17px;font-weight:bold;margin:8px 0;display:flex;align-items:center;justify-content:center}
+.deck{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.card{aspect-ratio:3/4;border-radius:6px;background:linear-gradient(135deg,#3ad0ff,#1a7ad0);border:2px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;transition:transform .25s}
+.card.up{background:var(--cell);cursor:default}
+.card.up img{width:90%;image-rendering:pixelated}
+.card.gone{visibility:hidden}
+.card:not(.up):active{transform:scale(.9)}
+button.b{font:inherit;font-size:18px;padding:12px;border-radius:12px;border:0;background:var(--gold);color:#432;font-weight:bold;width:100%;margin-top:8px;cursor:pointer}
+button.b.s{background:#ccc;font-size:14px;padding:8px}
+button.b:disabled{opacity:.4}
+.ov{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px}
+.ov[hidden]{display:none}
+.box{background:#3a1650;border:3px solid var(--gold);border-radius:16px;padding:16px;max-width:360px;width:100%;text-align:center}
+.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pk{background:#fff2;border-radius:10px;padding:6px;font-size:13px;cursor:pointer}
+.pk img{width:100%;image-rendering:pixelated}
+.rules{font-size:12px;opacity:.85;line-height:1.6;margin-top:10px}
+</style></head><body>
+<div class="wrap">
+  <h1>🀄 夜市寶貝賓果</h1>
+  <div class="sub">中壢夜市・試玩版（錢是假的，不會影響遊戲存檔）</div>
+  <div class="bar"><span class="pill" id="money"></span><span class="pill" id="streak"></span><span class="pill" id="price"></span></div>
+  <div class="board" id="board"></div>
+  <div class="msg" id="msg"></div>
+  <div class="deck" id="deck"></div>
+  <button class="b" id="bGo">開始一局</button>
+  <button class="b s" id="bReset">試玩重來（錢和紀錄歸零）</button>
+  <div class="rules">玩法：36 張寶貝牌蓋著，翻 15 張，翻到的寶貝在上面板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 3 張。<br>連勝 2 次可以換一隻稀有寶貝（只能換一次）。</div>
+</div>
+<div class="ov" id="ov" hidden><div class="box" id="ovBox"></div></div>
+<script>
+'use strict';
+// ===== 設定（改這裡就好）=====
+const MONS=[[1,'閃紋虎'],[3,'啾啾鵲'],[5,'茶苞苞'],[6,'火金姑'],[7,'鮭寶寶'],[8,'穿山球'],[9,'小月熊'],[11,'皮皮猴'],[13,'招手蟹'],[14,'硫晶球'],[15,'日光妹'],[17,'蛋願寶寶'],
+  [19,'茶葉精'],[21,'螢火郎'],[23,'櫻花鮭'],[26,'霧紋豹'],[27,'葉鼻蝠'],[29,'冠羽鷲'],[30,'芒絨球'],[32,'松靈鼠'],[33,'霓虹喵'],[36,'竹節忍'],[37,'寬尾鳳靈'],[38,'夜影貓'],
+  [39,'轉轉輪'],[41,'阻尼球'],[49,'刺刺陽'],[52,'水燈靈'],[53,'月影鴞'],[54,'嘟鼻象'],[55,'五彩叩叩'],[56,'隱竹蜥'],[61,'包種蛙'],[65,'幽燈狸'],[66,'稻浪鴨'],[68,'龜島靈']];
+const RARE_CHOICES=[[26,'霧紋豹'],[49,'刺刺陽'],[52,'水燈靈'],[53,'月影鴞'],[68,'龜島靈'],[72,'閃線鰻']];
+const DRAW=15,EXTRA=3,STREAK_FOR_RARE=2;
+const PRICE_BEFORE=100,PRIZE_BEFORE=1000,PRICE_AFTER=1000,PRIZE_AFTER=10000,START_MONEY=20000;
+const LINES=[];for(let r=0;r<6;r++)LINES.push([0,1,2,3,4,5].map(c=>r*6+c));for(let c=0;c<6;c++)LINES.push([0,1,2,3,4,5].map(r=>r*6+c));
+LINES.push([0,7,14,21,28,35],[5,10,15,20,25,30]);
+
+const $=id=>document.getElementById(id);
+let S;try{S=JSON.parse(localStorage.getItem('bingo_trial'))}catch(e){}
+if(!S)S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};
+const save=()=>{try{localStorage.setItem('bingo_trial',JSON.stringify(S))}catch(e){}};
+let G=null; // 這一局
+let AC=null;function snd(f,d=.1,t='square',v=.07){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+const price=()=>S.rare?PRICE_AFTER:PRICE_BEFORE,prize=()=>S.rare?PRIZE_AFTER:PRIZE_BEFORE;
+function hud(){$('money').textContent='💰 '+S.money.toLocaleString()+' 元';$('streak').textContent='🔥 連勝 '+S.streak;$('price').textContent=`一局 ${price()}・贏 ${prize().toLocaleString()}`}
+function drawBoard(){$('board').innerHTML=MONS.map(([id,n],i)=>`<div class="cell" id="c${i}"><img src="mon/${id}_f.webp" alt="${n}"></div>`).join('')}
+function drawDeck(){$('deck').innerHTML=G?G.order.map((m,k)=>`<div class="card" data-k="${k}">?</div>`).join(''):''}
+function msg(t){$('msg').innerHTML=t}
+function lineCount(L){return L.filter(i=>G.hit.has(i)).length}
+function start(){if(S.money<price()){msg('錢不夠了～按「試玩重來」');return}
+  S.money-=price();S.games++;save();
+  const order=MONS.map((m,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}
+  G={order,hit:new Set(),left:DRAW,phase:'draw',ting:false,done:false};
+  drawBoard();drawDeck();hud();$('bGo').disabled=true;msg(`翻牌！還可以翻 <b style="color:var(--gold)">&nbsp;${G.left}&nbsp;</b> 張`);snd(660,.08)}
+function flip(k){if(!G||G.done||G.left<=0)return;const el=document.querySelector(`.card[data-k="${k}"]`);if(!el||el.classList.contains('up'))return;
+  const i=G.order[k],[id,n]=MONS[i];el.classList.add('up');el.innerHTML=`<img src="mon/${id}_f.webp" alt="${n}">`;
+  G.hit.add(i);G.left--;$('c'+i).classList.add('on');snd(880+Math.random()*200,.06);
+  document.querySelectorAll('.cell.ting').forEach(c=>c.classList.remove('ting'));
+  const win=LINES.find(L=>lineCount(L)===6);if(win){end(true,win);return}
+  const tingL=LINES.filter(L=>lineCount(L)===5);tingL.forEach(L=>L.forEach(j=>{if(!G.hit.has(j))$('c'+j).classList.add('ting')}));
+  if(G.left>0){msg(`${tingL.length?'🔔 聽牌了！':''}還可以翻 <b style="color:var(--gold)">&nbsp;${G.left}&nbsp;</b> 張`);return}
+  if(G.phase==='draw'&&tingL.length){G.phase='extra';G.left=EXTRA;msg(`🔔 聽牌！再補翻 <b style="color:var(--gold)">&nbsp;${EXTRA}&nbsp;</b> 張`);snd(1200,.2,'triangle');return}
+  end(false)}
+function end(won,line){G.done=true;$('bGo').disabled=false;
+  // 剩下的牌翻開給玩家看
+  const g=G;setTimeout(()=>G===g&&document.querySelectorAll('.card:not(.up)').forEach(el=>{const[id]=MONS[G.order[el.dataset.k]];el.classList.add('up');el.style.opacity=.35;el.innerHTML=`<img src="mon/${id}_f.webp">`}),600);
+  if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.money+=prize();S.streak++;S.wins++;save();hud();
+    [880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle'),i*120));
+    msg(`🎉 連線了！獲得 ${prize().toLocaleString()} 元`);
+    if(!S.rare&&S.streak>=STREAK_FOR_RARE)setTimeout(rareShop,900)}
+  else{S.streak=0;save();hud();snd(200,.3,'sawtooth');msg('沒連線…再來一局！')}
+  $('bGo').textContent=`再玩一局（${price()} 元）`}
+function rareShop(){$('ovBox').innerHTML=`<h1>🏆 連勝 ${STREAK_FOR_RARE} 次！</h1><div>選一隻稀有寶貝帶回家（只能換一次）</div>
+  <div class="picks">${RARE_CHOICES.map(([id,n])=>`<div class="pk" data-id="${id}" data-n="${n}"><img src="mon/${id}_f.webp">${n}</div>`).join('')}</div>`;$('ov').hidden=false}
+$('ovBox').addEventListener('click',e=>{const p=e.target.closest('.pk');if(p){S.rare=+p.dataset.id;save();hud();
+    $('ovBox').innerHTML=`<h1>✨ 換到 ${p.dataset.n}！</h1><img src="mon/${p.dataset.id}_f.webp" style="width:140px;image-rendering:pixelated"><div style="margin:8px 0">（試玩版：正式版會直接放進你的隊伍）</div><div>之後每局 ${PRICE_AFTER} 元、贏了拿 ${PRIZE_AFTER.toLocaleString()} 元！</div><button class="b" id="bOk">好</button>`;
+    [660,880,1320].forEach((f,i)=>setTimeout(()=>snd(f,.2,'triangle'),i*150));$('bGo').textContent=`再玩一局（${price()} 元）`;return}
+  if(e.target.id==='bOk')$('ov').hidden=true});
+$('deck').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)flip(+c.dataset.k)});
+$('bGo').onclick=start;
+$('bReset').onclick=()=>{if(!confirm('試玩的錢和紀錄都歸零？'))return;S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};save();G=null;drawBoard();drawDeck();hud();msg('');$('bGo').disabled=false;$('bGo').textContent='開始一局'};
+drawBoard();hud();if(S.rare)$('bGo').textContent=`開始一局（${price()} 元）`;
+</script>
+</body></html>
