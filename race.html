@@ -75,7 +75,7 @@ const TRACK={name:'淡水河畔',laps:3,w:2600*TS,h:2100*TS,rw:170,
   pads:[.3,.72],boxes:[.13,.47,.83],river:y=>190+55*Math.sin(y/280)};
 const AUTO=Q.has('auto'),SPEED=+Q.get('speed')||1;
 const VMAX=430,STEER=2.7,SEND_MS=100,INTERP_MS=130;
-const IMG={};RACERS.forEach(r=>{const i=new Image();i.src='mon/'+r.id+'_b.webp';IMG[r.id]=i});
+const IMG={},IMGF={};RACERS.forEach(r=>{const i=new Image();i.src='mon/'+r.id+'_b.webp';IMG[r.id]=i;const f=new Image();f.src='mon/'+r.id+'_f.webp';IMGF[r.id]=f});
 const RC=id=>RACERS.find(r=>r.id===id)||RACERS[0];
 
 // ===== 賽道 =====
@@ -307,17 +307,20 @@ function drawCar(c){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a+Math.PI/2+c
   ctx.fillStyle='#222';[[-22,-20],[14,-20],[-22,12],[14,12]].forEach(([x,y])=>ctx.fillRect(x,y,8,14));
   ctx.fillStyle=RC(c.pick).c;ctx.beginPath();ctx.roundRect?ctx.roundRect(-16,-28,32,56,9):ctx.rect(-16,-28,32,56);ctx.fill();
   ctx.fillStyle='#fff8';ctx.fillRect(-10,-24,20,6);
-  const im=IMG[c.pick];if(im&&im.complete)ctx.drawImage(im,-30,-34,60,60);
   if(c.sticky>0){ctx.fillStyle='#ffd1e6';[[-14,16],[12,20],[0,26]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,8,0,7);ctx.fill()})}
   ctx.restore();
+  // 寶貝本身保持直立（往下開看正面、往上開看背面），車子才轉方向
+  {const down=Math.sin(c.a)>.25,im=(down?IMGF:IMG)[c.pick],fl=Math.cos(c.a)>0&&down;if(im&&im.complete){ctx.save();ctx.translate(c.x,c.y-12);if(c.sa)ctx.rotate(Math.sin(c.sa)*.5);if(fl)ctx.scale(-1,1);ctx.drawImage(im,-28,-30,56,56);ctx.restore()}}
   if(c.spin>0||c.sa){ctx.fillStyle='#ffe14a';ctx.font='18px sans-serif';for(let k=0;k<3;k++){const a=performance.now()/150+k*2.1;ctx.fillText('★',c.x+Math.cos(a)*30-8,c.y+Math.sin(a)*30)}}
   if(c.id!==ME){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(camA+Math.PI/2);ctx.font='bold 15px "Microsoft JhengHei",sans-serif';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.fillStyle='#fff';ctx.strokeText(c.name,0,-42);ctx.fillText(c.name,0,-42);ctx.restore()}}
 function render(){const w=cv.width,h=cv.height;ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#5da34c';ctx.fillRect(0,0,w,h);if(!race)return;
-  const me=CARS[ME];if(!me)return;camX+=(me.x-camX)*.25;camY+=(me.y-camY)*.25;camA+=angD(camA,me.a)*.12;
-  const sc=Math.min(w,h*.75)/430;ctx.translate(w/2,h*.66);ctx.scale(sc,sc);ctx.rotate(-camA-Math.PI/2);ctx.translate(-camX,-camY);
+  const me=CARS[ME];if(!me)return;// 平面俯視：地圖固定不旋轉，鏡頭只跟著平移（往車頭方向多看一點）
+  const tx=me.x+Math.cos(me.a)*70,ty=me.y+Math.sin(me.a)*70;camX+=(tx-camX)*.12;camY+=(ty-camY)*.12;camA=-Math.PI/2;
+  const sc=Math.min(w,h*.75)/480,vw=w/2/sc,vh=h/2/sc;camX=clamp(camX,Math.min(vw,TRACK.w/2),Math.max(TRACK.w-vw,TRACK.w/2));camY=clamp(camY,Math.min(vh,TRACK.h/2),Math.max(TRACK.h-vh,TRACK.h/2));
+  ctx.translate(w/2,h/2);ctx.scale(sc,sc);ctx.translate(-camX,-camY);
   ctx.drawImage(BG,0,0);
   const tm=performance.now()/1000;
-  for(const b of BOXES)if(b.t<=0){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(tm*1.5);ctx.fillStyle='#d42020';ctx.fillRect(-15,-15,30,30);ctx.strokeStyle='#ffd84a';ctx.lineWidth=3;ctx.strokeRect(-15,-15,30,30);ctx.rotate(-tm*1.5+camA+Math.PI/2);ctx.fillStyle='#ffd84a';ctx.font='bold 20px "Microsoft JhengHei",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('福',0,1);ctx.restore()}
+  for(const b of BOXES)if(b.t<=0){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(tm*1.5);ctx.fillStyle='#d42020';ctx.fillRect(-15,-15,30,30);ctx.strokeStyle='#ffd84a';ctx.lineWidth=3;ctx.strokeRect(-15,-15,30,30);ctx.rotate(-tm*1.5);ctx.fillStyle='#ffd84a';ctx.font='bold 20px "Microsoft JhengHei",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('福',0,1);ctx.restore()}
   ctx.textAlign='center';ctx.textBaseline='middle';
   for(const m of MOCHI){ctx.fillStyle='#f6c8dc';ctx.beginPath();ctx.arc(m.x,m.y,15,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(m.x-4,m.y-4,6,0,7);ctx.fill()}
   for(const s of SHOTS){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.a);ctx.fillStyle='#c81e1e';ctx.fillRect(-12,-6,24,12);ctx.fillStyle='#ffd84a';ctx.fillRect(-12,-2,24,4);ctx.fillStyle=Math.random()<.5?'#fff':'#ffcc33';ctx.beginPath();ctx.arc(-16,0,5+Math.random()*4,0,7);ctx.fill();ctx.restore()}
