@@ -12,7 +12,7 @@ h1{margin:4px 0 2px;font-size:24px;text-align:center;color:var(--gold);text-shad
 .sub{text-align:center;font-size:12px;opacity:.85}
 .bar{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:14px;gap:6px}
 .pill{background:#0005;border-radius:999px;padding:4px 10px}
-.board{background:var(--board);border-radius:12px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;box-shadow:0 4px 0 #4a1060}
+.board{max-width:320px;margin:0 auto;background:var(--board);border-radius:12px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;box-shadow:0 4px 0 #4a1060}
 .cell{position:relative;background:var(--cell);border-radius:6px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .cell img{width:92%;image-rendering:pixelated;opacity:.55;filter:grayscale(.3)}
 .cell.on img{opacity:1;filter:none}
@@ -38,6 +38,16 @@ button.b:disabled{opacity:.4}
 .pk{background:#fff2;border-radius:10px;padding:6px;font-size:13px;cursor:pointer}
 .pk img{width:100%;image-rendering:pixelated}
 .rules{font-size:12px;opacity:.85;line-height:1.6;margin-top:10px}
+.table{position:relative;height:250px;overflow:hidden;transition:height .4s,opacity .4s;background:#1e3a2a;border-radius:14px;box-shadow:inset 0 0 0 4px #3a2010,inset 0 0 30px #0008;transition:opacity .4s}
+.table.dim{opacity:.3;pointer-events:none;height:60px}
+.tile{position:absolute;width:40px;height:52px;border-radius:6px;background:linear-gradient(160deg,#5ad8ff,#1a7ad0);box-shadow:0 4px 0 #f2f2f2,0 6px 3px #0007;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tile:active{filter:brightness(1.2)}
+.hand .tile{position:static;transform:none}
+.tile.up{background:var(--cell);box-shadow:0 4px 0 #1a7ad0,0 6px 3px #0007;cursor:default}
+.tile.up img{width:94%;image-rendering:pixelated}
+.tile.fly{position:fixed;z-index:50;transition:transform .4s ease-in,opacity .4s;pointer-events:none}
+.handT{font-size:12px;opacity:.8;margin:10px 0 4px}
+.hand{display:flex;flex-wrap:wrap;gap:6px 5px;min-height:58px;background:#0003;border-radius:10px;padding:6px}
 </style></head><body>
 <div class="wrap">
   <h1>🀄 夜市寶貝賓果</h1>
@@ -45,10 +55,12 @@ button.b:disabled{opacity:.4}
   <div class="bar"><span class="pill" id="money"></span><span class="pill" id="streak"></span><span class="pill" id="price"></span></div>
   <div class="board" id="board"></div>
   <div class="msg" id="msg"></div>
-  <div class="deck" id="deck"></div>
+  <div class="table" id="table"></div>
+  <div class="handT">手上的牌</div>
+  <div class="hand" id="hand"></div>
   <button class="b" id="bGo">開始一局</button>
   <button class="b s" id="bReset">試玩重來（錢和紀錄歸零）</button>
-  <div class="rules">玩法：36 張寶貝牌蓋著，翻 15 張，翻到的寶貝在上面板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 3 張。<br>連勝 2 次可以換一隻稀有寶貝（只能換一次）。</div>
+  <div class="rules">玩法：36 張寶貝牌亂亂蓋在桌上，先隨意選 15 張，其餘捨棄；再一張一張翻開，翻到的寶貝放上板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 3 張。<br>連勝 2 次可以換一隻稀有寶貝（只能換一次）。</div>
 </div>
 <div class="ov" id="ov" hidden><div class="box" id="ovBox"></div></div>
 <script>
@@ -72,26 +84,42 @@ let AC=null;function snd(f,d=.1,t='square',v=.07){try{AC=AC||new(window.AudioCon
 const price=()=>S.rare?PRICE_AFTER:PRICE_BEFORE,prize=()=>S.rare?PRIZE_AFTER:PRIZE_BEFORE;
 function hud(){$('money').textContent='💰 '+S.money.toLocaleString()+' 元';$('streak').textContent='🔥 連勝 '+S.streak;$('price').textContent=`一局 ${price()}・贏 ${prize().toLocaleString()}`}
 function drawBoard(){$('board').innerHTML=MONS.map(([id,n],i)=>`<div class="cell" id="c${i}"><img src="mon/${id}_f.webp" alt="${n}"></div>`).join('')}
-function drawDeck(){$('deck').innerHTML=G?G.order.map((m,k)=>`<div class="card" data-k="${k}">?</div>`).join(''):''}
+// ===== 牌桌：蓋著的牌亂亂堆 → 選 15 張 → 其餘捨棄 → 一張一張翻開放上板子 =====
 function msg(t){$('msg').innerHTML=t}
 function lineCount(L){return L.filter(i=>G.hit.has(i)).length}
+function layTable(){const T=$('table');T.innerHTML='';const W=T.clientWidth,H=T.clientHeight,tw=40,th=52;
+  const order=MONS.map((m,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}
+  order.forEach((mi,k)=>{const gx=k%6,gy=k/6|0,cw=(W-tw)/5,ch=(H-th)/5;
+    const x=gx*cw+(Math.random()-.5)*cw*.8,y=gy*ch+(Math.random()-.5)*ch*.8,r=(Math.random()-.5)*80;
+    const t=document.createElement('div');t.className='tile';t.dataset.m=mi;t.style.left=clamp(x,0,W-tw)+'px';t.style.top=clamp(y,0,H-th)+'px';t.style.transform=`rotate(${r}deg)`;t.style.zIndex=1+(Math.random()*30|0);T.appendChild(t)});
+  G.pile=[...T.children]}
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 function start(){if(S.money<price()){msg('錢不夠了～按「試玩重來」');return}
   S.money-=price();S.games++;save();
-  const order=MONS.map((m,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}
-  G={order,hit:new Set(),left:DRAW,phase:'draw',ting:false,done:false};
-  drawBoard();drawDeck();hud();$('bGo').disabled=true;msg(`翻牌！還可以翻 <b style="color:var(--gold)">&nbsp;${G.left}&nbsp;</b> 張`);snd(660,.08)}
-function flip(k){if(!G||G.done||G.left<=0)return;const el=document.querySelector(`.card[data-k="${k}"]`);if(!el||el.classList.contains('up'))return;
-  const i=G.order[k],[id,n]=MONS[i];el.classList.add('up');el.innerHTML=`<img src="mon/${id}_f.webp" alt="${n}">`;
-  G.hit.add(i);G.left--;$('c'+i).classList.add('on');snd(880+Math.random()*200,.06);
+  G={hit:new Set(),need:DRAW,phase:'pick',hand:[],done:false,flipping:false};
+  drawBoard();$('hand').innerHTML='';$('table').classList.remove('dim');layTable();hud();$('bGo').disabled=true;
+  msg(`隨意選 <b style="color:var(--gold)">&nbsp;${DRAW}&nbsp;</b> 張牌`);snd(660,.08)}
+function pick(t){if(!G||G.done||G.need<=0||(G.phase!=='pick'&&G.phase!=='pick2')||t.classList.contains('out'))return;
+  t.remove();t.className='tile';t.style.cssText='';$('hand').appendChild(t);G.hand.push(t);G.need--;snd(520+Math.random()*80,.05);
+  if(G.need>0){msg(`還要選 <b style="color:var(--gold)">&nbsp;${G.need}&nbsp;</b> 張`);return}
+  // 選夠了：剩下的捨棄（推到旁邊變暗），開始一張一張翻
+  $('table').classList.add('dim');G.phase='reveal';msg('一張一張翻開！點手上的牌 👇');snd(880,.12,'triangle')}
+function reveal(t){if(!G||G.done||G.phase!=='reveal'||G.flipping||t.classList.contains('up'))return;
+  const i=+t.dataset.m,[id]=MONS[i];t.classList.add('up');t.innerHTML=`<img src="mon/${id}_f.webp">`;G.flipping=true;
+  // 從手上飛到板子上
+  const a=t.getBoundingClientRect(),cell=$('c'+i),b=cell.getBoundingClientRect(),f=t.cloneNode(true);f.classList.add('fly');
+  Object.assign(f.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});document.body.appendChild(f);
+  requestAnimationFrame(()=>{f.style.transform=`translate(${b.left-a.left+(b.width-a.width)/2}px,${b.top-a.top+(b.height-a.height)/2}px) scale(1.2)`;f.style.opacity='.2'});
+  setTimeout(()=>{f.remove();G.flipping=false;placed(i)},420)}
+function placed(i){if(!G||G.done)return;G.hit.add(i);$('c'+i).classList.add('on');snd(880+Math.random()*200,.06);
   document.querySelectorAll('.cell.ting').forEach(c=>c.classList.remove('ting'));
   const win=LINES.find(L=>lineCount(L)===6);if(win){end(true,win);return}
   const tingL=LINES.filter(L=>lineCount(L)===5);tingL.forEach(L=>L.forEach(j=>{if(!G.hit.has(j))$('c'+j).classList.add('ting')}));
-  if(G.left>0){msg(`${tingL.length?'🔔 聽牌了！':''}還可以翻 <b style="color:var(--gold)">&nbsp;${G.left}&nbsp;</b> 張`);return}
-  if(G.phase==='draw'&&tingL.length){G.phase='extra';G.left=EXTRA;msg(`🔔 聽牌！再補翻 <b style="color:var(--gold)">&nbsp;${EXTRA}&nbsp;</b> 張`);snd(1200,.2,'triangle');return}
+  const left=G.hand.filter(t=>!t.classList.contains('up')).length;
+  if(left>0){msg(`${tingL.length?'🔔 聽牌了！':''}還有 <b style="color:var(--gold)">&nbsp;${left}&nbsp;</b> 張沒翻`);return}
+  if(!G.extra&&tingL.length){G.extra=true;G.phase='pick2';G.need=EXTRA;$('table').classList.remove('dim');msg(`🔔 聽牌！從剩下的牌再補 <b style="color:var(--gold)">&nbsp;${EXTRA}&nbsp;</b> 張`);snd(1200,.2,'triangle');return}
   end(false)}
-function end(won,line){G.done=true;$('bGo').disabled=false;
-  // 剩下的牌翻開給玩家看
-  const g=G;setTimeout(()=>G===g&&document.querySelectorAll('.card:not(.up)').forEach(el=>{const[id]=MONS[G.order[el.dataset.k]];el.classList.add('up');el.style.opacity=.35;el.innerHTML=`<img src="mon/${id}_f.webp">`}),600);
+function end(won,line){G.done=true;$('bGo').disabled=false;$('table').classList.add('dim');
   if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.money+=prize();S.streak++;S.wins++;save();hud();
     [880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle'),i*120));
     msg(`🎉 連線了！獲得 ${prize().toLocaleString()} 元`);
@@ -104,9 +132,10 @@ $('ovBox').addEventListener('click',e=>{const p=e.target.closest('.pk');if(p){S.
     $('ovBox').innerHTML=`<h1>✨ 換到 ${p.dataset.n}！</h1><img src="mon/${p.dataset.id}_f.webp" style="width:140px;image-rendering:pixelated"><div style="margin:8px 0">（試玩版：正式版會直接放進你的隊伍）</div><div>之後每局 ${PRICE_AFTER} 元、贏了拿 ${PRIZE_AFTER.toLocaleString()} 元！</div><button class="b" id="bOk">好</button>`;
     [660,880,1320].forEach((f,i)=>setTimeout(()=>snd(f,.2,'triangle'),i*150));$('bGo').textContent=`再玩一局（${price()} 元）`;return}
   if(e.target.id==='bOk')$('ov').hidden=true});
-$('deck').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)flip(+c.dataset.k)});
+$('table').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)pick(t)});
+$('hand').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)reveal(t)});
 $('bGo').onclick=start;
-$('bReset').onclick=()=>{if(!confirm('試玩的錢和紀錄都歸零？'))return;S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};save();G=null;drawBoard();drawDeck();hud();msg('');$('bGo').disabled=false;$('bGo').textContent='開始一局'};
+$('bReset').onclick=()=>{if(!confirm('試玩的錢和紀錄都歸零？'))return;S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};save();G=null;drawBoard();$('table').innerHTML='';$('hand').innerHTML='';hud();msg('');$('bGo').disabled=false;$('bGo').textContent='開始一局'};
 drawBoard();hud();if(S.rare)$('bGo').textContent=`開始一局（${price()} 元）`;
 </script>
 </body></html>
