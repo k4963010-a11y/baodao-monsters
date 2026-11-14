@@ -298,7 +298,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261115-001906';
+import CONFIG from './firebase-config.js?v=20261115-003130';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261115-001906";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261115-003130";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3827,8 +3827,9 @@ async function moveOrder(m){if(m.moves.length<2){await say('只有一招，不�
 async function releaseMon(m){showText(`真的要放生 ${nm(m)} Lv${m.lv}${isRareMon(m)?' ★':''} 嗎？
 放生了就回不來喔！`);const c=await choose(['再想想','確定放生'],{pos:'list',cancel:false});hideText();
   if(c!==1){await say('還是留著牠吧。');return false}sfx('bump');await sayAll([`${nm(m)} 回頭看了你一眼……`,`${nm(m)} 回到大自然了。再見！`]);return true}
-async function gmTools(){showText('GM 工具');const c=await choose(['拿全部徽章','領愛歹丸 ×50','算了'],{pos:'list'});hideText();if(c===1){if(!flyGM())return;for(let k=0;k<50;k++){const m=makeMon(90,5,GM_OT);m.ot=GM_OT;m.bx=freeBox();G.box.push(m)}markCaught(90);sfx('badge');await say(`GM：愛歹丸 ×50 放進怪獸箱了！
-（交換或送禮給玩家；對方已經有愛歹丸的話會自動拒絕）`);saveNow();return}if(c!==0)return;
+async function gmTools(){showText('GM 工具');const c=await choose(['拿全部徽章','領愛歹丸 Lv15（最多 50）','GM 愛歹丸全部變 Lv15','算了'],{pos:'list'});hideText();const AIDAI_LV=15,VIS=b=>(b|0)<20,boxFree=()=>20*BOX_N-G.box.filter(m=>VIS(m.bx)).length;const visSlot=()=>{for(let b=0;b<20;b++)if(boxSize(b)<BOX_N)return b;return -1};if(c===1){if(!flyGM())return;const n=Math.min(50,boxFree());if(n<=0){await say('GM：怪獸箱前 20 箱都滿了，先放生或整理一些再領。');return}for(let k=0;k<n;k++){const m=makeMon(90,AIDAI_LV,GM_OT);m.ot=GM_OT;m.bx=visSlot();G.box.push(m)}markCaught(90);sfx('badge');await say(`GM：愛歹丸 Lv${AIDAI_LV} ×${n} 放進怪獸箱了！${n<50?`
+（箱子只剩 ${n} 個空位）`:''}`);saveNow();return}if(c===2){if(!flyGM())return;let up=0,mv=0,stuck=0;for(const arr of [G.party,G.box])for(let k=0;k<arr.length;k++){const m=arr[k];if(!m||m.sp!==90||m.ot!==GM_OT)continue;if(m.lv<AIDAI_LV){const n=makeMon(90,AIDAI_LV,GM_OT);n.ot=GM_OT;if(arr===G.box)n.bx=m.bx;arr[k]=n;up++}if(arr===G.box&&!VIS(arr[k].bx)){const b=visSlot();if(b>=0){arr[k].bx=b;mv++}else stuck++}}sfx('badge');await say(`GM：${up} 隻 GM 愛歹丸變成 Lv${AIDAI_LV}${mv?`，${mv} 隻搬回看得到的箱子`:''}。${stuck?`
+還有 ${stuck} 隻在第 20 箱以後（箱子滿了看不到），請先整理箱子再按一次。`:''}`);saveNow();return}if(c!==0)return;
   G.badges=BADGES.length;for(let i=1;i<=BADGES.length;i++)G.flags['badge'+i]=true;G.flags.cut=true;G.flags.swim=true;G.flags.climb=true;sfx('badge');await say(`GM：拿到全部 ${BADGES.length} 個徽章了！
 （砍樹、游泳、攀岩也都開了）`);await saveNow()}
 async function partyMenu(){for(;;){const items=G.party.map(monLabel);showText('要看哪一隻？');const i=await choose(items,{pos:'list'});if(i<0)return;
