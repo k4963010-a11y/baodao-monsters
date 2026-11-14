@@ -60,7 +60,7 @@ button.b:disabled{opacity:.4}
   <div class="hand" id="hand"></div>
   <button class="b" id="bGo">開始一局</button>
   <button class="b s" id="bReset">試玩重來（錢和紀錄歸零）</button>
-  <div class="rules">玩法：36 張寶貝牌亂亂蓋在桌上，先隨意選 13 張，其餘捨棄；再一張一張翻開，翻到的寶貝放上板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 4 張。<br>贏了送超大娃娃「媽祖魚寶」！連勝 2 次還可以另外換一隻稀有寶貝（只能換一次）。</div>
+  <div class="rules">玩法：36 張寶貝牌亂亂蓋在桌上，先隨意選 13 張，其餘捨棄；再一張一張翻開，翻到的寶貝放上板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 4 張。<br>贏一次就送超大娃娃「媽祖魚寶」！</div>
 </div>
 <div class="ov" id="ov" hidden><div class="box" id="ovBox"></div></div>
 <script>
@@ -123,7 +123,7 @@ function end(won,line){G.done=true;$('bGo').disabled=false;$('table').classList.
   if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.dolls=(S.dolls|0)+1;S.streak++;S.wins++;save();hud();
     [880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle'),i*120));
     msg(`🎉 連線了！獲得大娃娃 ${PRIZE_MON}！`);$('ovBox').innerHTML=`<h1>🎉 大獎！</h1><img src="${PRIZE_IMG}" style="width:170px"><div style="margin:8px 0;font-size:18px">獲得超大娃娃 <b>${PRIZE_MON}</b>！</div><div class="sub">（試玩版：正式版會直接放進你的隊伍）</div><button class="b" id="bOk">好</button>`;$('ov').hidden=false;
-    if(!S.rare&&S.streak>=STREAK_FOR_RARE)setTimeout(rareShop,1500)}
+    }
   else{S.streak=0;save();hud();snd(200,.3,'sawtooth');msg('沒連線…再來一局！')}
   $('bGo').textContent=`再玩一局（${price()} 元）`}
 function rareShop(){$('ovBox').innerHTML=`<h1>🏆 連勝 ${STREAK_FOR_RARE} 次！</h1><div>選一隻稀有寶貝帶回家（只能換一次）</div>
