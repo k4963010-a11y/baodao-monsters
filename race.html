@@ -70,9 +70,9 @@ const BOTNAMES=['電腦・阿灰','電腦・小霧','電腦・黑皮'];
 const ITEMS={tea:{icon:'🧋',n:'珍珠奶茶'},fire:{icon:'🧨',n:'鞭炮'},mochi:{icon:'🍡',n:'麻糬'}};
 const ITEM_W=[{tea:1,fire:3,mochi:3},{tea:2,fire:3,mochi:2},{tea:3,fire:2,mochi:1},{tea:4,fire:2,mochi:1}]; // 依名次（落後的人奶茶多）
 const TS=1.25,TSC=.5,DECO=[]; // 賽道放大倍數
-const TRACK={name:'淡水河畔',laps:3,w:2600*TS,h:2100*TS,rw:170,
+const TRACK={name:'淡水河畔',laps:3,w:2600*TS,h:2100*TS,rw:260,
   cp:[[1500,1820],[1000,1830],[600,1700],[380,1350],[400,950],[620,600],[1000,420],[1400,450],[1620,700],[1480,980],[1180,1080],[1120,1320],[1380,1480],[1800,1400],[2000,1100],[2150,800],[2350,700],[2450,1000],[2380,1450],[2100,1750]].map(p=>[p[0]*TS,p[1]*TS]),
-  pads:[.3,.72],boxes:[.13,.47,.83],river:y=>190+55*Math.sin(y/280)};
+  pads:[[.06,-70],[.2,60],[.33,0],[.42,-75],[.56,70],[.66,-40],[.78,45],[.92,-60]],boxes:[.13,.47,.83],river:y=>190+55*Math.sin(y/280)};
 const AUTO=Q.has('auto'),SPEED=+Q.get('speed')||1;
 const VMAX=430,STEER=2.7,SEND_MS=100,INTERP_MS=130;
 const IMG={},IMGF={};RACERS.forEach(r=>{const i=new Image();i.src='mon/'+r.id+'_b.webp';IMG[r.id]=i;const f=new Image();f.src='mon/'+r.id+'_f.webp';IMGF[r.id]=f});
@@ -88,8 +88,8 @@ function buildTrack(){const cp=TRACK.cp,n=cp.length,raw=[];
     while(acc+d>=SP){const t=(SP-acc)/d;a=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];T.push(a);d=Math.hypot(b[0]-a[0],b[1]-a[1]);acc=0}acc+=d}
   if(Math.hypot(T[T.length-1][0]-T[0][0],T[T.length-1][1]-T[0][1])<SP*.6)T.pop();
   N=T.length;for(let i=0;i<N;i++){const a=T[(i-1+N)%N],b=T[(i+1)%N];TA.push(Math.atan2(b[1]-a[1],b[0]-a[0]))}
-  PADS=TRACK.pads.map(f=>Math.floor(f*N));
-  BOXES=[];TRACK.boxes.forEach(f=>{const k=Math.floor(f*N);[-55,0,55].forEach(o=>{const p=lat(k,o);BOXES.push({x:p[0],y:p[1],t:0})})});
+  PADS=TRACK.pads.map(([f,o])=>({i:Math.floor(f*N),o}));
+  BOXES=[];TRACK.boxes.forEach(f=>{const k=Math.floor(f*N);[-85,0,85].forEach(o=>{const p=lat(k,o);BOXES.push({x:p[0],y:p[1],t:0})})});
   BG=drawBG();buildTex()}
 function lat(i,o){const a=TA[i]+Math.PI/2;return [T[i][0]+Math.cos(a)*o,T[i][1]+Math.sin(a)*o]}
 function nearest(x,y,i0){let best=0,bd=1e18;const full=i0==null||i0<0;const lo=full?0:i0-20,hi=full?N:i0+30;
@@ -134,8 +134,10 @@ function drawBG(){const W=TRACK.w,H=TRACK.h,rw=TRACK.rw,c=document.createElement
     for(let r=0;r<2;r++)for(let k=-6;k<6;k++){g.fillStyle=(r+k)&1?'#111':'#fff';const x=T[0][0]+nx*k*S+tx*r*S,y=T[0][1]+ny*k*S+ty*r*S;
       g.save();g.translate(x,y);g.rotate(a);g.fillRect(0,0,S,S);g.restore()}}
   // 加速帶
-  for(const k of PADS)for(let j=0;j<3;j++){const i=(k+j*3)%N;g.save();g.translate(T[i][0],T[i][1]);g.rotate(TA[i]);g.fillStyle='#ffe14a';g.strokeStyle='#e07a00';g.lineWidth=4;
-    g.beginPath();g.moveTo(14,0);g.lineTo(-10,-26);g.lineTo(-2,-26);g.lineTo(22,0);g.lineTo(-2,26);g.lineTo(-10,26);g.closePath();g.fill();g.stroke();g.restore()}
+  for(const pd of PADS){const i=(pd.i+2)%N,q=lat(i,pd.o);g.save();g.translate(q[0],q[1]);g.rotate(TA[i]);
+    g.fillStyle='#ff8a00';g.fillRect(-32,-32,64,64);g.fillStyle='#ffe14a';for(let a=0;a<4;a++)for(let b=0;b<4;b++)if((a+b)&1)g.fillRect(-32+a*16,-32+b*16,16,16);
+    g.strokeStyle='#fff';g.lineWidth=5;g.strokeRect(-32,-32,64,64);
+    g.fillStyle='#fff';g.strokeStyle='#c04000';g.lineWidth=3;for(const dx of [-12,8]){g.beginPath();g.moveTo(dx+10,0);g.lineTo(dx-6,-18);g.lineTo(dx,-18);g.lineTo(dx+16,0);g.lineTo(dx,18);g.lineTo(dx-6,18);g.closePath();g.fill();g.stroke()}g.restore()}
   return c}
 
 // ===== 音效 =====
@@ -147,9 +149,9 @@ let PICK=+(localStorage.getItem('race_pick')||15);if(!RACERS.some(r=>r.id===PICK
 const now=()=>NET?NET.now():Date.now();
 const uidN=()=>Math.random().toString(36).slice(2,9);
 
-function newCar(p,slot){const k=TRACK.laps,back=4+Math.floor(slot/2)*6,i=(N-back)%N,q=lat(i,slot%2?-42:42);
+function newCar(p,slot){const k=TRACK.laps,back=4+Math.floor(slot/2)*6,i=(N-back)%N,q=lat(i,slot%2?-60:60);
   return {id:p.id,name:p.name,pick:p.pick,bot:!!p.bot,x:q[0],y:q[1],a:TA[i],v:0,lap:0,idx:i,pi:i,half:true,item:null,spin:0,sa:0,boost:0,sticky:0,fin:0,
-    loc:false,lane:(Math.random()-.5)*60,skill:1,buf:[],seen:now()}}
+    loc:false,lane:(Math.random()-.5)*120,skill:1,buf:[],seen:now()}}
 function startRace(roster,T0,amHost,demo){DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
   roster.forEach((p,s)=>{const c=newCar(p,s);c.loc=p.id===ME||(p.bot&&amHost);CARS[c.id]=c});
   race={T0,t:-9,lastSend:0,firstFin:0,done:false,go:false,cd:4};mode=demo?'menu':'race';
@@ -170,7 +172,7 @@ function phys(c,dt,turn,go){const [i,d]=nearest(c.x,c.y,c.idx);c.idx=i;
   let vm=go?VMAX*c.skill:0;const water=c.x<TRACK.river(c.y);c.off=d>TRACK.rw/2;
   if(c.off)vm*=water?.35:.55;
   if(c.sticky>0){c.sticky-=dt;vm*=.45}
-  for(const k of PADS){const di=(i-k+N)%N;if(di<9&&d<TRACK.rw/2){if(c.boost<.2&&c.id===ME)snd(660,.15,'sawtooth');c.boost=Math.max(c.boost,.9)}}
+  for(const pd of PADS){const di=(i-pd.i+N)%N,na=TA[i]+Math.PI/2,lo=(c.x-T[i][0])*Math.cos(na)+(c.y-T[i][1])*Math.sin(na);if(di<6&&Math.abs(lo-pd.o)<36){if(c.boost<.2&&c.id===ME)snd(660,.15,'sawtooth');c.boost=Math.max(c.boost,.9)}}
   if(c.boost>0){c.boost-=dt;if(go)vm=Math.max(vm,VMAX*1.5)}
   if(c.spin>0){c.spin-=dt;c.sa+=dt*13;c.v*=Math.pow(.15,dt);if(c.spin<=0)c.sa=0}
   else if(go)c.a+=turn*STEER*dt*Math.min(1,c.v/150);
@@ -182,13 +184,13 @@ function prog(c){return c.fin?1e9-c.fin:(c.lap-1)*N+c.idx}
 function ranking(){return Object.values(CARS).sort((a,b)=>prog(b)-prog(a))}
 function ai(c,dt){const L=14+Math.floor(c.v/60),k=(c.idx+L)%N,p=lat(k,c.lane);
   const turn=clamp(angD(c.a,Math.atan2(p[1]-c.y,p[0]-c.x))*2.6,-1,1);
-  c.lane=clamp(c.lane+(Math.random()-.5)*dt*40,-55,55);
+  c.lane=clamp(c.lane+(Math.random()-.5)*dt*60,-85,85);
   if(c.item&&!DEMO||c.item&&DEMO){c.ih=(c.ih||0)+dt;if(c.ih>(c.iw||2)){useItem(c);c.ih=0;c.iw=1+Math.random()*3}}
   if(c.bot){const hum=Object.values(CARS).filter(o=>!o.bot);const best=hum.length?Math.max(...hum.map(prog)):prog(c);const gap=prog(c)-best;
     c.skill=gap>N*.25?.88:gap<-N*.25?1.03:gap>0?.95:.99}
   return turn}
 function collide(){const L=Object.values(CARS);for(const c of L){if(!c.loc)continue;for(const o of L){if(o===c)continue;const dx=c.x-o.x,dy=c.y-o.y,d=Math.hypot(dx,dy);
-  if(d>0&&d<40){const p=(40-d)/(o.loc?2:1);c.x+=dx/d*p;c.y+=dy/d*p;c.v*=.985}}}}
+  if(d>0&&d<26){const p=(26-d)/(o.loc?2:1);c.x+=dx/d*p;c.y+=dy/d*p;c.v*=.985}}}}
 
 // ===== 道具 =====
 function roll(c){const r=ranking().indexOf(c),w=ITEM_W[clamp(r,0,3)];let s=0;for(const k in w)s+=w[k];let x=Math.random()*s;for(const k in w){x-=w[k];if(x<0)return k}return 'tea'}
@@ -198,10 +200,10 @@ function useItem(c){const it=c.item;if(!it||c.spin>0)return;c.item=null;if(c.id=
   else if(it==='mochi'){const m={id:uidN(),x:c.x-Math.cos(c.a)*40,y:c.y-Math.sin(c.a)*40,life:25,own:c.id};MOCHI.push(m);send({k:'mochi',...m})}}
 function hit(c,kind){if(kind==='fire'){c.spin=1.1;c.item=c.item}else c.sticky=1.6;if(c.id===ME){snd(kind==='fire'?140:300,.35,'sawtooth',.12);if(navigator.vibrate)navigator.vibrate(120)}}
 function items(dt){const L=Object.values(CARS);
-  for(const b of BOXES)if(b.t>0)b.t-=dt;else for(const c of L)if(c.loc&&!c.item&&!c.fin&&Math.hypot(c.x-b.x,c.y-b.y)<36){b.t=3;c.item=roll(c);c.iw=1+Math.random()*3;send({k:'box',i:BOXES.indexOf(b)});if(c.id===ME){setItemBtn();snd(990,.08);setTimeout(()=>snd(1320,.1),80)}break}
+  for(const b of BOXES)if(b.t>0)b.t-=dt;else for(const c of L)if(c.loc&&!c.item&&!c.fin&&Math.hypot(c.x-b.x,c.y-b.y)<30){b.t=3;c.item=roll(c);c.iw=1+Math.random()*3;send({k:'box',i:BOXES.indexOf(b)});if(c.id===ME){setItemBtn();snd(990,.08);setTimeout(()=>snd(1320,.1),80)}break}
   for(const s of SHOTS){s.life-=dt;s.x+=Math.cos(s.a)*s.v*dt;s.y+=Math.sin(s.a)*s.v*dt;
-    for(const c of L)if(c.loc&&(c.id!==s.own||s.life<1.5)&&c.spin<=0&&Math.hypot(c.x-s.x,c.y-s.y)<30){hit(c,'fire');s.life=0;send({k:'rm',id:s.id});break}}
-  for(const m of MOCHI){m.life-=dt;for(const c of L)if(c.loc&&(c.id!==m.own||m.life<24)&&Math.hypot(c.x-m.x,c.y-m.y)<28){hit(c,'mochi');m.life=0;send({k:'rm',id:m.id});break}}
+    for(const c of L)if(c.loc&&(c.id!==s.own||s.life<1.5)&&c.spin<=0&&Math.hypot(c.x-s.x,c.y-s.y)<24){hit(c,'fire');s.life=0;send({k:'rm',id:s.id});break}}
+  for(const m of MOCHI){m.life-=dt;for(const c of L)if(c.loc&&(c.id!==m.own||m.life<24)&&Math.hypot(c.x-m.x,c.y-m.y)<22){hit(c,'mochi');m.life=0;send({k:'rm',id:m.id});break}}
   SHOTS=SHOTS.filter(s=>s.life>0);MOCHI=MOCHI.filter(m=>m.life>0)}
 function setItemBtn(){const c=CARS[ME],b=$('itemBtn');if(!c||!c.item){b.className='empty';b.textContent='道具'}else{b.className='';b.textContent=ITEMS[c.item].icon}}
 
@@ -332,12 +334,12 @@ function drawDeco(p,d){const s=p.s;
   else if(d.k==='house'){const w=56*s,h=40*s;ctx.fillStyle='#e8dcc0';ctx.fillRect(p.x-w/2,p.y-h,w,h);ctx.fillStyle=d.c;ctx.beginPath();ctx.moveTo(p.x-w*.62,p.y-h);ctx.lineTo(p.x,p.y-h*1.6);ctx.lineTo(p.x+w*.62,p.y-h);ctx.fill();ctx.fillStyle='#7a4a2a';ctx.fillRect(p.x-w*.1,p.y-h*.5,w*.2,h*.5)}
   else{const w=140*s,h=90*s;ctx.fillStyle='#b8382c';ctx.fillRect(p.x-w/2,p.y-h,w,h);ctx.fillStyle='#7a2018';ctx.fillRect(p.x-w*.55,p.y-h*1.12,w*1.1,h*.14);ctx.fillStyle='#e9d6b0';for(let i=0;i<4;i++)ctx.fillRect(p.x-w*.4+i*w*.22,p.y-h*.7,w*.1,h*.35);
     if(s>.5)label(d.t,p.x,p.y-h*1.15,26*s)}}
-function drawBox(p){const s=p.s,z=30*s,y=p.y-z*(1.5+.15*Math.sin(performance.now()/200));ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(p.x,p.y,z*.5,z*.15,0,0,7);ctx.fill();
+function drawBox(p){const s=p.s,z=24*s,y=p.y-z*(1.5+.15*Math.sin(performance.now()/200));ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(p.x,p.y,z*.5,z*.15,0,0,7);ctx.fill();
   ctx.fillStyle='#d42020';ctx.fillRect(p.x-z/2,y,z,z);ctx.strokeStyle='#ffd84a';ctx.lineWidth=Math.max(1,3*s);ctx.strokeRect(p.x-z/2,y,z,z);
   ctx.fillStyle='#ffd84a';ctx.font=`bold ${Math.max(6,20*s)|0}px "Microsoft JhengHei",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('福',p.x,y+z/2)}
-function drawMochi(p){const s=p.s;ctx.fillStyle='#f6c8dc';ctx.beginPath();ctx.ellipse(p.x,p.y-4*s,18*s,9*s,0,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(p.x-5*s,p.y-7*s,6*s,3*s,0,0,7);ctx.fill()}
-function drawShot(p){const s=p.s;ctx.fillStyle='#c81e1e';ctx.fillRect(p.x-12*s,p.y-22*s,24*s,12*s);ctx.fillStyle='#ffd84a';ctx.fillRect(p.x-12*s,p.y-18*s,24*s,4*s);ctx.fillStyle=Math.random()<.5?'#fff':'#ffcc33';ctx.beginPath();ctx.arc(p.x,p.y-26*s,(4+Math.random()*4)*s,0,7);ctx.fill()}
-function drawKart(p,c){const s=p.s;ctx.save();ctx.translate(p.x,p.y);
+function drawMochi(p){const s=p.s*.7;ctx.fillStyle='#f6c8dc';ctx.beginPath();ctx.ellipse(p.x,p.y-4*s,18*s,9*s,0,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(p.x-5*s,p.y-7*s,6*s,3*s,0,0,7);ctx.fill()}
+function drawShot(p){const s=p.s*.7;ctx.fillStyle='#c81e1e';ctx.fillRect(p.x-12*s,p.y-22*s,24*s,12*s);ctx.fillStyle='#ffd84a';ctx.fillRect(p.x-12*s,p.y-18*s,24*s,4*s);ctx.fillStyle=Math.random()<.5?'#fff':'#ffcc33';ctx.beginPath();ctx.arc(p.x,p.y-26*s,(4+Math.random()*4)*s,0,7);ctx.fill()}
+function drawKart(p,c){const s=p.s*.5;ctx.save();ctx.translate(p.x,p.y);
   if(c.id===ME&&!c.fin&&!DEMO)ctx.rotate(inputTurn()*.1);if(c.sa)ctx.rotate(Math.sin(c.sa)*.6);
   ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,0,30*s,9*s,0,0,7);ctx.fill();
   if(c.boost>0){ctx.fillStyle=Math.random()<.5?'#ffcc33':'#ff6a1a';ctx.beginPath();ctx.ellipse(0,-4*s,10*s,(8+Math.random()*8)*s,0,0,7);ctx.fill()}
@@ -347,7 +349,7 @@ function drawKart(p,c){const s=p.s;ctx.save();ctx.translate(p.x,p.y);
   if(c.sticky>0){ctx.fillStyle='#ffd1e6';for(const [x,y] of [[-14,-10],[12,-8],[0,-4]]){ctx.beginPath();ctx.arc(x*s,y*s,7*s,0,7);ctx.fill()}}
   ctx.restore();
   if(c.spin>0||c.sa){ctx.fillStyle='#ffe14a';ctx.font=`${Math.max(8,18*s)|0}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';for(let k=0;k<3;k++){const a=performance.now()/150+k*2.1;ctx.fillText('★',p.x+Math.cos(a)*30*s,p.y-80*s+Math.sin(a)*8*s)}}
-  if(c.id!==ME&&s>.25)label(c.name,p.x,p.y-76*s,13*DPR)}
+  if(c.id!==ME&&s>.25)label(c.name,p.x,p.y-80*s,13*DPR)}
 function render(){const w=cv.width,h=cv.height;ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;
   const me=race&&CARS[ME];if(!me||!TEX){ctx.fillStyle='#5da34c';ctx.fillRect(0,0,w,h);return}
   if(CAM.race!==race){CAM.race=race;CAM.a=me.a}else CAM.a+=angD(CAM.a,me.a)*.15;
