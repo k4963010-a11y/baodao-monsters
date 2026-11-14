@@ -21,7 +21,7 @@ jobs:
       - name: Collect site files
         run: |
           mkdir _site
-          cp index.html auth.html firebase-config.js version.json .nojekyll apple-touch-icon.png favicon.png icon-192.png icon-512.png manifest.webmanifest dex.html _site/
+          cp index.html auth.html firebase-config.js version.json .nojekyll apple-touch-icon.png favicon.png icon-192.png icon-512.png manifest.webmanifest dex.html race.html _site/
           cp -r dex _site/dex
           cp -r mon _site/mon
           cp -r trn _site/trn
