@@ -297,8 +297,8 @@ kbd{font-family:var(--f-game);background:#0f1426;border:1px solid var(--line);bo
 import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
-import {getDatabase,ref,set,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261115-000451';
+import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
+import CONFIG from './firebase-config.js?v=20261115-001906';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -333,8 +333,8 @@ function makeDb(){return {
 function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDatabase(app);const me=ref(rdb,'pos/'+uid);
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
   onDisconnect(me).remove().catch(()=>{});
-  const push=()=>set(me,{...mine,uid,t:serverTimestamp()}).catch(e=>console.warn('pos',e));
-  setInterval(()=>{if(mine.name&&!window.__miniHold)push()},30000);
+  const push=()=>rupdate(me,{...mine,uid,t:serverTimestamp()}).catch(e=>console.warn('pos',e));  // update：不蓋掉賽車頁寫的 mq/rc/rh
+  setInterval(()=>{if(mine.name)push()},30000);
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
   onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);
@@ -467,7 +467,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261115-000451";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261115-001906";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -1577,13 +1577,13 @@ const MAPS={
    {id:'nmc1',x:12,y:5,dir:'left',look:'woman',lines:['人好多喔！先吃章魚燒還是臭豆腐呢？']},{id:'nmc2',x:19,y:4,dir:'right',look:'kid',lines:['媽媽說只能買一樣……','我要大腸包小腸！']},{id:'nmc3',x:25,y:6,dir:'up',look:'oldman',lines:['中壢夜市我從小逛到大，','以前這裡還是一條小巷子呢！']},{id:'nmc4',x:7,y:10,dir:'up',look:'girl',lines:['晚上的夜市燈籠好漂亮！']},{id:'nmt1',x:11,y:9,dir:'down',look:'youth',sight:3,trainer:{name:'夜市吃貨 阿肥',party:[[151,45],[156,45],[153,46]],reward:1500,intro:['我已經吃了三盒章魚燒，現在戰鬥力滿點！'],win:['吃太飽，跑不動……'],post:['夜市四種寶貝都抓到，去找夜市老闆，他會教你一招超猛的！']}},
    {id:'nmt2',x:24,y:9,dir:'down',look:'lass',sight:3,trainer:{name:'夜市少女 小晴',party:[[153,46],[156,46],[151,46],[148,46]],reward:1500,intro:['排隊排好久，先跟我打一場！'],win:['輪到我買了啦……'],post:['臭豆腐魔超難遇到，我抓了一個晚上才遇到一次！']}}]},
  bali:{name:'八里遊樂港',out:'T',rows:['TTTTTTTTTTTTTTTTTTTTTTTTTT','T.rrrrrr..gggggg..pppppp.T','T.rrrrrr..gggggg..pppppp.T','T.wnwDwn..wnwDwn..wnwDwn.T','T....=.......=.......=...T','T=========================','T=========================','T.S...F.........F........T','T##########__############T','~~~~~~~~~~~~~~~~~~~~~~~~~~','~~~~~~~~~~~~~~~~~~~~~~~~~~'],
-  warps:[[25,5,'tamsui',1,7,'right'],[25,6,'tamsui',1,7,'right'],[5,3,'balirace',3,5,'up'],[13,3,'bali',13,4,'down',()=>false,'釣蝦場還在準備中……\n（老闆：蝦池裡的超稀有寶貝還在長大，過幾天再來！）'],[21,3,'bali',21,4,'down',()=>false,'抓蟲大賽的森林還在準備中……\n（工作人員：森林裡藏著超稀有寶貝，開放時間請看最新消息！）']],
+  warps:[[25,5,'tamsui',1,7,'right'],[25,6,'tamsui',1,7,'right'],[5,3,'balirace',5,5,'up'],[13,3,'bali',13,4,'down',()=>false,'釣蝦場還在準備中……\n（老闆：蝦池裡的超稀有寶貝還在長大，過幾天再來！）'],[21,3,'bali',21,4,'down',()=>false,'抓蟲大賽的森林還在準備中……\n（工作人員：森林裡藏著超稀有寶貝，開放時間請看最新消息！）']],
   boards:[[5,0.4,'寶貝賽車場','green'],[13,0.4,'釣蝦場（準備中）','wood'],[21,0.4,'抓蟲大賽（準備中）','pink']],
   signs:{'2,7':'八里遊樂港\n東：淡水鎮'},
   npcs:[{id:'bl1',x:9,y:7,dir:'down',look:'kid',lines:['賽車場可以 2～4 個人一起比賽！','跑進前 10 名，名字會登上排行榜喔！']},
    {id:'bl2',x:19,y:4,dir:'down',look:'fisher',lines:['釣蝦場快開張了！','聽說比賽時，誰先釣到超稀有寶貝，就能帶回家……']}]},
- balirace:{name:'寶貝賽車場',out:' ',rows:['WWNWWNWW','kkfffPkk','ffffffff','ffttffff','ffttffff','ffffffff','fffmmfff'],warps:[[3,6,'bali',5,4,'down'],[4,6,'bali',5,4,'down']],
-  npcs:[{id:'race1',x:5,y:3,dir:'left',look:'youth',talk:()=>raceTalk()},{id:'race2',x:2,y:5,dir:'right',look:'girl',lines:['我上次跑第 3 名！','轉彎的時候不要按太久，會撞到旁邊的竹子……']}]},
+ balirace:{name:'寶貝賽車場',out:' ',rows:['WWWWWWWWWWWW','tttttttttttt','tttttttttttt','tttttttttttt','ffffffffffff','ffffffffffff','fffffmmfffff'],warps:[[5,6,'bali',5,4,'down'],[6,6,'bali',5,4,'down']],
+  npcs:[{id:'race1',x:8,y:4,dir:'down',look:'youth',talk:()=>raceTalk()},{id:'race2',x:2,y:5,dir:'right',look:'girl',lines:['我上次跑第 3 名！','轉彎的時候不要按太久，會撞到旁邊的竹子……']},{id:'race3',x:10,y:5,dir:'up',look:'oldman',lines:['看台上好熱鬧！','聽說跑進前 10 名，名字會掛在排行榜上。']}]},
  dxwood:{name:'大溪木藝館',out:' ',rows:['WWNWWNWW','kkfffPkk','ffffffff','ffttffff','ffttffff','ffffffff','fffmmfff'],warps:[[3,6,'daxi',5,6,'down'],[4,6,'daxi',5,6,'down']],
   npcs:[{id:'dxwd1',x:5,y:3,dir:'left',look:'oldman',lines:['木藝師傅：歡迎來到大溪木藝館！','大溪靠著大漢溪，以前木材都從山上順著溪水運下來。','所以這裡的木雕、神桌、家具，全台灣最有名！']},{id:'dxwd2',x:2,y:5,dir:'right',look:'girl',lines:['這張神桌雕了一百多隻小動物！','你看，那隻是不是很像穿山球？']}]},
  dxtofu:{name:'大溪豆干老店',out:' ',rows:['WWNWWNWW','ffkkkkkk','CCffffff','ffffkkff','ffffffff','ffffffff','fffmmfff'],warps:[[3,6,'daxi',4,11,'down'],[4,6,'daxi',4,11,'down']],
@@ -1938,8 +1938,10 @@ function miniOpen(url,onMsg){return new Promise(res=>{const ov=document.createEl
   const bar=document.createElement('div');bar.style.cssText='display:flex;justify-content:flex-end;padding:4px 6px;background:#1a1a1a';const x=document.createElement('button');x.textContent='✕ 回到遊戲';x.style.cssText='font-size:16px;padding:6px 14px;border-radius:8px;border:0;background:#fff;color:#000';bar.append(x);
   const f=document.createElement('iframe');f.src=url;f.allow='autoplay';f.style.cssText='flex:1;border:0;width:100%;background:#fff';ov.append(bar,f);document.body.append(ov);
   const send=d=>{try{f.contentWindow.postMessage(d,location.origin==='null'?'*':location.origin)}catch(e){}};
-  const h=e=>{if(e.source!==f.contentWindow)return;try{onMsg&&onMsg(e.data||{},send)}catch(er){console.error(er)}};window.addEventListener('message',h);
-  x.onclick=()=>{window.removeEventListener('message',h);ov.remove();res()};f.onload=()=>{try{if(!/(race|bingo)[.]html$/.test(f.contentWindow.location.pathname))x.onclick()}catch(e){}}})}
+  f.setAttribute('allowtransparency','true');const FULL=ov.style.cssText,FF=f.style.cssText;
+  const h=e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.src==='race'){if(d.ui==='card'){ov.style.cssText='position:fixed;left:0;right:0;bottom:0;height:150px;z-index:99999;background:transparent;display:flex;flex-direction:column';bar.hidden=true;f.style.cssText='flex:1;border:0;width:100%;background:transparent'}else if(d.ui==='full'){ov.style.cssText=FULL;bar.hidden=false;f.style.cssText=FF}
+    if(d.state){RACE_ST=d.state==='queue'||d.state==='racing'?d.state:'';try{updatePresence()}catch(er){}}}try{onMsg&&onMsg(d,send)}catch(er){console.error(er)}};window.addEventListener('message',h);
+  x.onclick=()=>{window.removeEventListener('message',h);ov.remove();if(RACE_ST){RACE_ST='';try{updatePresence()}catch(er){}}res()};f.onload=()=>{try{if(!/(race|bingo)[.]html$/.test(f.contentWindow.location.pathname))x.onclick()}catch(e){}}})}
 /* 中壢夜市：接駁車＋夜市老闆（四種夜市寶貝 → 啃食大爆發） */
 async function nmBus(to,x,y){const go=to==='zlnm';await say(go?'接駁車司機：往中壢夜市的接駁車，免費搭喔！':'接駁車司機：要回桃園青埔嗎？');
   if(!await yesNo(go?'要去中壢夜市嗎？':'要回青埔嗎？'))return;await doWarp([0,0,to,x,y,'down'])}
@@ -1991,6 +1993,19 @@ function baliUnder(cx,cy,now){const c=ctx,X=16-cx,Y=-cy;if(X>170||X<-140)return;
   {const gx=5*16-cx,gy=3*16-cy;c.fillStyle='#4a4a54';c.fillRect(gx,gy-6,16,22);c.fillStyle='#303038';c.fillRect(gx-3,gy-12,3,28);c.fillRect(gx+16,gy-12,3,28);
     for(let i=0;i<8;i++)for(let j=0;j<2;j++){c.fillStyle=(i+j)%2?'#111':'#fff';c.fillRect(gx-3+i*2.75,gy-14+j*3,2.75,3)}
     const f=Math.floor(now/250)%2;c.fillStyle='#e83020';c.fillRect(gx-3,gy-20,1,6);c.fillRect(gx-2,gy-20+f,4,3);c.fillStyle='#f0c020';c.fillRect(gx+18,gy-20,1,6);c.fillRect(gx+19,gy-20+f,4,3)}}
+/* 賽車場內部：看台、賽道、輪胎牆、旗子、跑來跑去的小賽車（x=0..11、y=0..3） */
+function raceInUnder(cx,cy,now){const c=ctx,X=-cx,Y=-cy,W=192;
+  c.fillStyle='#3a3a48';c.fillRect(X,Y,W,16);for(let i=0;i<48;i++){c.fillStyle=['#e83020','#2858c8','#f0c020','#28a048','#e060a0','#f8f8f8'][(i*7)%6];c.fillRect(X+2+i*4,Y+3+((Math.floor(now/260)+i)%3===0?0:1)+(i%2)*6,3,3)}
+  c.fillStyle='#d0d0d8';c.fillRect(X,Y+15,W,2);
+  c.fillStyle='#4a4a54';c.fillRect(X,Y+17,W,46);c.fillStyle='rgba(255,255,255,.55)';for(let x=0;x<W;x+=12){c.fillRect(X+x,Y+32,7,1);c.fillRect(X+x,Y+47,7,1)}
+  for(let i=0;i<24;i++){c.fillStyle=i%2?'#fff':'#e83020';c.fillRect(X+i*8,Y+17,8,2);c.fillRect(X+i*8,Y+61,8,2)}
+  for(let i=0;i<4;i++)for(let j=0;j<2;j++){c.fillStyle=(i+j)%2?'#111':'#fff';c.fillRect(X+150+j*3,Y+19+i*10.5,3,10.5)}
+  const cars=[['#e83020',0,25],['#2858c8',.3,40],['#f0c020',.55,54],['#28a048',.8,33]];for(const [col,o,ly] of cars){const px=X+((now/9+o*W*1.3)%(W+40))-20,py=Y+ly;
+    c.fillStyle='rgba(0,0,0,.3)';c.fillRect(px-5,py+1,12,4);c.fillStyle=col;c.fillRect(px-6,py-2,12,5);c.fillStyle='#202020';c.fillRect(px-5,py+3,3,2);c.fillRect(px+2,py+3,3,2);c.fillStyle='#fff';c.fillRect(px,py-2,3,2)}
+  for(const tx of [0,W-12])for(let i=0;i<4;i++){c.fillStyle='#1a1a1a';c.beginPath();c.arc(X+tx+6,Y+22+i*11,5,0,Math.PI*2);c.fill();c.fillStyle='#555';c.beginPath();c.arc(X+tx+6,Y+22+i*11,2,0,Math.PI*2);c.fill()}
+  c.fillStyle='#8a8a90';c.fillRect(X,Y+63,W,2);for(let x=4;x<W;x+=16){c.fillStyle='#b0b0b8';c.fillRect(X+x,Y+60,2,6)}
+  const f=Math.floor(now/250)%2;for(const [fx,col] of [[30,'#e83020'],[96,'#f0c020'],[160,'#2858c8']]){c.fillStyle='#303038';c.fillRect(X+fx,Y+64,1,10);c.fillStyle=col;c.fillRect(X+fx+1,Y+64+f,6,4)}}
+let RACE_ST='';
 const BINGO_PRICE=2000;
 async function bingoTalk(){await sayAll(['我是中壢夜市的賓果阿伯！','36 張寶貝牌蓋在桌上，選 13 張翻開，連成一條線就贏！',`一局 ${BINGO_PRICE} 元，贏了送你超大隻的「媽祖魚寶」！`]);
   if(G.money<BINGO_PRICE){await say(`一局要 ${BINGO_PRICE} 元，你身上的錢不夠喔！`);return}
@@ -2069,7 +2084,7 @@ function setSound(on){AU.on=on;try{localStorage.setItem('baodao_sound',on?'1':'0
 /* ================= cloud ================= */
 let db=null,uid=null,room=null;const LS='baodao_save_v2';
 async function initCloud(){try{const c=await window.BD_CLOUD;if(c){db=c.db;uid=c.uid;room=c.room||null}}catch(e){db=null}}
-function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:rareTier(G.party.find(m=>m.hp>0)||G.party[0]),fight:mode==='battle',eye:VIEWING,flyD:FLYW?FLYW.d:'',flyT:FLYW?FLYW.t:0,flySp:FLYW?FLYW.sp:0}).catch(()=>{})}
+function updatePresence(){if(!room||!G||G.dream)return;room.presence({uid,name:G.name,at:M?M.name:'',map:M?M.id:'',x:player.x,y:player.y,dir:player.dir,look:G.look|0,lead:(G.party.find(m=>m.hp>0)||G.party[0]||{}).sp|0,emo:myEmo?myEmo.e:'',emoT:myEmo?myEmo.t:0,leadLv:(G.party.find(m=>m.hp>0)||G.party[0]||{}).lv|0,leadM:((G.party.find(m=>m.hp>0)||G.party[0]||{}).moves||[]).slice(0,4),leadR:rareTier(G.party.find(m=>m.hp>0)||G.party[0]),fight:mode==='battle',eye:VIEWING,race:RACE_ST,flyD:FLYW?FLYW.d:'',flyT:FLYW?FLYW.t:0,flySp:FLYW?FLYW.sp:0}).catch(()=>{})}
 function onlineMap(){const on={};if(room){try{for(const p of room.peers()){const pr=p.presence||{};if(typeof pr.uid==='string')on[pr.uid]=typeof pr.at==='string'?pr.at.slice(0,12):''}}catch(e){}}return on}
 /* 本機存檔有簽章：手動改 localStorage 的存檔，簽章對不上就不會被拿去蓋雲端 */
 function lsSig(str){let h1=0xdeadbeef^0x5b,h2=0x41c6ce57^0x2d;const t=str+'|飽島怪獸|bd-anti-cheat-v1';for(let i=0;i<t.length;i++){const ch=t.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
@@ -2291,7 +2306,7 @@ function friendSearch(box,mk){const wrap=mk('div','frsearch');const inp=document
   inp.addEventListener('input',show);wrap.append(inp,res);box.append(wrap);show();return inp}
 /* ---- 📣 更新公告：新的放最上面（每次更新記得加一筆） ---- */
 const DEX_URL='https://k4963010-a11y.github.io/baodao-monsters/dex.html';
-const NEWS=[{v:'1115air',d:'11/15 機場',items:['✈️ 桃園機場裡一般的地板也會遇到野生寶貝了（植栽區更容易遇到）']},{v:'1114bali',d:'11/14 八里遊樂港',items:['🎡 淡水鎮往左走，到「八里遊樂港」！','🏁 寶貝賽車場搬到八里：走進去找工作人員就能開賽，2～4 人一起跑，前 10 名上排行榜','🦐 釣蝦場、🐛 抓蟲大賽準備中，敬請期待！']},{v:'1114nm',d:'11/14 中壢夜市',items:['🏮 中壢夜市開張！到桃園青埔找接駁車司機，免費搭車去（晚上的夜市，燈籠全亮！）','🐙 四種夜市寶貝：燒丸章、湯包小龍、腸包雙蛇，還有很少見的臭豆腐魔（1%）','🦷 四種都抓到（進化後的也算），夜市老闆會教一隻寶貝「啃食大爆發」：暗系 140，傷害的 1/4 回到自己身上（每人一次）','🀄 寶貝賓果的阿伯搬回中壢夜市了']},{v:'1114dog',d:'11/14 新寶貝・小遊戲',items:['🐕 台灣黑狗來了！黑嘴丸 → 山稜獵犬（Lv30）→ 玉嶺獵神犬（Lv65）：黑嘴丸第 1 章起各地草叢都有，山稜獵犬第 4 章以後的草叢也遇得到','🛡️ 第三階玉嶺獵神犬有特性「忠心護主」：夥伴倒下時攻擊大幅提高，自己剩 1/3 體力時防禦提高','🀄 桃園青埔來了中壢夜市的賓果攤！一局 2000 元，連成一條線就送超大隻的「媽祖魚寶」','🏎️ 淡水鎮的賽車場接駁員：寶貝大賽車 2～4 人一起玩，前 10 名秒數上排行榜','💾 抓到寶貝會馬上存檔，不會再因為關掉遊戲而不見']},{v:'1114fix',d:'11/14 修正',items:['🚣 拉魯島的碼頭多了一位船家，打完灰霧幫可以租船離開（感謝神諭回報）','⚾ 花東縱谷・玉里那顆被人擋住的寶貝球，移到拿得到的地方了（感謝喔嗨喲回報）']},{v:'1113daxi',d:'11/13 大溪',items:['🏠 大溪豆干老店被小路切成一半的問題修好了','🪵 大溪木藝館可以進去參觀了（感謝夏天回報）']},{v:'1113flee',d:'11/13 入侵三聖獸',items:['💫 入侵三聖獸一有機會就會逃跑；讓牠睡著、冰凍、暈頭轉向或麻痺時逃不掉，但這些狀態幾回合後會解除（麻痺 2～4 回合），解除後牠又會逃','🔄 每次遇到三聖獸都是新的狀態，上次弄的睡著、麻痺不會帶過來（血量還是會記住）']},{v:'1113roam',d:'11/13 入侵三聖獸',items:['📍 找不到牠們？先到桃園外來種棲息地問保育員，或看圖鑑的分布地圖（遊走中・現在在哪）']},{v:'1112sun',d:'11/12 調整',items:['🌞 信義怪獸屋不再販售刺刺陽（稀有種要靠自己在野外找！）']},{v:'1112drop',d:'今晚 8:30 天降寶貝球！',items:['🎁 11/12（四）晚上 8:30，淡水鎮天降寶貝球！8:25 開始預告','⏱️ 活動 10 分鐘，共 70 顆球，面向球按 A 撿','🟣 其中藏著 1 顆大師球，誰會搶到呢？']},{v:'1112tx',d:'11/12 交換更安全',items:['🔒 交換寶貝改成更安全的方式：雙方都存檔成功才完成，中途斷線或關掉遊戲，寶貝會自動回到身上','⏱️ 交換確認要在 40 秒內決定，太久會自動取消','🔄 交換前請雙方都按「更新」到最新版；交換時身上至少要帶 2 隻寶貝','🌐 連不上伺服器時不會再卡在開場畫面，可以重試或先單機玩']},{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
+const NEWS=[{v:'1114bali',d:'11/14 八里遊樂港',items:['🎡 淡水鎮往左走，到「八里遊樂港」！','🏁 寶貝賽車場搬到八里：走進去找工作人員就能開賽，2～4 人一起跑，前 10 名上排行榜','🦐 釣蝦場、🐛 抓蟲大賽準備中，敬請期待！']},{v:'1114nm',d:'11/14 中壢夜市',items:['🏮 中壢夜市開張！到桃園青埔找接駁車司機，免費搭車去（晚上的夜市，燈籠全亮！）','🐙 四種夜市寶貝：燒丸章、湯包小龍、腸包雙蛇，還有很少見的臭豆腐魔（1%）','🦷 四種都抓到（進化後的也算），夜市老闆會教一隻寶貝「啃食大爆發」：暗系 140，傷害的 1/4 回到自己身上（每人一次）','🀄 寶貝賓果的阿伯搬回中壢夜市了']},{v:'1114dog',d:'11/14 新寶貝・小遊戲',items:['🐕 台灣黑狗來了！黑嘴丸 → 山稜獵犬（Lv30）→ 玉嶺獵神犬（Lv65）：黑嘴丸第 1 章起各地草叢都有，山稜獵犬第 4 章以後的草叢也遇得到','🛡️ 第三階玉嶺獵神犬有特性「忠心護主」：夥伴倒下時攻擊大幅提高，自己剩 1/3 體力時防禦提高','🀄 桃園青埔來了中壢夜市的賓果攤！一局 2000 元，連成一條線就送超大隻的「媽祖魚寶」','🏎️ 淡水鎮的賽車場接駁員：寶貝大賽車 2～4 人一起玩，前 10 名秒數上排行榜','💾 抓到寶貝會馬上存檔，不會再因為關掉遊戲而不見']},{v:'1114fix',d:'11/14 修正',items:['🚣 拉魯島的碼頭多了一位船家，打完灰霧幫可以租船離開（感謝神諭回報）','⚾ 花東縱谷・玉里那顆被人擋住的寶貝球，移到拿得到的地方了（感謝喔嗨喲回報）']},{v:'1113daxi',d:'11/13 大溪',items:['🏠 大溪豆干老店被小路切成一半的問題修好了','🪵 大溪木藝館可以進去參觀了（感謝夏天回報）']},{v:'1113flee',d:'11/13 入侵三聖獸',items:['💫 入侵三聖獸一有機會就會逃跑；讓牠睡著、冰凍、暈頭轉向或麻痺時逃不掉，但這些狀態幾回合後會解除（麻痺 2～4 回合），解除後牠又會逃','🔄 每次遇到三聖獸都是新的狀態，上次弄的睡著、麻痺不會帶過來（血量還是會記住）']},{v:'1113roam',d:'11/13 入侵三聖獸',items:['📍 找不到牠們？先到桃園外來種棲息地問保育員，或看圖鑑的分布地圖（遊走中・現在在哪）']},{v:'1112sun',d:'11/12 調整',items:['🌞 信義怪獸屋不再販售刺刺陽（稀有種要靠自己在野外找！）']},{v:'1112drop',d:'今晚 8:30 天降寶貝球！',items:['🎁 11/12（四）晚上 8:30，淡水鎮天降寶貝球！8:25 開始預告','⏱️ 活動 10 分鐘，共 70 顆球，面向球按 A 撿','🟣 其中藏著 1 顆大師球，誰會搶到呢？']},{v:'1112tx',d:'11/12 交換更安全',items:['🔒 交換寶貝改成更安全的方式：雙方都存檔成功才完成，中途斷線或關掉遊戲，寶貝會自動回到身上','⏱️ 交換確認要在 40 秒內決定，太久會自動取消','🔄 交換前請雙方都按「更新」到最新版；交換時身上至少要帶 2 隻寶貝','🌐 連不上伺服器時不會再卡在開場畫面，可以重試或先單機玩']},{v:'1112ch8',d:'第八章 嘉義阿里山・南投日月潭',items:['🖤 入侵三聖獸（翠鬣寶寶、臭盾蟲、粉卵螺）改成稀有種：身上會發黑色的光，而且更難抓了！','🚄 第八章開放！拿到雲翼徽章後，到高鐵台北站或桃園站搭高鐵去嘉義','🚂 阿里山小火車被灰霧幫劫走了！一節一節車廂往前追：推行李、踩開關、打倒擋路的手下','🌲 神木集章：在阿里山 5 棵神木蓋章，才能進龍之道館','🌅 祝山限時挑戰：日出前爬上觀日平台！日出那 5 分鐘，雲海裡藏著超稀有的「推日金甲」','🐉 龍之道館・雲海擂台：每層有雲霧、強風；館主雲嵐的 6 條龍會挑你最怕的招式打，不放水！','🚣 日月潭：划船、環湖自行車賽（計時刷紀錄）、伊達邵杵歌節奏遊戲、纜車、埔里筍田、中台禪寺','🦌 傳說：拉魯島月夜召喚後，水沙連白鹿住進「月光林」，每人一生只會遇見一次','🐾 18 隻新寶貝：炬蕈、汽笛蟬、軌節馬陸、檜苗龍、雲海蛟、愛玉晶靈、杵音魚、纜囊蟲、筍劍舞姬……']},{v:'1112a',d:'11/12 修正',items:['💰 打贏野生怪獸撿到的錢減半（每次多少會有一點不同），訓練家獎金不變','✈️ 螺槳蜻的進化型改名為「音爆蜻皇」','🛫 桃園飛之道館：打完館主走不回出口的問題修好了（雷達室右下角多了往下的單行道）','🍵 記憶茶阿婆只能讓怪獸想起前期的招式，強招、大絕招要靠升級或招式商店','🎰 華泰抽獎、扭蛋機不會再抽到豆花，改成珍珠奶茶、燒餅油條']},
  {v:'1111fx',d:'招式演出大改版',items:['👥 好友清單改成線上的排在最前面','💥 威力 80 以上的強招換成全新演出：天降、地裂、連擊、光束、召喚、領域 6 種形式','⚡ 威力 100 以上的大招先放「必殺特寫」：怪獸大頭像＋招式名橫幅登場！','🌟 15 個專屬招式有自己的專屬動畫：隕石俯衝、八色虹箭、跑道幽靈、五月飛雪、神龍天降、寒單千響、千年月柱…快去找找看！']},{v:'1111ch7',d:'第七章 桃園・機場航廈',items:['✈️ 第七章開放！拿到寒單徽章後，到台東市的「台東機場」搭飛機去桃園','🧳 桃園機場航廈 6 段雙層迷宮：手扶梯、行李轉盤、電動步道、自動門開關、安檢門、黑漆漆的停車場、登機門謎題','🚇 走出航廈搭機場捷運到青埔：飛之道館（館主雲翎）、普中精舍（打坐念佛領靈光舍利）、華泰名品城 outlet','🦎 大漢溪外來種棲息地：入侵三聖獸會在全台灣到處跑、一遇到就逃跑！讓牠睡著或麻痺就跑不掉','🔁 入侵三聖獸「交換給朋友」才會進化，快找兄弟朋友一起換！','🐾 20 隻新怪獸：埤塘鷺、螺槳蜻、塔台夜鷹、彩殼行李蝸、蜜桃竹絲、閘門鯝、桐花蜂姬……','🧋 新道具：珍珠奶茶（招式PP全滿）、全復藥、解狀態藥；名品城還有扭蛋機和每天免費抽獎','🚄 打完第七章：高鐵台北↔桃園通車、台東↔桃園飛機可以來回搭']},{v:'1110j',d:'飛天開放',items:['🪽 飛天重新開放！帶著會「飛天」的怪獸，選單就會出現「飛天」','只能飛到自己去過的城市，或好友的旁邊（好友在的那張地圖，你也要走過才行）','🎁 送怪獸、送道具不會再中斷：對方還沒收下或正在對戰，忙完之後會自動完成','⏱ 真人對戰 10 秒沒出招會自動出招；十字鍵改成圓形感應，可以滑動換方向']},{v:'1111a',d:'第六章 台東・花東縱谷',items:['🌾 第六章開放！從花蓮市往南，穿過 6 段花東縱谷（玉里、玉里峽谷、池上伯朗大道、關山、縱谷大瀑布、鹿野高台）到台東市','🔥 台東火之道館：館主阿烈，踩到地上的鞭炮會被炸回入口！拿到第 6 個徽章「寒單徽章」','🎈 鹿野高台的熱氣球：幫師傅找回 3 個零件，就能搭熱氣球飛上天空，遇到只住在天上的怪獸','🐾 14 隻新怪獸：燭角鹿、炮竹兔、割稻螽、鋤牙豬、月柱螳、浪鬼刀、釋迦角仙……','🌡 新的狀態：燒傷（每回合扣血）、冰凍（不能行動）。部分火系、冰系招式會附帶','📦 電腦怪獸箱分成好幾箱（每箱 30 隻），可以照編號或等級排序','💊 拿到第 6 個徽章（台東火之道館）後，各地商店都買得到「招式補充」：一招 PP 回 5 次，3000 元','📈 新道具「招式增量」：讓一招的次數上限永久 +1（每招最多 +5），10000 元，一樣第 6 個徽章後各地商店都有賣','🚃 台鐵花東線：到過台東之後，花蓮↔台東可以搭火車','📖 怪獸圖鑑網站：https://k4963010-a11y.github.io/baodao-monsters/dex.html（首頁黃色按鈕）']},{v:'1110h',d:'平衡調整',items:['Lv50 以上升級需要更多經驗值，越高等越難練（已經練到的等級不會掉）','🪽 飛天暫時關閉，之後開放時只能飛到去過的地方','📤 新增「分享飽島怪獸給朋友」按鈕，追蹤脆 @baodao.monsters']},{v:'1110g',d:'天降寶貝球',items:['🎁 天降寶貝球：活動時間一到，淡水鎮會從天上掉下 70 顆寶貝球！（第一場：11/9 晚上 9:45）','走到球旁邊、面向它按 A 撿起來，一次一顆，先搶先贏：捉捉球 40、高級球 20、超級球 9，還有 1 顆「大師球」，丟出去 100% 抓到','搶到大師球的玩家會出現在全服跑馬燈上！']},{v:'1110f',d:'公平遊戲保護',items:['🛡 存檔保護：修改過的存檔、正常玩法拿不到的怪獸或招式，系統會自動擋下並由 GM 修正','請大家公平遊戲，一起玩才好玩！']},{v:'1110e',d:'安全性更新',items:['🔒 修好 GM 送禮被冒用的漏洞（謝謝玩家「真心鎮之光」回報！）','聊天、好友、私訊、信箱分開存放：私訊只有你和好友看得到，讀取也更快','修正：隊伍裡沒有能戰鬥的怪獸時遇到訓練家會當掉 → 現在會直接回寶貝中心休息','修正：聊天室在 12 月中之後會排錯順序的問題']},
  {v:'1110d',d:'招式回想',items:['🍵 淡水鎮來了「記憶茶阿婆」：一杯 500 元，讓怪獸想起以前學過、或不小心忘掉的招式','學新招要忘掉舊招時，會再問一次「確定嗎？」，不怕手滑','龜山島外海釣魚的經驗值調整成跟深海游泳一樣（原本太高）']},
  {v:'1110c',d:'11/10 修正',items:['修正：對戰中問「要換怪獸嗎？」的選項會擋住對話文字（謝謝玩家回報！）','所有選單都不會再蓋住下面的對話框','GM 大聲公改成只跑一次']},
@@ -2525,7 +2540,7 @@ function otherPlayers(now){if(!room||!M)return (lastPeers=[]);let ps=[];try{ps=r
     const dt=Math.min(100,now-g.t)/170;g.t=now;const dx=x-g.x,dy=y-g.y;g.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt);g.y+=Math.sign(dy)*Math.min(Math.abs(dy),dt);
     const moving=Math.abs(dx)+Math.abs(dy)>.01;g.walk=moving&&Math.floor(now/170)%2===0;
     const fd=['up','down','wait'].includes(q.flyD)?q.flyD:'',ft=Number(q.flyT)||0;let fa=null;if(fd){let r=PFLY[q.uid];if(!r||r.t!==ft||r.d!==fd)r=PFLY[q.uid]={t:ft,d:fd,at:now};const age=now-r.at;if(fd==='down'?age<FLY_DUR+200:age<6000)fa={dir:fd,t0:r.at,dur:FLY_DUR,sp:SP[q.flySp|0]?q.flySp|0:0}}else delete PFLY[q.uid];
-    seen.add(q.uid);out.push({fa,id:q.uid,emo:typeof q.emo==='string'&&EMOS.includes(q.emo)?q.emo:'',emoT:Number(q.emoT)||0,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===3?3:q.leadR===2?2:q.leadR===1?1:0,fight:q.fight===true,eye:q.eye===true,x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
+    seen.add(q.uid);out.push({fa,id:q.uid,emo:typeof q.emo==='string'&&EMOS.includes(q.emo)?q.emo:'',emoT:Number(q.emoT)||0,lead:SP[q.lead|0]?q.lead|0:0,leadLv:clamp(q.leadLv|0,0,100),leadM:Array.isArray(q.leadM)?q.leadM.filter(x=>typeof x==='string'&&MOVES[x]).slice(0,4):[],leadR:q.leadR===3?3:q.leadR===2?2:q.leadR===1?1:0,fight:q.fight===true,eye:q.eye===true,race:q.race==='racing'?'racing':q.race==='queue'?'queue':'',x:g.x,y:g.y,dir:DIRS[q.dir]?q.dir:'down',look:clamp(q.look|0,0,CHARS.length-1),walk:g.walk,name:String(q.name||'訓練家').slice(0,8)})}
   for(const k in ghosts)if(!seen.has(k))delete ghosts[k];return (lastPeers=out)}
 const EMOS=['😄','😆','🥰','😍','😎','🤩','😂','🥲','😭','😣','😡','😱','😴','🤔','😏','😳','🥺','😋','🤗','🙏','👍','👏','💪','🎉','❤️','💔','💤','❓','‼️','👋'];
 let myEmo=null;const PEMO={};
@@ -2533,7 +2548,7 @@ function tagEmo(id,e,X,Y){let t=tags[id];if(!t){t=tags[id]={d:document.createEle
 const GM_UIDS=new Set(['PGWziQU4dpTkWLdaTTXR24mSgRs2']);
 function gmTag(){const g=document.createElement('span');g.className='gmtag';g.textContent='遊戲GM';return g}
 function tagPeer(o,X,Y){let t=tags[o.id];if(!t){t=tags[o.id]={d:document.createElement('div'),k:''};t.d.className='ptag';boardsEl.append(t.d)}
-  const label=o.name+(o.fight?'・對戰中':o.eye?'・看寶貝中':'');const gmk=label+(GM_UIDS.has(o.id)?'|gm':'');if(t.lab!==gmk){t.lab=gmk;t.d.textContent=label;if(GM_UIDS.has(o.id))t.d.append(gmTag())}t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
+  const label=o.name+(o.fight?'・對戰中':o.race==='racing'?'・比賽中':o.race==='queue'?'・配對中':o.eye?'・看寶貝中':'');const gmk=label+(GM_UIDS.has(o.id)?'|gm':'');if(t.lab!==gmk){t.lab=gmk;t.d.textContent=label;if(GM_UIDS.has(o.id))t.d.append(gmTag())}t.live=true;const k=Math.round(X)+','+Math.round(Y);if(k!==t.k){t.k=k;t.d.style.left=`calc(var(--u)*${Math.round(X)})`;t.d.style.top=`calc(var(--u)*${Math.round(Y)})`}}
 function drawEye(x,y,now){x=Math.round(x);y=Math.round(y);const blink=Math.floor(now/120)%20===0;const c=ctx;
   c.fillStyle='#181820';c.fillRect(x-6,y-2,12,5);c.fillRect(x-4,y-3,8,7);if(blink){c.fillStyle='#f8f8f8';c.fillRect(x-5,y,10,1);return}
   c.fillStyle='#f8f8f8';c.fillRect(x-5,y-1,10,3);c.fillRect(x-3,y-2,6,5);c.fillStyle='#3878d8';c.fillRect(x-2,y-2,4,5);c.fillStyle='#181820';c.fillRect(x-1,y-1,2,3);c.fillStyle='#ffffff';c.fillRect(x,y-1,1,1)}
@@ -2570,7 +2585,7 @@ function onStep(){if(G.flags.surf&&!'~8'.includes(tileAt(player.x,player.y))){G.
   {const rm=roamHit();if(rm){event(()=>roamBattle(rm));return}}
   if(swimStep())return;
   {const tl=tileAt(player.x,player.y);if(tl==='u'){event(upFlow);return}if(tl==='d'){event(fireCracker);return}if(CONVD[tl]){event(convRide);return}if(WINDD[tl]){event(windBlow);return}if(tl==='%'){event(flipSwitch);return}if(tl==='$'){event(secGate);return}}
-  if(!(BIKE&&BIKE.on)&&(',G!ㄍㄐ'.includes(tileAt(player.x,player.y))&&Math.random()<0.1||tileAt(player.x,player.y)==='ㄆ'&&Math.random()<0.08||tileAt(player.x,player.y)===':'&&Math.random()<0.07||/*AIR_FLOOR*/(/^ty[1-46][ab]$/.test(M.id)&&tileAt(player.x,player.y)==='-'&&Math.random()<0.03)||M.park&&tileAt(player.x,player.y)==='a'&&Math.random()<0.05||M.cave&&tileAt(player.x,player.y)==='x'&&Math.random()<0.07||M.cave&&'aI'.includes(tileAt(player.x,player.y))&&Math.random()<0.04)&&G.party.some(m=>m.hp>0)){const z=M.zone&&M.zone(player.x,player.y);if(z)event(()=>wildEncounter(z))}
+  if(!(BIKE&&BIKE.on)&&(',G!ㄍㄐ'.includes(tileAt(player.x,player.y))&&Math.random()<0.1||tileAt(player.x,player.y)==='ㄆ'&&Math.random()<0.08||tileAt(player.x,player.y)===':'&&Math.random()<0.07||M.park&&tileAt(player.x,player.y)==='a'&&Math.random()<0.05||M.cave&&tileAt(player.x,player.y)==='x'&&Math.random()<0.07||M.cave&&'aI'.includes(tileAt(player.x,player.y))&&Math.random()<0.04)&&G.party.some(m=>m.hp>0)){const z=M.zone&&M.zone(player.x,player.y);if(z)event(()=>wildEncounter(z))}
   else if(M.id==='route2'&&!G.flags.birdjoin&&G.flags.starter&&tileAt(player.x,player.y)===','&&G.party.some(m=>m.hp>0))event(birdFriend)}
 function swimStep(){const tl=tileAt(player.x,player.y);if(G.flags.surf&&'~8'.includes(tl)&&Math.random()<(tl==='8'?0.07:0.05)&&G.party.some(m=>m.hp>0)){const z=M.seaZone&&M.seaZone(tl);if(z&&ZONES[z]){event(()=>wildEncounter(z));return true}ZONES.fish={lv:fieldLv(),t:M.fishT||FISH_T,xm:M.fishXm};event(()=>wildEncounter('fish'));return true}return false}
 function mapPress(k){if(k==='a'){const [dx,dy]=DIRS[player.dir];if(dropPickA(player.x+dx,player.y+dy))return;event(()=>interact(player.x+dx,player.y+dy))}else if(k==='start')event(startMenu)}
@@ -2599,7 +2614,7 @@ function drawMap(now){const fr=Math.floor(now/450)%2;const t=player.moving?playe
   const W=M.w*16,H=M.h*16;const cx=W<=160?-Math.floor((160-W)/2):clamp(Math.round(px-72),0,W-160),cy=H<=144?-Math.floor((144-H)/2):clamp(Math.round(py-64),0,H-144);
   ctx.fillStyle='#000';ctx.fillRect(0,0,160,144);
   for(let ty=Math.floor(cy/16);ty<=Math.floor((cy+143)/16);ty++)for(let tx=Math.floor(cx/16);tx<=Math.floor((cx+159)/16);tx++){const T=TILES[tileVis(tileAt(tx,ty))]||TILES[' '];ctx.drawImage(T[fr],tx*16-cx,ty*16-cy)}
-  if(M.id==='zlnm')nmUnder(cx,cy,now);if(M.id==='bali')baliUnder(cx,cy,now);
+  if(M.id==='zlnm')nmUnder(cx,cy,now);if(M.id==='bali')baliUnder(cx,cy,now);if(M.id==='balirace')raceInUnder(cx,cy,now);
   const list=[];
   for(const e of ents){const [ex,ey,wk]=entPos(e,now);
     if(e.deco){if(e.deco!=='_')list.push({y:ey,d:()=>drawDeco(e.deco,ex-cx,ey-cy,now)});continue}

@@ -30,6 +30,11 @@ a.hint{color:#9cf}
 table.res{border-collapse:collapse;font-size:17px;width:min(340px,100%)}
 table.res td{padding:4px 6px}table.res img{width:40px;height:40px;image-rendering:pixelated;vertical-align:middle}
 table.res tr.me{background:#ffd84a33}
+body.card #cv,body.card .ov:not(#queueOv),body.card #itemBtn{display:none!important}
+body.card{background:transparent}
+body.card #queueOv{background:#14202ee8;border:3px solid #ffd84a;border-radius:14px;inset:4px;padding:6px 10px;gap:4px;flex-direction:row;flex-wrap:wrap;justify-content:space-between}
+body.card #queueOv h1{font-size:17px;text-shadow:none;width:100%;text-align:left}
+body.card #qCount{font-size:18px!important}body.card #qMsg{font-size:11px;flex:1}body.card #bQCancel{width:auto;padding:8px 14px;font-size:15px}
 </style></head><body>
 <canvas id="cv"></canvas>
 <div id="itemBtn" hidden class="empty">道具</div>
@@ -161,6 +166,37 @@ function drawBG(){const W=TRACK.w,H=TRACK.h,rw=TRACK.rw,c=document.createElement
 // ===== 音效 =====
 let AC=null;function snd(f,d=.1,type='square',v=.08){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 
+// ===== 刺激音效：引擎聲、熱血背景音樂、加速咻聲、爆炸、撿道具 =====
+const AU={m:null,eng:null,eng2:null,engG:null,mus:false,step:0,next:0,timer:null};
+function actx(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();if(!AU.m){AU.m=AC.createGain();AU.m.gain.value=.55;AU.m.connect(AC.destination)}return AC}
+let NOISE=null;function noiseBuf(){if(NOISE)return NOISE;const a=actx(),b=a.createBuffer(1,a.sampleRate,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return NOISE=b}
+function nz(t,dur,f,q,v,type='bandpass',f2){const a=actx(),s=a.createBufferSource();s.buffer=noiseBuf();const fl=a.createBiquadFilter();fl.type=type;fl.frequency.setValueAtTime(f,t);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t+dur);fl.Q.value=q;const g=a.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(fl);fl.connect(g);g.connect(AU.m);s.start(t);s.stop(t+dur+.02)}
+function tone(t,f,dur,type,v,f2){const a=actx(),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(AU.m);o.start(t);o.stop(t+dur+.02)}
+const SFX={
+  boost(){try{const t=actx().currentTime;nz(t,.55,400,1.5,.4,'bandpass',3500);tone(t,220,.45,'sawtooth',.09,990)}catch(e){}},
+  boom(low){try{const t=actx().currentTime;nz(t,.7,low?400:1500,.7,.6,'lowpass',60);tone(t,low?70:130,.55,'sine',.5,28)}catch(e){}},
+  pick(){try{const t=actx().currentTime;[988,1319,1760].forEach((f,i)=>tone(t+i*.06,f,.13,'square',.07))}catch(e){}},
+  beep(hi){try{const t=actx().currentTime;tone(t,hi?880:440,hi?.7:.25,'square',.14)}catch(e){}},
+  lap(){try{const t=actx().currentTime;[660,880,1320,1760].forEach((f,i)=>tone(t+i*.08,f,.2,'triangle',.14))}catch(e){}}};
+// 背景音樂：168 BPM 熱血賽車曲（大鼓、小鼓、Hi-hat、低音、琶音），排程器播放
+const BPM=168,S16=60/BPM/4,BASS=[40,40,52,40,43,40,47,45,40,40,52,40,38,40,45,43],ARP=[64,67,71,76,71,67,64,59],mf=n=>440*Math.pow(2,(n-69)/12);
+function musicTick(){const a=AC;if(!a||!AU.mus)return;while(AU.next<a.currentTime+.15){const t=AU.next,st=AU.step%16,bar=Math.floor(AU.step/16)%4,tr=[0,0,3,-2][bar];
+  if(st%4===0)tone(t,150,.25,'sine',.5,40);
+  if(st===4||st===12)nz(t,.16,1800,.8,.3);
+  if(st%2===1)nz(t,.04,8000,1,.09,'highpass');
+  tone(t,mf(BASS[st]+tr),S16*.9,'sawtooth',.08);
+  if(st%2===0)tone(t,mf(ARP[(st/2+bar)%8]+tr+12),S16*1.6,'square',.03);
+  AU.next+=S16;AU.step++}}
+function musicStart(){try{actx();if(AU.mus)return;AU.mus=true;AU.step=0;AU.next=AC.currentTime+.05;clearInterval(AU.timer);AU.timer=setInterval(musicTick,40)}catch(e){}}
+function musicStop(){AU.mus=false;clearInterval(AU.timer)}
+function engineSet(v,on){try{if(!on){if(AU.engG)AU.engG.gain.setTargetAtTime(0,AC.currentTime,.08);return}actx();
+  if(!AU.eng){const o=AC.createOscillator(),o2=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o2.type='square';f.type='lowpass';f.frequency.value=900;g.gain.value=0;o.connect(f);o2.connect(f);f.connect(g);g.connect(AU.m);o.start();o2.start();AU.eng=o;AU.eng2=o2;AU.engG=g}
+  const fq=45+v*.22;AU.eng.frequency.setTargetAtTime(fq,AC.currentTime,.05);AU.eng2.frequency.setTargetAtTime(fq*1.5,AC.currentTime,.05);AU.engG.gain.setTargetAtTime(.05,AC.currentTime,.1)}catch(e){}}
+function sndOff(){musicStop();engineSet(0,false)}
+// 跟遊戲（外層）溝通：配對中縮成小卡片、比賽中顯示「比賽中」
+const toParent=d=>{try{if(window.parent!==window)parent.postMessage({src:'race',...d},'*')}catch(e){}};
+function cardMode(on){document.body.classList.toggle('card',on);document.documentElement.style.background=on?'transparent':''}
+
 // ===== 狀態 =====
 let mode='menu',NET=null,ROOM=null,HOST=false,ROSTER=[],ME=null,CARS={},SHOTS=[],MOCHI=[],race=null,DEMO=false;
 let PICK=+(localStorage.getItem('race_pick')||15);if(!RACERS.some(r=>r.id===PICK))PICK=RACERS[0].id;
@@ -170,7 +206,7 @@ const uidN=()=>Math.random().toString(36).slice(2,9);
 function newCar(p,slot){const k=TRACK.laps,back=4+Math.floor(slot/2)*6,i=(N-back)%N,q=lat(i,slot%2?-60:60);
   return {id:p.id,name:p.name,pick:p.pick,bot:!!p.bot,x:q[0],y:q[1],a:TA[i],v:0,lap:0,idx:i,pi:i,half:true,item:null,spin:0,sa:0,boost:0,sticky:0,jump:0,shield:0,shrink:0,fin:0,
     loc:false,lane:(Math.random()-.5)*120,skill:1,buf:[],seen:now()}}
-function startRace(roster,T0,amHost,demo){if(!demo&&MQN>1&&NET&&NET.mark&&ROOM)NET.mark(ROOM);DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
+function startRace(roster,T0,amHost,demo){if(!demo){cardMode(false);toParent({ui:'full',state:'racing'})}if(!demo&&MQN>1&&NET&&NET.mark&&ROOM)NET.mark(ROOM);DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
   roster.forEach((p,s)=>{const c=newCar(p,s);c.loc=p.id===ME||(p.bot&&amHost);CARS[c.id]=c});
   race={T0,t:-9,lastSend:0,firstFin:0,done:false,go:false,cd:4};mode=demo?'menu':'race';
   ['menu','lobby','result'].forEach(id=>$(id).hidden=id!=='menu'||!demo);$('itemBtn').hidden=demo;setItemBtn()}
@@ -184,14 +220,14 @@ function demoStart(){ME='bot0';startRace(bots([],4).map((b,i)=>({...b,id:'bot'+i
 let keys={L:0,R:0};const touches=new Map();
 function inputTurn(){let t=keys.R-keys.L;for(const v of touches.values())t+=v;return clamp(t,-1,1)}
 function phys(c,dt,turn,go){const [i,d]=nearest(c.x,c.y,c.idx);c.idx=i;
-  if(c.pi>N*.8&&i<N*.2&&c.half){c.lap++;c.half=false;if(c.lap>TRACK.laps&&!c.fin)finish(c);else if(c.id===ME&&c.lap>1&&!c.fin)snd(880,.25,'triangle')}
+  if(c.pi>N*.8&&i<N*.2&&c.half){c.lap++;c.half=false;if(c.lap>TRACK.laps&&!c.fin)finish(c);else if(c.id===ME&&c.lap>1&&!c.fin)SFX.lap()}
   else if(c.pi<N*.2&&i>N*.8){c.lap--;c.half=true}
   if(i>N*.4&&i<N*.6)c.half=true;c.pi=i;
   let vm=go?VMAX*c.skill:0;const water=c.x<TRACK.river(c.y);c.off=d>TRACK.rw/2;
   if(c.off)vm*=water?.35:.55;
   if(c.sticky>0){c.sticky-=dt;vm*=.45}
   if(c.shrink>0){c.shrink-=dt;vm*=.6}if(c.jump>0)c.jump-=dt;if(c.shield>0)c.shield-=dt;
-  for(const pd of PADS){const di=(i-pd.i+N)%N,na=TA[i]+Math.PI/2,lo=(c.x-T[i][0])*Math.cos(na)+(c.y-T[i][1])*Math.sin(na);if(di<6&&Math.abs(lo-pd.o)<36){if(c.boost<.2&&c.id===ME)snd(660,.15,'sawtooth');c.boost=Math.max(c.boost,.9)}}
+  for(const pd of PADS){const di=(i-pd.i+N)%N,na=TA[i]+Math.PI/2,lo=(c.x-T[i][0])*Math.cos(na)+(c.y-T[i][1])*Math.sin(na);if(di<6&&Math.abs(lo-pd.o)<36){if(c.boost<.2&&c.id===ME)SFX.boost();c.boost=Math.max(c.boost,.9)}}
   if(c.boost>0){c.boost-=dt;if(go)vm=Math.max(vm,VMAX*1.5)}
   if(c.spin>0){c.spin-=dt;c.sa+=dt*13;c.v*=Math.pow(.15,dt);if(c.spin<=0)c.sa=0}
   else if(go)c.a+=turn*STEER*dt*Math.min(1,c.v/150);
@@ -214,17 +250,17 @@ function collide(){const L=Object.values(CARS);for(const c of L){if(!c.loc)conti
 // ===== 道具 =====
 function roll(c){const r=ranking().indexOf(c),w=ITEM_W[clamp(r,0,3)];let s=0;for(const k in w)s+=w[k];let x=Math.random()*s;for(const k in w){x-=w[k];if(x<0)return k}return 'tea'}
 function useItem(c){const it=c.item;if(!it||c.spin>0)return;c.item=null;if(c.id===ME){setItemBtn();snd(520,.12)}
-  if(it==='tea'){c.boost=1.7}
+  if(it==='tea'){c.boost=1.7;if(c.id===ME)SFX.boost()}
   else if(it==='fire'){const s={id:uidN(),x:c.x+Math.cos(c.a)*34,y:c.y+Math.sin(c.a)*34,a:c.a,v:c.v+430,life:1.8,own:c.id,tg:''};SHOTS.push(s);send({k:'fire',...s,t:now()})}
   else if(it==='mochi'){const m={id:uidN(),x:c.x-Math.cos(c.a)*40,y:c.y-Math.sin(c.a)*40,life:25,own:c.id};MOCHI.push(m);send({k:'mochi',...m})}
   else if(it==='jump'){c.jump=.8;if(c.id===ME)snd(700,.3,'triangle')}
   else if(it==='shield'){c.shield=3}
   else if(it==='rocket'){const R=ranking(),k=R.indexOf(c),tg=k>0?R[k-1].id:'';const s={id:uidN(),x:c.x+Math.cos(c.a)*34,y:c.y+Math.sin(c.a)*34,a:c.a,v:Math.max(c.v,VMAX)+260,life:3.2,own:c.id,tg};SHOTS.push(s);send({k:'fire',...s,t:now()})}
   else if(it==='thunder'){const R=ranking(),ids=R.slice(0,R.indexOf(c)).map(o=>o.id);zap(ids);send({k:'zap',ids})}}
-function zap(ids){race.flash=.35;snd(90,.5,'sawtooth',.12);for(const id of ids){const o=CARS[id];if(o&&o.loc&&!o.fin&&o.shield<=0){o.shrink=2.5;if(o.id===ME&&navigator.vibrate)navigator.vibrate(200)}}}
-function hit(c,kind){if(kind==='fire'){c.spin=1.1;c.item=c.item}else c.sticky=1.6;if(c.id===ME){snd(kind==='fire'?140:300,.35,'sawtooth',.12);if(navigator.vibrate)navigator.vibrate(120)}}
+function zap(ids){race.flash=.35;SFX.boom(true);for(const id of ids){const o=CARS[id];if(o&&o.loc&&!o.fin&&o.shield<=0){o.shrink=2.5;if(o.id===ME&&navigator.vibrate)navigator.vibrate(200)}}}
+function hit(c,kind){if(kind==='fire'){c.spin=1.1;c.item=c.item}else c.sticky=1.6;if(c.id===ME){kind==='fire'?SFX.boom():snd(300,.35,'sawtooth',.12);if(navigator.vibrate)navigator.vibrate(120)}}
 function items(dt){const L=Object.values(CARS);
-  for(const b of BOXES)if(b.t>0)b.t-=dt;else for(const c of L)if(c.loc&&!c.item&&!c.fin&&Math.hypot(c.x-b.x,c.y-b.y)<30){b.t=3;c.item=roll(c);c.iw=1+Math.random()*3;send({k:'box',i:BOXES.indexOf(b)});if(c.id===ME){setItemBtn();race.toast=ITEMS[c.item].n;race.toastT=1.6;snd(990,.08);setTimeout(()=>snd(1320,.1),80)}break}
+  for(const b of BOXES)if(b.t>0)b.t-=dt;else for(const c of L)if(c.loc&&!c.item&&!c.fin&&Math.hypot(c.x-b.x,c.y-b.y)<30){b.t=3;c.item=roll(c);c.iw=1+Math.random()*3;send({k:'box',i:BOXES.indexOf(b)});if(c.id===ME){setItemBtn();race.toast=ITEMS[c.item].n;race.toastT=1.6;SFX.pick()}break}
   for(const s of SHOTS){s.life-=dt;const tg=s.tg&&CARS[s.tg];if(tg&&!tg.fin){s.a+=clamp(angD(s.a,Math.atan2(tg.y-s.y,tg.x-s.x)),-4*dt,4*dt)}
     s.x+=Math.cos(s.a)*s.v*dt;s.y+=Math.sin(s.a)*s.v*dt;
     for(const c of L)if(c.loc&&(c.id!==s.own||s.life<1.5)&&c.spin<=0&&c.jump<=0&&Math.hypot(c.x-s.x,c.y-s.y)<24){if(c.shield<=0)hit(c,'fire');s.life=0;send({k:'rm',id:s.id});break}}
@@ -233,13 +269,13 @@ function items(dt){const L=Object.values(CARS);
 function setItemBtn(){const c=CARS[ME],b=$('itemBtn');if(!c||!c.item){b.className='empty';b.textContent='道具'}else{b.className='';b.textContent=ITEMS[c.item].icon}}
 
 // ===== 主迴圈 =====
-function finish(c){c.fin=Math.max(1,now()-race.T0);if(!race.firstFin)race.firstFin=now();send({k:'fin',id:c.id,tm:c.fin});if(c.id===ME){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1320,.4),300);showResult();
+function finish(c){c.fin=Math.max(1,now()-race.T0);if(!race.firstFin)race.firstFin=now();send({k:'fin',id:c.id,tm:c.fin});if(c.id===ME){sndOff();snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1320,.4),300);showResult();
   const rc=race;if(!DEMO&&NET&&NET.board)NET.board.submit(c.fin,c.pick).then(r=>{rc.best=r;if(race===rc&&mode==='result')showResult()}).catch(e=>console.warn('board',e))}}
 function tick(dt){const t=now();race.t=(t-race.T0)/1000;const go=race.t>=0;race.go=go;
-  if(!go){const cd=Math.ceil(-race.t);if(cd<race.cd&&cd<=3&&!DEMO){snd(440,.15)}race.cd=cd}else if(race.cd>0){race.cd=0;if(!DEMO)snd(880,.3)}
+  if(!go){const cd=Math.ceil(-race.t);if(cd<race.cd&&cd<=3&&!DEMO){SFX.beep()}race.cd=cd}else if(race.cd>0){race.cd=0;if(!DEMO){SFX.beep(1);musicStart()}}
   for(const c of Object.values(CARS)){
     if(c.loc){const turn=(c.bot||c.fin||DEMO||AUTO)?ai(c,dt):inputTurn();phys(c,dt,turn,go)}else interp(c,t)}
-  collide();items(dt);
+  collide();items(dt);{const me=CARS[ME];if(!DEMO&&me&&mode==='race'&&race.go&&!me.fin)engineSet(me.v+(me.boost>0?160:0),true);else if(AU.engG)engineSet(0,false)}
   if(NET&&!DEMO&&t-race.lastSend>=SEND_MS){race.lastSend=t;const out=[];for(const c of Object.values(CARS))if(c.loc)out.push([c.id,c.x|0,c.y|0,+c.a.toFixed(3),c.v|0,c.lap,c.idx,(c.spin>0?1:0)|(c.boost>0?2:0)|(c.sticky>0?4:0)|(c.jump>0?8:0)|(c.shield>0?16:0)|(c.shrink>0?32:0),t]);send({k:'s',c:out})}
   if(DEMO){if(Object.values(CARS).every(c=>c.fin))demoStart();return}
   const L=Object.values(CARS),alive=L.filter(c=>c.bot||c.loc||t-c.seen<8000);
@@ -297,21 +333,24 @@ async function fbNet(){
   let name='';try{name=localStorage.getItem('baodao_acct_'+me)||''}catch(e){}
   const inbox=D.ref(db,'inbox/'+me);if(!EMB)await D.remove(inbox).catch(()=>{});
   D.onChildAdded(inbox,s=>{const v=s.val();if(v&&v.type==='race'){D.remove(s.ref).catch(()=>{});cb(v)}else if(!EMB)D.remove(s.ref).catch(()=>{})});
-  const posR=D.ref(db,'pos/'+me);D.onDisconnect(posR).remove().catch(()=>{});
+  const posR=D.ref(db,'pos/'+me),TS=D.serverTimestamp;
+  const CLR={mq:null,qt:null,qs:null,rc:null,rh:null};
+  if(EMB)D.onDisconnect(posR).update(CLR).catch(()=>{});else D.onDisconnect(posR).remove().catch(()=>{});
+  const posW=o=>EMB?D.update(posR,{uid:me,t:TS(),...o}):D.set(posR,{uid:me,t:TS(),name:net.name,map:'race',...o});
   // 同帳號只能一個地方玩（和冒險遊戲共用規則）
   const sid=uidN()+Date.now().toString(36),SR=D.ref(db,'session/'+me);
   if(!EMB)D.set(SR,{sid,t:D.serverTimestamp()}).then(()=>D.onValue(SR,s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){NET=null;if(mode!=='race'||!ROOM){leaveRoom()}$('bHost').disabled=$('bJoin').disabled=true;$('acct').textContent='你的帳號在別的地方登入了，這裡只能單人練習'}})).catch(()=>{});
   const net={me,name:name||'玩家',now:()=>Date.now()+off,peers:[],on:f=>cb=f,
     send:(to,m)=>{if(to)D.push(D.ref(db,'inbox/'+to),{...m,type:'race',from:me}).catch(e=>console.warn('send',e))},
     bc(m){for(const p of net.peers)net.send(p,m)},
-    host:code=>(net.mqStop(),D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code,rh:1})),
+    host:code=>(net.mqStop(),posW({rc:code,rh:1,mq:null,qt:null,qs:null})),
     async join(code,m){const s=await D.get(D.ref(db,'pos'));const h=Object.values(s.val()||{}).find(p=>p&&p.rc===code&&p.rh);if(!h)return false;
-      await D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code});net.send(h.uid,{...m,k:'join',code});return true},
-    leave(){net.mqStop();D.remove(posR).catch(()=>{})},
-    mark(code){net.mqStop();return D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code})},
-    mq(n){const qt=Date.now()+off;const hb=()=>D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',mq:n,qt}).catch(()=>{});hb();clearInterval(net._qT);net._qT=setInterval(hb,5000)},
+      await posW({rc:code,mq:null,qt:null,qs:null});net.send(h.uid,{...m,k:'join',code});return true},
+    leave(){net.mqStop();(EMB?D.update(posR,CLR):D.remove(posR)).catch(()=>{})},
+    mark(code){net.mqStop();return posW({rc:code,mq:null,qt:null,qs:null}).catch(()=>{})},
+    mq(n){const qs=Date.now()+off;const hb=()=>posW({mq:n,qs,qt:TS(),rc:null,rh:null}).catch(()=>{});hb();clearInterval(net._qT);net._qT=setInterval(hb,5000)},
     mqStop(){clearInterval(net._qT);net._qT=null},
-    async waiting(n){const s=await D.get(D.ref(db,'pos'));const t=Date.now()+off;return Object.values(s.val()||{}).filter(p=>p&&p.mq===n&&!p.rc&&t-(p.t||0)<20000)}};
+    async waiting(n){const s=await D.get(D.ref(db,'pos'));const t=Date.now()+off;return Object.values(s.val()||{}).filter(p=>p&&p.mq===n&&!p.rc&&t-(p.qt||0)<20000)}};
   const fs=FS.getFirestore(app);
   net.board={async top(){const q=FS.query(FS.collection(fs,'locks'),FS.orderBy('raceMs'),FS.limit(10));const r=await FS.getDocs(q);return r.docs.map(d=>d.data()).filter(d=>d&&d.raceMs>0)},
     async submit(ms,pick){const ref=FS.doc(fs,'locks','race_'+me);const o=await FS.getDoc(ref);const old=o.exists()?o.data().raceMs:0;
@@ -340,13 +379,13 @@ function hostStart(auto){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map
 // ===== 自動配對（從遊戲 NPC 打開：race.html?embed=1&n=人數）=====
 const MQN=clamp(+Q.get('n')||0,0,4);let MQ=null;
 function mqStart(){if(!NET){$('acct').textContent='要先登入冒險遊戲才能找人一起跑';return}ME=NET.me;ROOM=null;HOST=false;ROSTER=[];
-  MQ={t0:now()};NET.mq(MQN);$('queueOv').hidden=false;$('menu').hidden=true;mqTick()}
-function mqCancel(){if(!MQ)return;MQ=null;NET&&NET.mqStop();NET&&NET.leave();$('queueOv').hidden=true;toMenu()}
+  MQ={t0:now()};NET.mq(MQN);$('queueOv').hidden=false;$('menu').hidden=true;sndOff();cardMode(true);toParent({ui:'card',state:'queue'});mqTick()}
+function mqCancel(){if(!MQ)return;MQ=null;NET&&NET.mqStop();NET&&NET.leave();$('queueOv').hidden=true;cardMode(false);toParent({ui:'full'});toMenu()}
 async function mqTick(){if(!MQ||!NET)return;let L=[];try{L=await NET.waiting(MQN)}catch(e){}
-  if(!MQ)return;L.sort((a,b)=>(a.qt||0)-(b.qt||0)||String(a.uid).localeCompare(String(b.uid)));
+  if(!MQ)return;L.sort((a,b)=>(a.qs||a.qt||0)-(b.qs||b.qt||0)||String(a.uid).localeCompare(String(b.uid)));
   const k=Math.max(1,L.length);$('qCount').textContent=`等待其他玩家 ${Math.min(k,MQN)}/${MQN}`;
   const i=L.findIndex(q=>q.uid===NET.me),g=Math.floor(i/MQN),grp=L.slice(g*MQN,g*MQN+MQN);
-  if(i>=0&&grp.length===MQN){const host=grp[0].uid,code='Q'+String(host).slice(0,10);MQ=null;$('queueOv').hidden=true;
+  if(i>=0&&grp.length===MQN){const host=grp[0].uid,code='Q'+String(host).slice(0,10);MQ=null;$('queueOv').hidden=true;cardMode(false);toParent({ui:'full'});
     if(host===NET.me){ROOM=code;HOST=true;ROSTER=[{id:ME,name:myName(),pick:PICK,hb:now()}];NET.peers=[];showLobby();MQW=now()}
     else{ROOM=code;HOST=false;lastRoster=now();MQH=host;NET.send(host,{k:'join',code,name:myName(),pick:PICK});showLobby()}
     return}
@@ -357,14 +396,14 @@ $('bQCancel').onclick=mqCancel;
 
 // ===== 結果 =====
 function fmt(ms){if(!ms)return '跑完中…';const s=ms/1000;return Math.floor(s/60)+':'+(s%60).toFixed(1).padStart(4,'0')}
-function showResult(){mode='result';$('itemBtn').hidden=true;$('result').hidden=false;const R=ranking(),r=R.indexOf(CARS[ME])+1;
+function showResult(){toParent({state:'idle'});mode='result';$('itemBtn').hidden=true;$('result').hidden=false;const R=ranking(),r=R.indexOf(CARS[ME])+1;
   $('rtitle').textContent=r===1?'🏆 第 1 名！':`第 ${r} 名`;
   $('rtab').innerHTML=R.map((c,i)=>`<tr class="${c.id===ME?'me':''}"><td>${i+1}</td><td><img src="mon/${c.pick}_f.webp"></td><td>${esc(c.name)}</td><td>${fmt(c.fin)}</td></tr>`).join('');
   $('rmsg').textContent=race.done?'':'等其他人跑完…';
   $('rbest').textContent=race.best?(race.best.nb?'🎉 新紀錄！':'')+'你的最佳成績 '+fmt(race.best.best):'';
   $('bAgain').hidden=!race.done||(ROOM&&!HOST&&MQN<2);$('bAgain').textContent=ROOM?'回房間再來一場':'再來一場';
   if(ROOM&&!HOST&&race.done)$('rmsg').textContent='等房主開下一場…'}
-function toMenu(){mode='menu';$('result').hidden=$('lobby').hidden=true;$('menu').hidden=false;$('itemBtn').hidden=true;demoStart()}
+function toMenu(){sndOff();toParent({state:'idle'});mode='menu';$('result').hidden=$('lobby').hidden=true;$('menu').hidden=false;$('itemBtn').hidden=true;demoStart()}
 
 // ===== 畫面（背後追尾的假 3D：地面貼圖逐行透視取樣，像老遊戲機的賽車）=====
 const cv=$('cv'),ctx=cv.getContext('2d');let DPR=1;
