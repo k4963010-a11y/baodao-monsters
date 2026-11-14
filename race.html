@@ -210,7 +210,7 @@ function newCar(p,slot){const k=TRACK.laps,back=4+Math.floor(slot/2)*6,i=(N-back
     loc:false,lane:(Math.random()-.5)*120,skill:1,buf:[],seen:now()}}
 function startRace(roster,T0,amHost,demo){if(!demo){cardMode(false);toParent({ui:'full',state:'racing'})}if(!demo&&MQN>1&&NET&&NET.mark&&ROOM)NET.mark(ROOM);DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
   roster.forEach((p,s)=>{const c=newCar(p,s);c.loc=p.id===ME||(p.bot&&amHost);CARS[c.id]=c});
-  race={T0,t:-9,lastSend:0,firstFin:0,done:false,go:false,cd:4};mode=demo?'menu':'race';
+  race={T0,t:-9,lastSend:0,firstFin:0,done:false,go:false,cd:4};mode=demo?'menu':'race';{const mine=roster.find(p=>p.id===ME);if(!demo&&mine&&mine.was){const R=RACERS.find(x=>x.id===mine.pick);race.toast=`你選的角色被別人先選了，改用 ${R?R.n:''}`;race.toastT=3.5}}
   ['menu','lobby','result'].forEach(id=>$(id).hidden=id!=='menu'||!demo);$('itemBtn').hidden=demo;setItemBtn()}
 function soloStart(){NET=NET||null;const me={id:ME,name:myName(),pick:PICK};HOST=true;
   startRace([me,...bots([PICK])],now()+3500,true,false)}
@@ -378,7 +378,7 @@ async function joinRoom(){const code=$('inCode').value.trim();if(!/^\d{4}$/.test
   const ok=await NET.join(code,{name:myName(),pick:PICK});if(!ok){ROOM=null;$('acct').textContent='找不到這個房間，房號對嗎？';return}
   setTimeout(()=>{if(ROOM===code&&mode==='menu'&&!ROSTER.length){$('acct').textContent='房主沒有回應，再試一次'}},6000)}
 function leaveRoom(){if(NET&&ROOM){if(HOST)NET.bc({k:'close'});else NET.send(ROSTER[0]&&ROSTER[0].id,{k:'bye'});NET.leave()}ROOM=null;ROSTER=[];if(NET)NET.peers=[];HOST=false;toMenu()}
-function hostStart(auto){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map(p=>p.pick),fill=auto===true?false:$('fillBots').checked;if(!fill&&humans.length<2){$('lmsg').textContent='只有你一個人喔！等朋友加入，或勾選電腦補位';return}const roster=[...humans,...(fill?bots(used,4-humans.length):[])];
+function hostStart(auto){const humans=ROSTER.map(({hb,...p})=>p);{/* 角色不能重複：先選（先進房）的優先，重複的人改成還沒人選的角色 */const took=new Set();for(const h of humans){if(took.has(h.pick)){const f=RACERS.find(r=>!took.has(r.id));if(f){h.was=h.pick;h.pick=f.id}}took.add(h.pick)}}const used=humans.map(p=>p.pick),fill=auto===true?false:$('fillBots').checked;if(!fill&&humans.length<2){$('lmsg').textContent='只有你一個人喔！等朋友加入，或勾選電腦補位';return}const roster=[...humans,...(fill?bots(used,4-humans.length):[])];
   NET.peers=humans.filter(p=>p.id!==ME).map(p=>p.id);const T0=now()+4000;NET.bc({k:'start',roster,T0});startRace(roster,T0,true,false)}
 
 // ===== 自動配對（從遊戲 NPC 打開：race.html?embed=1&n=人數）=====
