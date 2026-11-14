@@ -10,7 +10,7 @@ body{background:radial-gradient(circle at 50% -10%,#6a2a8a,var(--bg) 60%);min-he
 .wrap{max-width:420px;margin:0 auto;padding:10px 12px 24px;box-sizing:border-box}
 h1{margin:4px 0 2px;font-size:24px;text-align:center;color:var(--gold);text-shadow:2px 2px 0 #b03020}
 .sub{text-align:center;font-size:12px;opacity:.85}
-.bar{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:14px;gap:6px}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:12px;gap:4px;white-space:nowrap}
 .pill{background:#0005;border-radius:999px;padding:4px 10px}
 .board{max-width:320px;margin:0 auto;background:var(--board);border-radius:12px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;box-shadow:0 4px 0 #4a1060}
 .cell{position:relative;background:var(--cell);border-radius:6px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -60,7 +60,7 @@ button.b:disabled{opacity:.4}
   <div class="hand" id="hand"></div>
   <button class="b" id="bGo">開始一局</button>
   <button class="b s" id="bReset">試玩重來（錢和紀錄歸零）</button>
-  <div class="rules">玩法：36 張寶貝牌亂亂蓋在桌上，先隨意選 15 張，其餘捨棄；再一張一張翻開，翻到的寶貝放上板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 3 張。<br>連勝 2 次可以換一隻稀有寶貝（只能換一次）。</div>
+  <div class="rules">玩法：36 張寶貝牌亂亂蓋在桌上，先隨意選 13 張，其餘捨棄；再一張一張翻開，翻到的寶貝放上板子圈起來。橫、直、斜連成一條 6 格就贏！只差 1 格叫「聽牌」，可以再補翻 4 張。<br>贏了送超大娃娃「媽祖魚寶」！連勝 2 次還可以另外換一隻稀有寶貝（只能換一次）。</div>
 </div>
 <div class="ov" id="ov" hidden><div class="box" id="ovBox"></div></div>
 <script>
@@ -70,8 +70,8 @@ const MONS=[[1,'閃紋虎'],[3,'啾啾鵲'],[5,'茶苞苞'],[6,'火金姑'],[7,'
   [19,'茶葉精'],[21,'螢火郎'],[23,'櫻花鮭'],[26,'霧紋豹'],[27,'葉鼻蝠'],[29,'冠羽鷲'],[30,'芒絨球'],[32,'松靈鼠'],[33,'霓虹喵'],[36,'竹節忍'],[37,'寬尾鳳靈'],[38,'夜影貓'],
   [39,'轉轉輪'],[41,'阻尼球'],[49,'刺刺陽'],[52,'水燈靈'],[53,'月影鴞'],[54,'嘟鼻象'],[55,'五彩叩叩'],[56,'隱竹蜥'],[61,'包種蛙'],[65,'幽燈狸'],[66,'稻浪鴨'],[68,'龜島靈']];
 const RARE_CHOICES=[[26,'霧紋豹'],[49,'刺刺陽'],[52,'水燈靈'],[53,'月影鴞'],[68,'龜島靈'],[72,'閃線鰻']];
-const DRAW=15,EXTRA=3,STREAK_FOR_RARE=2;
-const PRICE_BEFORE=100,PRIZE_BEFORE=1000,PRICE_AFTER=1000,PRIZE_AFTER=10000,START_MONEY=20000;
+const DRAW=13,EXTRA=4,STREAK_FOR_RARE=2;  // 選13張、聽牌補4張 → 勝率約 5.3%
+const PRICE=2000,PRIZE_MON='媽祖魚寶',PRIZE_IMG='mon/mazu_f.webp',START_MONEY=60000;  // 贏了送大娃娃媽祖魚寶（不給錢）
 const LINES=[];for(let r=0;r<6;r++)LINES.push([0,1,2,3,4,5].map(c=>r*6+c));for(let c=0;c<6;c++)LINES.push([0,1,2,3,4,5].map(r=>r*6+c));
 LINES.push([0,7,14,21,28,35],[5,10,15,20,25,30]);
 
@@ -81,8 +81,8 @@ if(!S)S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};
 const save=()=>{try{localStorage.setItem('bingo_trial',JSON.stringify(S))}catch(e){}};
 let G=null; // 這一局
 let AC=null;function snd(f,d=.1,t='square',v=.07){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
-const price=()=>S.rare?PRICE_AFTER:PRICE_BEFORE,prize=()=>S.rare?PRIZE_AFTER:PRIZE_BEFORE;
-function hud(){$('money').textContent='💰 '+S.money.toLocaleString()+' 元';$('streak').textContent='🔥 連勝 '+S.streak;$('price').textContent=`一局 ${price()}・贏 ${prize().toLocaleString()}`}
+const price=()=>PRICE;
+function hud(){$('money').textContent='💰 '+S.money.toLocaleString()+' 元';$('streak').textContent='🔥 連勝 '+S.streak+'・🐬×'+(S.dolls|0);$('price').textContent=`一局 ${price()} 元`}
 function drawBoard(){$('board').innerHTML=MONS.map(([id,n],i)=>`<div class="cell" id="c${i}"><img src="mon/${id}_f.webp" alt="${n}"></div>`).join('')}
 // ===== 牌桌：蓋著的牌亂亂堆 → 選 15 張 → 其餘捨棄 → 一張一張翻開放上板子 =====
 function msg(t){$('msg').innerHTML=t}
@@ -120,16 +120,16 @@ function placed(i){if(!G||G.done)return;G.hit.add(i);$('c'+i).classList.add('on'
   if(!G.extra&&tingL.length){G.extra=true;G.phase='pick2';G.need=EXTRA;$('table').classList.remove('dim');msg(`🔔 聽牌！從剩下的牌再補 <b style="color:var(--gold)">&nbsp;${EXTRA}&nbsp;</b> 張`);snd(1200,.2,'triangle');return}
   end(false)}
 function end(won,line){G.done=true;$('bGo').disabled=false;$('table').classList.add('dim');
-  if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.money+=prize();S.streak++;S.wins++;save();hud();
+  if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.dolls=(S.dolls|0)+1;S.streak++;S.wins++;save();hud();
     [880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle'),i*120));
-    msg(`🎉 連線了！獲得 ${prize().toLocaleString()} 元`);
-    if(!S.rare&&S.streak>=STREAK_FOR_RARE)setTimeout(rareShop,900)}
+    msg(`🎉 連線了！獲得大娃娃 ${PRIZE_MON}！`);$('ovBox').innerHTML=`<h1>🎉 大獎！</h1><img src="${PRIZE_IMG}" style="width:170px"><div style="margin:8px 0;font-size:18px">獲得超大娃娃 <b>${PRIZE_MON}</b>！</div><div class="sub">（試玩版：正式版會直接放進你的隊伍）</div><button class="b" id="bOk">好</button>`;$('ov').hidden=false;
+    if(!S.rare&&S.streak>=STREAK_FOR_RARE)setTimeout(rareShop,1500)}
   else{S.streak=0;save();hud();snd(200,.3,'sawtooth');msg('沒連線…再來一局！')}
   $('bGo').textContent=`再玩一局（${price()} 元）`}
 function rareShop(){$('ovBox').innerHTML=`<h1>🏆 連勝 ${STREAK_FOR_RARE} 次！</h1><div>選一隻稀有寶貝帶回家（只能換一次）</div>
   <div class="picks">${RARE_CHOICES.map(([id,n])=>`<div class="pk" data-id="${id}" data-n="${n}"><img src="mon/${id}_f.webp">${n}</div>`).join('')}</div>`;$('ov').hidden=false}
 $('ovBox').addEventListener('click',e=>{const p=e.target.closest('.pk');if(p){S.rare=+p.dataset.id;save();hud();
-    $('ovBox').innerHTML=`<h1>✨ 換到 ${p.dataset.n}！</h1><img src="mon/${p.dataset.id}_f.webp" style="width:140px;image-rendering:pixelated"><div style="margin:8px 0">（試玩版：正式版會直接放進你的隊伍）</div><div>之後每局 ${PRICE_AFTER} 元、贏了拿 ${PRIZE_AFTER.toLocaleString()} 元！</div><button class="b" id="bOk">好</button>`;
+    $('ovBox').innerHTML=`<h1>✨ 換到 ${p.dataset.n}！</h1><img src="mon/${p.dataset.id}_f.webp" style="width:140px;image-rendering:pixelated"><div style="margin:8px 0">（試玩版：正式版會直接放進你的隊伍）</div><button class="b" id="bOk">好</button>`;
     [660,880,1320].forEach((f,i)=>setTimeout(()=>snd(f,.2,'triangle'),i*150));$('bGo').textContent=`再玩一局（${price()} 元）`;return}
   if(e.target.id==='bOk')$('ov').hidden=true});
 $('table').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)pick(t)});

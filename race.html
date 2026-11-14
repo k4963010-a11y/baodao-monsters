@@ -39,6 +39,7 @@ table.res tr.me{background:#ffd84a33}
   <button class="b g" id="bSolo">單人練習（和 3 個電腦比）</button>
   <button class="b" id="bHost" disabled>開房間（找朋友一起跑）</button>
   <div class="row"><input id="inCode" inputmode="numeric" maxlength="4" placeholder="房號"><button class="b" id="bJoin" disabled>加入</button></div>
+  <button class="b s" id="bBoard">🏆 排行榜（最快前 10 名）</button>
   <div class="hint" id="acct">連線中…</div>
   <a class="hint" href="./">← 回冒險遊戲</a>
 </div>
@@ -46,6 +47,7 @@ table.res tr.me{background:#ffd84a33}
   <div>房號</div><div id="code"></div>
   <div class="hint">把房號告訴朋友，在賽車頁輸入就能加入<br>不滿 4 人由電腦補位</div>
   <div class="slots" id="slots"></div>
+  <label class="hint" id="fillW"><input type="checkbox" id="fillBots" checked> 不滿 4 人由電腦補位（不勾＝只有真人，2～4 人都能跑）</label>
   <button class="b g" id="bStart">開始比賽</button>
   <div class="hint" id="lmsg"></div>
   <button class="b s" id="bLeave">離開房間</button>
@@ -54,8 +56,15 @@ table.res tr.me{background:#ffd84a33}
   <h1 id="rtitle">比賽結束</h1>
   <table class="res" id="rtab"></table>
   <div class="hint" id="rmsg"></div>
+  <div class="hint" id="rbest" style="font-size:16px;color:#ffd84a"></div>
   <button class="b" id="bAgain">再來一場</button>
   <button class="b s" id="bQuit">回選單</button>
+</div>
+<div class="ov" id="boardOv" hidden>
+  <h1>🏆 淡水河畔 排行榜</h1>
+  <table class="res" id="boardTab"></table>
+  <div class="hint" id="boardMsg"></div>
+  <button class="b s" id="bBoardX">關閉</button>
 </div>
 <script type="module">
 'use strict';
@@ -75,7 +84,7 @@ const TS=1.25,TSC=.5,DECO=[]; // 賽道放大倍數
 const TRACK={name:'淡水河畔',laps:3,w:2600*TS,h:2100*TS,rw:260,
   cp:[[1500,1820],[1000,1830],[600,1700],[380,1350],[400,950],[620,600],[1000,420],[1400,450],[1620,700],[1480,980],[1180,1080],[1120,1320],[1380,1480],[1800,1400],[2000,1100],[2150,800],[2350,700],[2450,1000],[2380,1450],[2100,1750]].map(p=>[p[0]*TS,p[1]*TS]),
   pads:[[.06,-70],[.2,60],[.33,0],[.42,-75],[.56,70],[.66,-40],[.78,45],[.92,-60]],boxes:[.13,.47,.83],river:y=>190+55*Math.sin(y/280)};
-const AUTO=Q.has('auto'),SPEED=+Q.get('speed')||1;
+const AUTO=Q.has('local')&&Q.has('auto'),SPEED=Q.has('local')?(+Q.get('speed')||1):1;  // 測試開關只在 ?local 測試模式有效（防止刷排行榜）
 const VMAX=430,STEER=2.7,SEND_MS=100,INTERP_MS=130;
 const IMG={},IMGF={};RACERS.forEach(r=>{const i=new Image();i.src='mon/'+r.id+'_b.webp';IMG[r.id]=i;const f=new Image();f.src='mon/'+r.id+'_f.webp';IMGF[r.id]=f});
 const RC=id=>RACERS.find(r=>r.id===id)||RACERS[0];
@@ -217,7 +226,8 @@ function items(dt){const L=Object.values(CARS);
 function setItemBtn(){const c=CARS[ME],b=$('itemBtn');if(!c||!c.item){b.className='empty';b.textContent='道具'}else{b.className='';b.textContent=ITEMS[c.item].icon}}
 
 // ===== 主迴圈 =====
-function finish(c){c.fin=Math.max(1,now()-race.T0);if(!race.firstFin)race.firstFin=now();send({k:'fin',id:c.id,tm:c.fin});if(c.id===ME){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1320,.4),300);showResult()}}
+function finish(c){c.fin=Math.max(1,now()-race.T0);if(!race.firstFin)race.firstFin=now();send({k:'fin',id:c.id,tm:c.fin});if(c.id===ME){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1320,.4),300);showResult();
+  const rc=race;if(!DEMO&&NET&&NET.board)NET.board.submit(c.fin,c.pick).then(r=>{rc.best=r;if(race===rc&&mode==='result')showResult()}).catch(e=>console.warn('board',e))}}
 function tick(dt){const t=now();race.t=(t-race.T0)/1000;const go=race.t>=0;race.go=go;
   if(!go){const cd=Math.ceil(-race.t);if(cd<race.cd&&cd<=3&&!DEMO){snd(440,.15)}race.cd=cd}else if(race.cd>0){race.cd=0;if(!DEMO)snd(880,.3)}
   for(const c of Object.values(CARS)){
@@ -261,9 +271,12 @@ function localNet(){const me='L'+uidN().slice(0,5),ch=new BroadcastChannel('baod
   ch.onmessage=e=>{const m=e.data;if(m.from===me||(m.to&&m.to!==me))return;cb(m)};
   const net={me,name:'測試'+me.slice(1,4),now:()=>Date.now(),peers:[],on:f=>cb=f,
     send:(to,m)=>ch.postMessage({...m,to,from:me}),bc(m){for(const p of net.peers)net.send(p,m)},
-    async host(){},async join(code,m){ch.postMessage({...m,k:'join',code,from:me});return true},leave(){}};return net}
+    async host(){},async join(code,m){ch.postMessage({...m,k:'join',code,from:me});return true},leave(){}};
+  const LS='race_board_test';const rd=()=>{try{return JSON.parse(localStorage.getItem(LS))||[]}catch(e){return []}};
+  net.board={async top(){return rd().sort((a,b)=>a.raceMs-b.raceMs).slice(0,10)},async submit(ms,pick){const L=rd().filter(x=>x.uid!==me),o=rd().find(x=>x.uid===me);if(o&&o.raceMs<=ms)return {best:o.raceMs,nb:false};L.push({raceMs:Math.round(ms),name:net.name,pick,uid:me});localStorage.setItem(LS,JSON.stringify(L));return {best:ms,nb:true}}};
+  return net}
 async function fbNet(){
-  const [{initializeApp},A,D,C]=await Promise.all([import('./vendor/fb10122/firebase-app.js'),import('./vendor/fb10122/firebase-auth.js'),import('./vendor/fb10122/firebase-database.js'),import('./firebase-config.js')]);
+  const [{initializeApp},A,D,C,FS]=await Promise.all([import('./vendor/fb10122/firebase-app.js'),import('./vendor/fb10122/firebase-auth.js'),import('./vendor/fb10122/firebase-database.js'),import('./firebase-config.js'),import('./vendor/fb10122/firebase-firestore.js')]);
   const app=initializeApp({...C.default,databaseURL:'https://baodao-monsters-default-rtdb.asia-southeast1.firebasedatabase.app'});
   const user=await new Promise(r=>{const un=A.onAuthStateChanged(A.getAuth(app),u=>{un();r(u)})});if(!user)return null;
   const db=D.getDatabase(app),me=user.uid;let off=0,cb=()=>{};D.onValue(D.ref(db,'.info/serverTimeOffset'),s=>{off=+s.val()||0});
@@ -281,6 +294,10 @@ async function fbNet(){
     async join(code,m){const s=await D.get(D.ref(db,'pos'));const h=Object.values(s.val()||{}).find(p=>p&&p.rc===code&&p.rh);if(!h)return false;
       await D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code});net.send(h.uid,{...m,k:'join',code});return true},
     leave(){D.remove(posR).catch(()=>{})}};
+  const fs=FS.getFirestore(app);
+  net.board={async top(){const q=FS.query(FS.collection(fs,'locks'),FS.orderBy('raceMs'),FS.limit(10));const r=await FS.getDocs(q);return r.docs.map(d=>d.data()).filter(d=>d&&d.raceMs>0)},
+    async submit(ms,pick){const ref=FS.doc(fs,'locks','race_'+me);const o=await FS.getDoc(ref);const old=o.exists()?o.data().raceMs:0;
+      if(old&&old<=ms)return {best:old,nb:false};await FS.setDoc(ref,{raceMs:Math.round(ms),name:net.name,pick,uid:me,t:Date.now()});return {best:ms,nb:true}}};
   return net}
 
 // ===== 房間 =====
@@ -289,7 +306,7 @@ function lobbySync(){if(!HOST)return;NET.peers=ROSTER.filter(p=>p.id!==ME).map(p
 function showLobby(){mode='lobby';race=null;DEMO=false;$('menu').hidden=$('result').hidden=true;$('lobby').hidden=false;$('itemBtn').hidden=true;$('code').textContent=ROOM;renderLobby()}
 function renderLobby(){const s=$('slots');s.innerHTML='';for(let i=0;i<4;i++){const p=ROSTER[i],d=document.createElement('div');d.className='slot';
   d.innerHTML=p?`<img src="mon/${p.pick}_f.webp"><div>${esc(p.name)}${i===0?' 👑':''}${p.id===ME?'（我）':''}<br><small>${RC(p.pick).n}</small></div>`:'<div style="opacity:.6">（空位，電腦補位）</div>';s.appendChild(d)}
-  $('bStart').hidden=!HOST;$('lmsg').textContent=HOST?'人到齊就按開始':'等房主按開始…'}
+  $('bStart').hidden=$('fillW').hidden=!HOST;$('lmsg').textContent=HOST?'人到齊就按開始':'等房主按開始…'}
 const esc=s=>String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 async function hostRoom(){ROOM=String(1000+Math.floor(Math.random()*9000));HOST=true;ME=NET.me;ROSTER=[{id:ME,name:myName(),pick:PICK}];NET.peers=[];await NET.host(ROOM);showLobby()}
 async function joinRoom(){const code=$('inCode').value.trim();if(!/^\d{4}$/.test(code)){$('acct').textContent='請輸入 4 位數房號';return}
@@ -297,7 +314,7 @@ async function joinRoom(){const code=$('inCode').value.trim();if(!/^\d{4}$/.test
   const ok=await NET.join(code,{name:myName(),pick:PICK});if(!ok){ROOM=null;$('acct').textContent='找不到這個房間，房號對嗎？';return}
   setTimeout(()=>{if(ROOM===code&&mode==='menu'&&!ROSTER.length){$('acct').textContent='房主沒有回應，再試一次'}},6000)}
 function leaveRoom(){if(NET&&ROOM){if(HOST)NET.bc({k:'close'});else NET.send(ROSTER[0]&&ROSTER[0].id,{k:'bye'});NET.leave()}ROOM=null;ROSTER=[];if(NET)NET.peers=[];HOST=false;toMenu()}
-function hostStart(){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map(p=>p.pick);const roster=[...humans,...bots(used,4-humans.length)];
+function hostStart(){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map(p=>p.pick),fill=$('fillBots').checked;if(!fill&&humans.length<2){$('lmsg').textContent='只有你一個人喔！等朋友加入，或勾選電腦補位';return}const roster=[...humans,...(fill?bots(used,4-humans.length):[])];
   NET.peers=humans.filter(p=>p.id!==ME).map(p=>p.id);const T0=now()+4000;NET.bc({k:'start',roster,T0});startRace(roster,T0,true,false)}
 
 // ===== 結果 =====
@@ -306,6 +323,7 @@ function showResult(){mode='result';$('itemBtn').hidden=true;$('result').hidden=
   $('rtitle').textContent=r===1?'🏆 第 1 名！':`第 ${r} 名`;
   $('rtab').innerHTML=R.map((c,i)=>`<tr class="${c.id===ME?'me':''}"><td>${i+1}</td><td><img src="mon/${c.pick}_f.webp"></td><td>${esc(c.name)}</td><td>${fmt(c.fin)}</td></tr>`).join('');
   $('rmsg').textContent=race.done?'':'等其他人跑完…';
+  $('rbest').textContent=race.best?(race.best.nb?'🎉 新紀錄！':'')+'你的最佳成績 '+fmt(race.best.best):'';
   $('bAgain').hidden=!race.done||(ROOM&&!HOST);$('bAgain').textContent=ROOM?'回房間再來一場':'再來一場';
   if(ROOM&&!HOST&&race.done)$('rmsg').textContent='等房主開下一場…'}
 function toMenu(){mode='menu';$('result').hidden=$('lobby').hidden=true;$('menu').hidden=false;$('itemBtn').hidden=true;demoStart()}
@@ -414,6 +432,11 @@ $('bHost').onclick=()=>{if(NET)hostRoom()};
 $('bJoin').onclick=()=>{if(NET)joinRoom()};
 $('bStart').onclick=()=>{if(HOST)hostStart()};
 $('bLeave').onclick=()=>leaveRoom();
+async function showBoard(){$('boardOv').hidden=false;$('boardTab').innerHTML='';
+  if(!NET||!NET.board){$('boardMsg').textContent='登入冒險遊戲後才看得到排行榜';return}$('boardMsg').textContent='讀取中…';
+  try{const L=await NET.board.top();$('boardTab').innerHTML=L.map((d,i)=>`<tr class="${d.uid===(NET&&NET.me)?'me':''}"><td>${['🥇','🥈','🥉'][i]||i+1}</td><td><img src="mon/${RC(d.pick|0).id}_f.webp"></td><td>${esc(d.name||'玩家')}</td><td>${fmt(d.raceMs)}</td></tr>`).join('');
+    $('boardMsg').textContent=L.length?'跑完 3 圈的時間，越快越前面':'還沒有人跑完，快來當第一名！'}catch(e){console.warn(e);$('boardMsg').textContent='讀取失敗，等一下再試'}}
+$('bBoard').onclick=showBoard;$('bBoardX').onclick=()=>$('boardOv').hidden=true;
 $('bAgain').onclick=()=>{if(ROOM&&HOST){ROSTER=ROSTER.filter(p=>!p.bot);showLobby();lobbySync()}else if(!ROOM)$('bSolo').onclick()};
 $('bQuit').onclick=()=>{if(ROOM)leaveRoom();else toMenu()};
 
