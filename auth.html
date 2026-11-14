@@ -79,7 +79,7 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   onValue(ref(rdb,'.info/serverTimeOffset'),s=>{off=+s.val()||0},()=>{});
   onDisconnect(me).remove().catch(()=>{});
   const push=()=>set(me,{...mine,uid,t:serverTimestamp()}).catch(e=>console.warn('pos',e));
-  setInterval(()=>{if(mine.name)push()},30000);
+  setInterval(()=>{if(mine.name&&!window.__miniHold)push()},30000);
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
   onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
   setInterval(()=>cbs.forEach(f=>f()),20000);

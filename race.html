@@ -15,6 +15,7 @@ h1{margin:0;font-size:32px;color:#ffd84a;text-shadow:3px 3px 0 #b03020;text-alig
 .pk.on{border-color:#ffd84a;background:#ffd84a40}
 button.b{font:inherit;font-size:18px;padding:12px 18px;border-radius:12px;border:0;background:#ffd84a;color:#432;font-weight:bold;width:min(320px,100%);cursor:pointer}
 button.b.g{background:#6fd18a}button.b.s{background:#ccc}button.b:disabled{opacity:.4}
+[hidden]{display:none!important}
 .row{display:flex;gap:8px;width:min(320px,100%)}
 .row input{flex:1;font-size:22px;text-align:center;border-radius:12px;border:0;padding:8px;min-width:0;letter-spacing:6px}
 .row button.b{width:auto}
@@ -59,6 +60,12 @@ table.res tr.me{background:#ffd84a33}
   <div class="hint" id="rbest" style="font-size:16px;color:#ffd84a"></div>
   <button class="b" id="bAgain">再來一場</button>
   <button class="b s" id="bQuit">回選單</button>
+</div>
+<div class="ov" id="queueOv" hidden>
+  <h1>🏁 尋找對手中…</h1>
+  <div id="qCount" style="font-size:28px;color:#ffd84a;font-weight:bold"></div>
+  <div class="hint" id="qMsg">其他玩家也選了同樣人數就會自動開始</div>
+  <button class="b s" id="bQCancel">取消</button>
 </div>
 <div class="ov" id="boardOv" hidden>
   <h1>🏆 淡水河畔 排行榜</h1>
@@ -163,7 +170,7 @@ const uidN=()=>Math.random().toString(36).slice(2,9);
 function newCar(p,slot){const k=TRACK.laps,back=4+Math.floor(slot/2)*6,i=(N-back)%N,q=lat(i,slot%2?-60:60);
   return {id:p.id,name:p.name,pick:p.pick,bot:!!p.bot,x:q[0],y:q[1],a:TA[i],v:0,lap:0,idx:i,pi:i,half:true,item:null,spin:0,sa:0,boost:0,sticky:0,jump:0,shield:0,shrink:0,fin:0,
     loc:false,lane:(Math.random()-.5)*120,skill:1,buf:[],seen:now()}}
-function startRace(roster,T0,amHost,demo){DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
+function startRace(roster,T0,amHost,demo){if(!demo&&MQN>1&&NET&&NET.mark&&ROOM)NET.mark(ROOM);DEMO=!!demo;HOST=amHost;ROSTER=roster;CARS={};SHOTS=[];MOCHI=[];BOXES.forEach(b=>b.t=0);
   roster.forEach((p,s)=>{const c=newCar(p,s);c.loc=p.id===ME||(p.bot&&amHost);CARS[c.id]=c});
   race={T0,t:-9,lastSend:0,firstFin:0,done:false,go:false,cd:4};mode=demo?'menu':'race';
   ['menu','lobby','result'].forEach(id=>$(id).hidden=id!=='menu'||!demo);$('itemBtn').hidden=demo;setItemBtn()}
@@ -265,13 +272,18 @@ function onMsg(m){const t=now();
 let lastRoster=0;
 setInterval(()=>{if(!NET||!ROOM)return;const t=now();
   if(HOST&&mode==='lobby'){const before=ROSTER.length;ROSTER=ROSTER.filter(p=>p.id===ME||t-(p.hb||t)<8000);lobbySync()}
-  else if(!HOST){NET.send(ROSTER[0]&&ROSTER[0].id||'',{k:'hb'});if(mode==='lobby'&&t-lastRoster>9000){leaveRoom();$('acct').textContent='房主離線了'}}},2000);
+  else if(!HOST){if(mode==='lobby'&&!ROSTER.length&&MQH&&ROOM[0]==='Q')NET.send(MQH,{k:'join',code:ROOM,name:myName(),pick:PICK});NET.send(ROSTER[0]&&ROSTER[0].id||'',{k:'hb'});if(mode==='lobby'&&t-lastRoster>9000){leaveRoom();$('acct').textContent='房主離線了'}}},2000);
 
 function localNet(){const me='L'+uidN().slice(0,5),ch=new BroadcastChannel('baodao-race');let cb=()=>{};
-  ch.onmessage=e=>{const m=e.data;if(m.from===me||(m.to&&m.to!==me))return;cb(m)};
+  const QM={};let qT=null,qInfo=null;
+  ch.onmessage=e=>{const m=e.data;if(m.from===me||(m.to&&m.to!==me))return;if(m.k==='mqhb'){QM[m.from]={uid:m.from,qt:m.qt,t:Date.now(),mq:m.mq,name:m.name};return}if(m.k==='mqoff'){delete QM[m.from];return}cb(m)};
   const net={me,name:'測試'+me.slice(1,4),now:()=>Date.now(),peers:[],on:f=>cb=f,
     send:(to,m)=>ch.postMessage({...m,to,from:me}),bc(m){for(const p of net.peers)net.send(p,m)},
-    async host(){},async join(code,m){ch.postMessage({...m,k:'join',code,from:me});return true},leave(){}};
+    async host(){net.mqStop()},async join(code,m){ch.postMessage({...m,k:'join',code,from:me});return true},leave(){net.mqStop()},
+    mark(){net.mqStop()},
+    mq(n){qInfo={qt:Date.now(),mq:n};const hb=()=>ch.postMessage({k:'mqhb',from:me,name:net.name,...qInfo});hb();clearInterval(qT);qT=setInterval(hb,2000)},
+    mqStop(){clearInterval(qT);qT=null;if(qInfo)ch.postMessage({k:'mqoff',from:me});qInfo=null},
+    async waiting(n){const L=Object.values(QM).filter(q=>q.mq===n&&Date.now()-q.t<6000);if(qInfo)L.push({uid:me,qt:qInfo.qt,mq:n,name:net.name});return L}};
   const LS='race_board_test';const rd=()=>{try{return JSON.parse(localStorage.getItem(LS))||[]}catch(e){return []}};
   net.board={async top(){return rd().sort((a,b)=>a.raceMs-b.raceMs).slice(0,10)},async submit(ms,pick){const L=rd().filter(x=>x.uid!==me),o=rd().find(x=>x.uid===me);if(o&&o.raceMs<=ms)return {best:o.raceMs,nb:false};L.push({raceMs:Math.round(ms),name:net.name,pick,uid:me});localStorage.setItem(LS,JSON.stringify(L));return {best:ms,nb:true}}};
   return net}
@@ -279,21 +291,27 @@ async function fbNet(){
   const [{initializeApp},A,D,C,FS]=await Promise.all([import('./vendor/fb10122/firebase-app.js'),import('./vendor/fb10122/firebase-auth.js'),import('./vendor/fb10122/firebase-database.js'),import('./firebase-config.js'),import('./vendor/fb10122/firebase-firestore.js')]);
   const app=initializeApp({...C.default,databaseURL:'https://baodao-monsters-default-rtdb.asia-southeast1.firebasedatabase.app'});
   const user=await new Promise(r=>{const un=A.onAuthStateChanged(A.getAuth(app),u=>{un();r(u)})});if(!user)return null;
+  // 從遊戲裡打開（iframe）：不搶「同帳號只能一個地方玩」、不清掉遊戲的信箱
+  const EMB=new URLSearchParams(location.search).has('embed')||window.parent!==window;
   const db=D.getDatabase(app),me=user.uid;let off=0,cb=()=>{};D.onValue(D.ref(db,'.info/serverTimeOffset'),s=>{off=+s.val()||0});
   let name='';try{name=localStorage.getItem('baodao_acct_'+me)||''}catch(e){}
-  const inbox=D.ref(db,'inbox/'+me);await D.remove(inbox).catch(()=>{});
-  D.onChildAdded(inbox,s=>{const v=s.val();D.remove(s.ref).catch(()=>{});if(v&&v.type==='race')cb(v)});
+  const inbox=D.ref(db,'inbox/'+me);if(!EMB)await D.remove(inbox).catch(()=>{});
+  D.onChildAdded(inbox,s=>{const v=s.val();if(v&&v.type==='race'){D.remove(s.ref).catch(()=>{});cb(v)}else if(!EMB)D.remove(s.ref).catch(()=>{})});
   const posR=D.ref(db,'pos/'+me);D.onDisconnect(posR).remove().catch(()=>{});
   // 同帳號只能一個地方玩（和冒險遊戲共用規則）
   const sid=uidN()+Date.now().toString(36),SR=D.ref(db,'session/'+me);
-  D.set(SR,{sid,t:D.serverTimestamp()}).then(()=>D.onValue(SR,s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){NET=null;if(mode!=='race'||!ROOM){leaveRoom()}$('bHost').disabled=$('bJoin').disabled=true;$('acct').textContent='你的帳號在別的地方登入了，這裡只能單人練習'}})).catch(()=>{});
+  if(!EMB)D.set(SR,{sid,t:D.serverTimestamp()}).then(()=>D.onValue(SR,s=>{const v=s.val();if(v&&v.sid&&v.sid!==sid){NET=null;if(mode!=='race'||!ROOM){leaveRoom()}$('bHost').disabled=$('bJoin').disabled=true;$('acct').textContent='你的帳號在別的地方登入了，這裡只能單人練習'}})).catch(()=>{});
   const net={me,name:name||'玩家',now:()=>Date.now()+off,peers:[],on:f=>cb=f,
     send:(to,m)=>{if(to)D.push(D.ref(db,'inbox/'+to),{...m,type:'race',from:me}).catch(e=>console.warn('send',e))},
     bc(m){for(const p of net.peers)net.send(p,m)},
-    host:code=>D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code,rh:1}),
+    host:code=>(net.mqStop(),D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code,rh:1})),
     async join(code,m){const s=await D.get(D.ref(db,'pos'));const h=Object.values(s.val()||{}).find(p=>p&&p.rc===code&&p.rh);if(!h)return false;
       await D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code});net.send(h.uid,{...m,k:'join',code});return true},
-    leave(){D.remove(posR).catch(()=>{})}};
+    leave(){net.mqStop();D.remove(posR).catch(()=>{})},
+    mark(code){net.mqStop();return D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',rc:code})},
+    mq(n){const qt=Date.now()+off;const hb=()=>D.set(posR,{uid:me,t:D.serverTimestamp(),name:net.name,map:'race',mq:n,qt}).catch(()=>{});hb();clearInterval(net._qT);net._qT=setInterval(hb,5000)},
+    mqStop(){clearInterval(net._qT);net._qT=null},
+    async waiting(n){const s=await D.get(D.ref(db,'pos'));const t=Date.now()+off;return Object.values(s.val()||{}).filter(p=>p&&p.mq===n&&!p.rc&&t-(p.t||0)<20000)}};
   const fs=FS.getFirestore(app);
   net.board={async top(){const q=FS.query(FS.collection(fs,'locks'),FS.orderBy('raceMs'),FS.limit(10));const r=await FS.getDocs(q);return r.docs.map(d=>d.data()).filter(d=>d&&d.raceMs>0)},
     async submit(ms,pick){const ref=FS.doc(fs,'locks','race_'+me);const o=await FS.getDoc(ref);const old=o.exists()?o.data().raceMs:0;
@@ -302,11 +320,13 @@ async function fbNet(){
 
 // ===== 房間 =====
 function myName(){return NET?NET.name:'我'}
-function lobbySync(){if(!HOST)return;NET.peers=ROSTER.filter(p=>p.id!==ME).map(p=>p.id);NET.bc({k:'roster',roster:ROSTER.map(({hb,...p})=>p)});renderLobby()}
+function lobbySync(){if(!HOST)return;NET.peers=ROSTER.filter(p=>p.id!==ME).map(p=>p.id);NET.bc({k:'roster',roster:ROSTER.map(({hb,...p})=>p)});renderLobby();
+  if(MQN>1&&mode==='lobby'&&ROSTER.length>=MQN&&!lobbySync.go){lobbySync.go=1;setTimeout(()=>{lobbySync.go=0;if(mode==='lobby'&&HOST)hostStart(true)},1200)}}
 function showLobby(){mode='lobby';race=null;DEMO=false;$('menu').hidden=$('result').hidden=true;$('lobby').hidden=false;$('itemBtn').hidden=true;$('code').textContent=ROOM;renderLobby()}
 function renderLobby(){const s=$('slots');s.innerHTML='';for(let i=0;i<4;i++){const p=ROSTER[i],d=document.createElement('div');d.className='slot';
   d.innerHTML=p?`<img src="mon/${p.pick}_f.webp"><div>${esc(p.name)}${i===0?' 👑':''}${p.id===ME?'（我）':''}<br><small>${RC(p.pick).n}</small></div>`:'<div style="opacity:.6">（空位，電腦補位）</div>';s.appendChild(d)}
-  $('bStart').hidden=$('fillW').hidden=!HOST;$('lmsg').textContent=HOST?'人到齊就按開始':'等房主按開始…'}
+  $('bStart').hidden=$('fillW').hidden=!HOST||MQN>1;$('lmsg').textContent=MQN>1?'配對成功！馬上開始…':HOST?'人到齊就按開始':'等房主按開始…';
+  if(MQN>1){$('code').textContent='';$('code').previousElementSibling.textContent='';$('code').nextElementSibling.textContent='';[...s.children].forEach((d,i)=>{if(i>=MQN)d.hidden=true})}}
 const esc=s=>String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 async function hostRoom(){ROOM=String(1000+Math.floor(Math.random()*9000));HOST=true;ME=NET.me;ROSTER=[{id:ME,name:myName(),pick:PICK}];NET.peers=[];await NET.host(ROOM);showLobby()}
 async function joinRoom(){const code=$('inCode').value.trim();if(!/^\d{4}$/.test(code)){$('acct').textContent='請輸入 4 位數房號';return}
@@ -314,8 +334,26 @@ async function joinRoom(){const code=$('inCode').value.trim();if(!/^\d{4}$/.test
   const ok=await NET.join(code,{name:myName(),pick:PICK});if(!ok){ROOM=null;$('acct').textContent='找不到這個房間，房號對嗎？';return}
   setTimeout(()=>{if(ROOM===code&&mode==='menu'&&!ROSTER.length){$('acct').textContent='房主沒有回應，再試一次'}},6000)}
 function leaveRoom(){if(NET&&ROOM){if(HOST)NET.bc({k:'close'});else NET.send(ROSTER[0]&&ROSTER[0].id,{k:'bye'});NET.leave()}ROOM=null;ROSTER=[];if(NET)NET.peers=[];HOST=false;toMenu()}
-function hostStart(){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map(p=>p.pick),fill=$('fillBots').checked;if(!fill&&humans.length<2){$('lmsg').textContent='只有你一個人喔！等朋友加入，或勾選電腦補位';return}const roster=[...humans,...(fill?bots(used,4-humans.length):[])];
+function hostStart(auto){const humans=ROSTER.map(({hb,...p})=>p),used=humans.map(p=>p.pick),fill=auto===true?false:$('fillBots').checked;if(!fill&&humans.length<2){$('lmsg').textContent='只有你一個人喔！等朋友加入，或勾選電腦補位';return}const roster=[...humans,...(fill?bots(used,4-humans.length):[])];
   NET.peers=humans.filter(p=>p.id!==ME).map(p=>p.id);const T0=now()+4000;NET.bc({k:'start',roster,T0});startRace(roster,T0,true,false)}
+
+// ===== 自動配對（從遊戲 NPC 打開：race.html?embed=1&n=人數）=====
+const MQN=clamp(+Q.get('n')||0,0,4);let MQ=null;
+function mqStart(){if(!NET){$('acct').textContent='要先登入冒險遊戲才能找人一起跑';return}ME=NET.me;ROOM=null;HOST=false;ROSTER=[];
+  MQ={t0:now()};NET.mq(MQN);$('queueOv').hidden=false;$('menu').hidden=true;mqTick()}
+function mqCancel(){if(!MQ)return;MQ=null;NET&&NET.mqStop();NET&&NET.leave();$('queueOv').hidden=true;toMenu()}
+async function mqTick(){if(!MQ||!NET)return;let L=[];try{L=await NET.waiting(MQN)}catch(e){}
+  if(!MQ)return;L.sort((a,b)=>(a.qt||0)-(b.qt||0)||String(a.uid).localeCompare(String(b.uid)));
+  const k=Math.max(1,L.length);$('qCount').textContent=`等待其他玩家 ${Math.min(k,MQN)}/${MQN}`;
+  const i=L.findIndex(q=>q.uid===NET.me),g=Math.floor(i/MQN),grp=L.slice(g*MQN,g*MQN+MQN);
+  if(i>=0&&grp.length===MQN){const host=grp[0].uid,code='Q'+String(host).slice(0,10);MQ=null;$('queueOv').hidden=true;
+    if(host===NET.me){ROOM=code;HOST=true;ROSTER=[{id:ME,name:myName(),pick:PICK,hb:now()}];NET.peers=[];showLobby();MQW=now()}
+    else{ROOM=code;HOST=false;lastRoster=now();MQH=host;NET.send(host,{k:'join',code,name:myName(),pick:PICK});showLobby()}
+    return}
+  setTimeout(mqTick,2000)}
+let MQW=0,MQH='';
+setInterval(()=>{if(MQN>1&&HOST&&mode==='lobby'&&ROOM&&ROOM[0]==='Q'&&now()-MQW>15000){const me=ROSTER.find(p=>p.id===ME);NET.bc({k:'close'});ROOM=null;ROSTER=[];HOST=false;mqStart()}},3000);
+$('bQCancel').onclick=mqCancel;
 
 // ===== 結果 =====
 function fmt(ms){if(!ms)return '跑完中…';const s=ms/1000;return Math.floor(s/60)+':'+(s%60).toFixed(1).padStart(4,'0')}
@@ -324,7 +362,7 @@ function showResult(){mode='result';$('itemBtn').hidden=true;$('result').hidden=
   $('rtab').innerHTML=R.map((c,i)=>`<tr class="${c.id===ME?'me':''}"><td>${i+1}</td><td><img src="mon/${c.pick}_f.webp"></td><td>${esc(c.name)}</td><td>${fmt(c.fin)}</td></tr>`).join('');
   $('rmsg').textContent=race.done?'':'等其他人跑完…';
   $('rbest').textContent=race.best?(race.best.nb?'🎉 新紀錄！':'')+'你的最佳成績 '+fmt(race.best.best):'';
-  $('bAgain').hidden=!race.done||(ROOM&&!HOST);$('bAgain').textContent=ROOM?'回房間再來一場':'再來一場';
+  $('bAgain').hidden=!race.done||(ROOM&&!HOST&&MQN<2);$('bAgain').textContent=ROOM?'回房間再來一場':'再來一場';
   if(ROOM&&!HOST&&race.done)$('rmsg').textContent='等房主開下一場…'}
 function toMenu(){mode='menu';$('result').hidden=$('lobby').hidden=true;$('menu').hidden=false;$('itemBtn').hidden=true;demoStart()}
 
@@ -437,7 +475,7 @@ async function showBoard(){$('boardOv').hidden=false;$('boardTab').innerHTML='';
   try{const L=await NET.board.top();$('boardTab').innerHTML=L.map((d,i)=>`<tr class="${d.uid===(NET&&NET.me)?'me':''}"><td>${['🥇','🥈','🥉'][i]||i+1}</td><td><img src="mon/${RC(d.pick|0).id}_f.webp"></td><td>${esc(d.name||'玩家')}</td><td>${fmt(d.raceMs)}</td></tr>`).join('');
     $('boardMsg').textContent=L.length?'跑完 3 圈的時間，越快越前面':'還沒有人跑完，快來當第一名！'}catch(e){console.warn(e);$('boardMsg').textContent='讀取失敗，等一下再試'}}
 $('bBoard').onclick=showBoard;$('bBoardX').onclick=()=>$('boardOv').hidden=true;
-$('bAgain').onclick=()=>{if(ROOM&&HOST){ROSTER=ROSTER.filter(p=>!p.bot);showLobby();lobbySync()}else if(!ROOM)$('bSolo').onclick()};
+$('bAgain').onclick=()=>{if(MQN>1){if(ROOM){if(HOST)NET.bc({k:'close'});ROOM=null;ROSTER=[];HOST=false}mqStart();return}if(ROOM&&HOST){ROSTER=ROSTER.filter(p=>!p.bot);showLobby();lobbySync()}else if(!ROOM)$('bSolo').onclick()};
 $('bQuit').onclick=()=>{if(ROOM)leaveRoom();else toMenu()};
 
 // ===== 開始 =====
@@ -446,6 +484,9 @@ if(Q.has('local'))window.__dbg=()=>({mode,N,ME,t:race&&race.t,cars:Object.values
 buildTrack();renderPicks();demoStart();requestAnimationFrame(loop);
 (async()=>{try{NET=Q.has('local')?localNet():await fbNet()}catch(e){console.warn(e);NET=null}
   if(NET){NET.on(onMsg);$('bHost').disabled=$('bJoin').disabled=false;$('acct').textContent='帳號：'+NET.name+'（可以開房間找朋友）'}
+  if(MQN){$('bHost').hidden=true;$('inCode').parentElement.hidden=true;
+    if(MQN===1){$('bSolo').textContent='出發！（和 3 個電腦比）';$('acct').textContent='選一隻寶貝當車手'}
+    else{$('bSolo').textContent=`開始配對（${MQN} 人）`;$('bSolo').onclick=mqStart;$('acct').textContent=NET?`選好車手後按開始配對，湊滿 ${MQN} 位玩家就出發`:'要先登入冒險遊戲才能找人一起跑'}}
   else $('acct').textContent='還沒登入：只能單人練習（先到冒險遊戲登入，再回來就能找朋友）'})();
 </script>
 </body></html>
