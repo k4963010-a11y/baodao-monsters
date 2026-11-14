@@ -78,7 +78,15 @@ LINES.push([0,7,14,21,28,35],[5,10,15,20,25,30]);
 const $=id=>document.getElementById(id);
 let S;try{S=JSON.parse(localStorage.getItem('bingo_trial'))}catch(e){}
 if(!S)S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};
-const save=()=>{try{localStorage.setItem('bingo_trial',JSON.stringify(S))}catch(e){}};
+const save=()=>{if(EMB)return;try{localStorage.setItem('bingo_trial',JSON.stringify(S))}catch(e){}};
+// ===== 嵌在遊戲裡（?embed=1）：用遊戲裡的真錢，贏了寶貝直接放進隊伍 =====
+const EMB=new URLSearchParams(location.search).has('embed');let payCb=null;
+const toGame=d=>{try{parent.postMessage(d,location.origin==='null'?'*':location.origin)}catch(e){}};
+if(EMB){S={money:0,streak:0,rare:0,games:0,wins:0,dolls:0};
+  window.addEventListener('message',e=>{if(e.source!==parent)return;const d=e.data||{};if(typeof d.money==='number'){S.money=d.money;hud()}
+    if(d.bingo==='paid'||d.bingo==='nomoney'){const cb=payCb;payCb=null;cb&&cb(d.bingo==='paid')}
+    if(d.bingo==='got'){const g=document.getElementById('gotWhere');if(g)g.textContent=d.where==='box'?'（身上滿了，送進怪獸箱了）':'（已經放進你的隊伍！）'}});
+}
 let G=null; // 這一局
 let AC=null;function snd(f,d=.1,t='square',v=.07){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 const price=()=>PRICE;
@@ -94,8 +102,10 @@ function layTable(){const T=$('table');T.innerHTML='';const W=T.clientWidth,H=T.
     const t=document.createElement('div');t.className='tile';t.dataset.m=mi;t.style.left=clamp(x,0,W-tw)+'px';t.style.top=clamp(y,0,H-th)+'px';t.style.transform=`rotate(${r}deg)`;t.style.zIndex=1+(Math.random()*30|0);T.appendChild(t)});
   G.pile=[...T.children]}
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
-function start(){if(S.money<price()){msg('錢不夠了～按「試玩重來」');return}
-  S.money-=price();S.games++;save();
+function start(){if(EMB){if(payCb)return;$('bGo').disabled=true;payCb=ok=>{if(!ok){$('bGo').disabled=false;msg('錢不夠了～去打打怪獸賺錢再來！');return}S.games++;start2()};toGame({bingo:'pay'});return}
+  if(S.money<price()){msg('錢不夠了～按「試玩重來」');return}
+  S.money-=price();S.games++;save();start2()}
+function start2(){
   G={hit:new Set(),need:DRAW,phase:'pick',hand:[],done:false,flipping:false};
   drawBoard();$('hand').innerHTML='';$('table').classList.remove('dim');layTable();hud();$('bGo').disabled=true;
   msg(`隨意選 <b style="color:var(--gold)">&nbsp;${DRAW}&nbsp;</b> 張牌`);snd(660,.08)}
@@ -122,9 +132,9 @@ function placed(i){if(!G||G.done)return;G.hit.add(i);$('c'+i).classList.add('on'
 function end(won,line){G.done=true;$('bGo').disabled=false;$('table').classList.add('dim');
   if(won){line.forEach(i=>$('c'+i).classList.add('win'));S.dolls=(S.dolls|0)+1;S.streak++;S.wins++;save();hud();
     [880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>snd(f,.18,'triangle'),i*120));
-    msg(`🎉 連線了！獲得大娃娃 ${PRIZE_MON}！`);$('ovBox').innerHTML=`<h1>🎉 大獎！</h1><img src="${PRIZE_IMG}" style="width:170px"><div style="margin:8px 0;font-size:18px">獲得超大娃娃 <b>${PRIZE_MON}</b>！</div><div class="sub">（試玩版：正式版會直接放進你的隊伍）</div><button class="b" id="bOk">好</button>`;$('ov').hidden=false;
+    if(EMB)toGame({bingo:'win'});msg(`🎉 連線了！獲得大娃娃 ${PRIZE_MON}！`);$('ovBox').innerHTML=`<h1>🎉 大獎！</h1><img src="${PRIZE_IMG}" style="width:170px"><div style="margin:8px 0;font-size:18px">獲得超大娃娃 <b>${PRIZE_MON}</b>！</div><div class="sub" id="gotWhere">${EMB?'':'（試玩版：正式版會直接放進你的隊伍）'}</div><button class="b" id="bOk">好</button>`;$('ov').hidden=false;
     }
-  else{S.streak=0;save();hud();snd(200,.3,'sawtooth');msg('沒連線…再來一局！')}
+  else{if(EMB)toGame({bingo:'lose'});S.streak=0;save();hud();snd(200,.3,'sawtooth');msg('沒連線…再來一局！')}
   $('bGo').textContent=`再玩一局（${price()} 元）`}
 function rareShop(){$('ovBox').innerHTML=`<h1>🏆 連勝 ${STREAK_FOR_RARE} 次！</h1><div>選一隻稀有寶貝帶回家（只能換一次）</div>
   <div class="picks">${RARE_CHOICES.map(([id,n])=>`<div class="pk" data-id="${id}" data-n="${n}"><img src="mon/${id}_f.webp">${n}</div>`).join('')}</div>`;$('ov').hidden=false}
@@ -136,6 +146,7 @@ $('table').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)p
 $('hand').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)reveal(t)});
 $('bGo').onclick=start;
 $('bReset').onclick=()=>{if(!confirm('試玩的錢和紀錄都歸零？'))return;S={money:START_MONEY,streak:0,rare:0,games:0,wins:0};save();G=null;drawBoard();$('table').innerHTML='';$('hand').innerHTML='';hud();msg('');$('bGo').disabled=false;$('bGo').textContent='開始一局'};
+if(EMB){$('bReset').hidden=true;document.querySelector('.sub').textContent='中壢夜市・用遊戲裡的錢玩，贏了寶貝直接帶回家';toGame({bingo:'hello'})}
 drawBoard();hud();if(S.rare)$('bGo').textContent=`開始一局（${price()} 元）`;
 </script>
 </body></html>
