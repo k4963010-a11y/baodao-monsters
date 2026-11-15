@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261115-212036';
+import CONFIG from './firebase-config.js?v=20261115-212543';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -469,7 +469,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261115-212036";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261115-212543";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -935,10 +935,11 @@ function accessorize(cv,lk,view){const f=lk.f;if(!f)return cv;const g=cv.getCont
   if(f.crown){r(4,0,8,2,'#f0c030');r(4,0,1,1,'#00000000');[4,7,11].forEach(x=>r(x,0,1,1,'#f8e070'));r(7,1,2,1,'#e03050')}
   return cv}
 function chooseLook(){return new Promise(res=>{let i=0,fr=0;sheetEl.replaceChildren();const h=el('h3','');const top=el('div',null,'top');const c=document.createElement('canvas');c.width=c.height=16;
-  c.style.cssText='position:static;width:calc(var(--u)*48);height:calc(var(--u)*48);image-rendering:pixelated;flex:none;background:#e8f0f8;box-shadow:0 0 0 calc(var(--u)*1) var(--c3)';
+  c.style.cssText='position:static;width:calc(var(--u)*32);height:calc(var(--u)*32);image-rendering:pixelated;flex:none;background:#e8f0f8;box-shadow:0 0 0 calc(var(--u)*1) var(--c3)';
   const info=el('div');const nmEl=el('h3','');const tEl=el('p','');const pEl=el('p','');pEl.style.color='#c03030';info.append(nmEl,tEl,pEl);top.append(c,info);
-  const hint=el('div','◀ ▶ 換人　A 決定','hint');sheetEl.append(h,top,hint);sheetEl.hidden=false;
-  const draw=()=>{const C=CHARS[i];h.textContent=`選擇你的樣子　${i+1} / ${CHARS.length}`;nmEl.textContent=C[0];tEl.textContent=C[1];pEl.textContent='';const x=c.getContext('2d');x.clearRect(0,0,16,16);x.drawImage(sprites('p'+i).down[fr],0,0)};
+  const big=document.createElement('img');big.className='lookBig';big.alt='';big.style.cssText='display:block;margin:calc(var(--u)*1) auto 0;height:calc(var(--u)*66);width:auto;max-width:100%;object-fit:contain';
+  const hint=el('div','◀ ▶ 換人　A 決定','hint');sheetEl.append(h,top,big,hint);sheetEl.hidden=false;
+  const draw=()=>{const C=CHARS[i];h.textContent=`選擇你的樣子　${i+1} / ${CHARS.length}`;nmEl.textContent=C[0];tEl.textContent=C[1];pEl.textContent='';{const k='f'+i,src=/^https?:/.test(location.protocol)?'trn/'+k+'.webp':(TRN[k]&&TRN[k].src);if(src&&big.dataset.k!==k){big.dataset.k=k;big.onerror=()=>{if(TRN[k]&&big.src!==TRN[k].src)big.src=TRN[k].src};big.src=src}big.hidden=!src}const x=c.getContext('2d');x.clearRect(0,0,16,16);x.drawImage(sprites('p'+i).down[fr],0,0)};
   const tm=setInterval(()=>{fr^=1;draw()},400);
   const hd=k=>{if(k==='left'||k==='up')i=(i+CHARS.length-1)%CHARS.length;else if(k==='right'||k==='down')i=(i+1)%CHARS.length;else if(k==='a'){clearInterval(tm);popUI(hd);sheetEl.hidden=true;sheetEl.onclick=null;res(i);return}else return;draw()};
   sheetEl.onclick=e=>{const r=sheetEl.getBoundingClientRect();press(e.clientX<r.left+r.width/3?'left':e.clientX>r.right-r.width/3?'right':'a')};
