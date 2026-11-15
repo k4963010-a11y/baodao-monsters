@@ -25,6 +25,7 @@ jobs:
           cp -r dex _site/dex
           cp -r mon _site/mon
           cp -r trn _site/trn
+          cp -r legend _site/legend  # 玉山蒼龍動畫
           cp -r vendor _site/vendor
       - uses: actions/upload-pages-artifact@v3
         with:
