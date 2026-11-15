@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261115-210355';
+import CONFIG from './firebase-config.js?v=20261115-212036';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -469,7 +469,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261115-210355";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261115-212036";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -3610,7 +3610,7 @@ const ROAM=[123,125,127],ROAM_HOME='habitat',ROAM_LV=45,TRADE_EVO={123:124,125:1
 let ROAM_NEXT=null,ROAM_LAST='',ROAM_LOCS=null,ROAM_G=null;
 /* 金銀版聖獸概念：全台灣有草叢/水面的野外地圖都會跑。換地圖時移到相鄰的野外地圖，偶爾一口氣跑到很遠的地方 */
 function roamGraph(){if(ROAM_G)return;const ok=id=>{const Mx=MAPS[id];return !!(Mx&&(Mx.zone||Mx.seaZone)&&Mx.grid&&Mx.grid.some(r=>r.some(t=>',G:~ㄍㄐㄆ'.includes(t))))};
-  let L=Object.keys(MAPS).filter(ok).filter(x=>!/^(k85_|ys)/.test(x));/* ROAM_NEW8：新章節地圖排在最後，舊存檔的位置編號才不會跑掉 */const ROAM_NEW8=new Set(['car2','car5','dulishan','fenqihu','alishan','sister','zhushan','xinzhong','shuishe','lake','bikeway','ita','ropetop','puli','moonwood']);const ROAM_NEW9=new Set(['kaohsiung','pier2','qijin']);L=[...L.filter(x=>!ROAM_NEW8.has(x)&&!ROAM_NEW9.has(x)),...L.filter(x=>ROAM_NEW8.has(x)),...L.filter(x=>ROAM_NEW9.has(x))];const G2={};for(const id of L){G2[id]=new Set();for(const w of MAPS[id].warps||[])if(w[2]!==id&&ok(w[2]))G2[id].add(w[2])}
+  let L=Object.keys(MAPS).filter(ok).filter(x=>!/^(k85_|ys)/.test(x));/* ROAM_NEW8：新章節地圖排在最後，舊存檔的位置編號才不會跑掉 */const ROAM_NEW8=new Set(['car2','car5','dulishan','fenqihu','alishan','sister','zhushan','xinzhong','shuishe','lake','bikeway','ita','ropetop','puli','moonwood']);const ROAM_NEW9=new Set(['kaohsiung','pier2','qijin']);L=[...L.filter(x=>!ROAM_NEW8.has(x)&&!ROAM_NEW9.has(x)),...L.filter(x=>ROAM_NEW8.has(x)),...L.filter(x=>ROAM_NEW9.has(x))];const G2={};for(const id of L){G2[id]=new Set();for(const w of MAPS[id].warps||[])if(w[2]!==id&&ok(w[2])&&!/^ys/.test(w[2]))G2[id].add(w[2])}
   for(const a of L)for(const b of G2[a])G2[b].add(a);ROAM_LOCS=L;ROAM_G={};for(const a of L)ROAM_G[a]=[...G2[a]]}
 const roamPick=a=>a[Math.floor(Math.random()*a.length)];
 function roamLoc(sp){roamGraph();return ROAM_LOCS[G.flags['rl'+sp]|0]||ROAM_HOME}
