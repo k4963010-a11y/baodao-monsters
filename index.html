@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261115-214028';
+import CONFIG from './firebase-config.js?v=20261115-214958';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -469,7 +469,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261115-214028";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261115-214958";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -4440,16 +4440,22 @@ function drawFx(now){const f=B&&B.fx;if(!f)return;let t=(now-f.t0)/f.dur;if(t<0)
 const FX_TIER={strong:80,ult:100};
 const FX_DUR={form:1250,sig:1500,cut:820};
 const FX_TYPE_FORM={'岩':['sky','ground','pillar','shatter'],'地面':['ground','pillar','rings','sky'],'龍':['beam','domain','vortex','seal'],'飛':['summon','sky','vortex','crescent'],'電':['beam','domain','orbs','rings'],'光':['beam','sky','seal','orbs'],'格鬥':['combo','ground','rings','crescent'],'蟲':['combo','sky','barrage','vortex'],'水':['domain','sky','summon','vortex','pillar'],'冰':['sky','domain','shatter','barrage'],'火':['domain','sky','summon','pillar','orbs'],'暗':['domain','combo','seal','vortex','crescent'],'草':['sky','domain','barrage','vortex'],'毒':['domain','sky','orbs','pillar'],'鋼':['ground','beam','combo','crescent','shatter'],'超能力':['beam','domain','seal','rings','orbs'],'幽靈':['domain','combo','orbs','seal'],'一般':['combo','summon','rings','barrage'],'佛':['beam','domain','seal','rings']};
-const FX_KW=[[/漩|渦|旋風|龍捲|迴旋/,'vortex'],[/柱|噴發|湧|火山|間歇/,'pillar'],[/珠|球|彈|丸/,'orbs'],[/刃|弧|月牙|居合|一閃/,'crescent'],[/音|鳴|吼|咆|震波|波動/,'rings'],[/晶|冰封|石化|碎/,'shatter'],[/箭|針|射|萬/,'barrage'],[/陣|印|封|審判|咒/,'seal'],[/天降|落|雨|隕|流星|雹|雪/,'sky'],[/大地|地震|地裂|震動|踏|崩|碾|鋤|裂/,'ground'],[/連|亂|百|拳|斬|爪|踢/,'combo'],[/光束|砲|光線|雷射|束/,'beam'],[/鳳|海嘯|巨浪|怒濤/,'summon'],[/夜|暴風|火海|深淵|漩渦|霧|惡夢/,'domain']];
+const FX_KW=[[/漩|渦|旋風|龍捲|迴旋/,'vortex'],[/柱|噴發|湧|火山|間歇/,'pillar'],[/珠|球|彈|丸/,'orbs'],[/刃|弧|月牙|居合|一閃/,'crescent'],[/音|鳴|吼|咆|震波|波動/,'rings'],[/晶|冰封|石化|碎/,'shatter'],[/箭|針|射/,'barrage'],[/陣|印|封|審判|咒/,'seal'],[/天降|落|雨|隕|流星|雹|雪/,'sky'],[/大地|地震|地裂|震動|踏|崩|碾|鋤|裂/,'ground'],[/連|亂|百|拳|斬|爪|踢/,'combo'],[/光束|砲|光線|雷射|束/,'beam'],[/鳳|海嘯|巨浪|怒濤/,'summon'],[/夜|暴風|火海|深淵|漩渦|霧|惡夢/,'domain']];
 const FX_LOOK={'一般':{c:'#f0e0c0',h:'#ffffff',d:'#806848',drop:'star',dom:'void',sum:'spirit'},'火':{c:'#f86828',h:'#ffe070',d:'#701808',drop:'fire',dom:'fire',sum:'phoenix'},'水':{c:'#3890f0',h:'#c8ecff',d:'#103870',drop:'drop',dom:'sea',sum:'wave'},'草':{c:'#58c040',h:'#d8ffa0',d:'#1a4a10',drop:'petal',dom:'forest',sum:'spirit'},'電':{c:'#f8d820',h:'#ffffff',d:'#706010',drop:'bolt',dom:'storm',sum:'spirit'},'冰':{c:'#88d8f8',h:'#ffffff',d:'#2a5878',drop:'ice',dom:'snow',sum:'wave'},'格鬥':{c:'#e05030',h:'#ffd0a0',d:'#601808',drop:'rock',dom:'fire',sum:'spirit'},'毒':{c:'#a050c8',h:'#e8c0ff',d:'#401858',drop:'drop',dom:'poison',sum:'spirit'},'地面':{c:'#c89850',h:'#f0dca0',d:'#5a3a18',drop:'rock',dom:'earth',sum:'spirit'},'飛':{c:'#a0c8f8',h:'#ffffff',d:'#305080',drop:'feather',dom:'sky',sum:'phoenix'},'超能力':{c:'#f058a8',h:'#ffd0ec',d:'#601848',drop:'star',dom:'psy',sum:'spirit'},'蟲':{c:'#a8c830',h:'#efffb0',d:'#405010',drop:'leaf',dom:'forest',sum:'spirit'},'岩':{c:'#b09060',h:'#e8d8b0',d:'#4a3820',drop:'rock',dom:'earth',sum:'spirit'},'幽靈':{c:'#8068c8',h:'#e0d8ff',d:'#281850',drop:'wisp',dom:'void',sum:'spirit'},'龍':{c:'#40b8a0',h:'#ffe070',d:'#103830',drop:'star',dom:'storm',sum:'wave'},'暗':{c:'#584070',h:'#c8a8e8',d:'#100818',drop:'wisp',dom:'night',sum:'spirit'},'鋼':{c:'#a8b8c8',h:'#ffffff',d:'#384858',drop:'shard',dom:'earth',sum:'spirit'},'光':{c:'#ffd860',h:'#ffffff',d:'#806010',drop:'star',dom:'holy',sum:'phoenix'},'佛':{c:'#d8a020',h:'#fff4c0',d:'#604008',drop:'petal',dom:'holy',sum:'spirit'}};
-const FX_SIG={'推日破曉':'sunpush','拉魯月光陣':'lalumoon','隕石俯衝':'meteor','八色虹箭':'rainbow','跑道幽靈':'ghostrun','五月飛雪':'tungsnow','萬棘水晶刃':'crystal','深淵漩渦':'abyss','腐蝕毒霧':'toxfog','洩洪水龍捲':'spout','千塘激流':'rapids','旋轉雷達盤':'radar','神龍天降':'dragon','願星審判':'judgestar','日冕爆裂':'corona','寒單千響':'crackers','千年月柱':'moonpillar'};
+const FX_SIG={'萬雷祖靈陣':'totem','洪荒火種':'seedfire','萬年冰璧':'jadering','九霧噬心':'ninefog','萬佛朝宗':'mandala','萬筍天劍':'bamboo','推日破曉':'sunpush','拉魯月光陣':'lalumoon','隕石俯衝':'meteor','八色虹箭':'rainbow','跑道幽靈':'ghostrun','五月飛雪':'tungsnow','萬棘水晶刃':'crystal','深淵漩渦':'abyss','腐蝕毒霧':'toxfog','洩洪水龍捲':'spout','千塘激流':'rapids','旋轉雷達盤':'radar','神龍天降':'dragon','願星審判':'judgestar','日冕爆裂':'corona','寒單千響':'crackers','千年月柱':'moonpillar'};
 const FX_SIGBG={sunpush:'sky',lalumoon:'night',ghostrun:'night',abyss:'sea',toxfog:'poison',judgestar:'night',moonpillar:'night',dragon:'storm',corona:'fire',radar:'radar',tungsnow:'spring',rainbow:'sky'};
 /* 以前特別為這招做的專屬舊特效：保留舊特效（大招仍會先放必殺特寫） */
 const FX_KEEP=new Set(['硫火巨盾','月盾潮擊','深淵冰雷','龍鳴長鞭','肉圓炸彈','冰河記憶','月影夜襲','金喉疾襲']);
 function fxHash(s){let h=7;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h}
 function fxA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${Math.max(0,Math.min(1,a)).toFixed(3)})`}
+/* 同屬性的強招（威力≥80）分配不同形式：先照名稱關鍵字，被用過就換該屬性偏好的下一種，再不夠就用其他形式 */
+let FX_UNIQ=null;function fxUniq(){if(FX_UNIQ)return FX_UNIQ;FX_UNIQ={};const ALL=Object.keys(FX_FORMDRAW),by={};
+  for(const m in MOVES){const M=MOVES[m];if(!M||(M.p|0)<FX_TIER.strong||FX_SIG[m]||FX_KEEP.has(m))continue;(by[M.t]=by[M.t]||[]).push(m)}
+  for(const t in by){const used=new Set(),L=by[t].sort((a,b)=>(MOVES[b].p-MOVES[a].p)||(a<b?-1:1));
+    for(const m of L){let kw=null;for(const [re,fm] of FX_KW)if(re.test(m)){kw=fm;break}const pref=[kw,...(FX_TYPE_FORM[t]||[]),...ALL].filter(Boolean);
+      const f=pref.find(x=>!used.has(x))||pref[fxHash(m)%pref.length];used.add(f);FX_UNIQ[m]=f}}return FX_UNIQ}
 function fxPlan(mv){const M=MOVES[mv];const p=(M&&M.p)|0;if(p<FX_TIER.strong)return null;const ty=(M&&M.t)||'一般';const look=FX_LOOK[ty]||FX_LOOK['一般'];
-  if(FX_KEEP.has(mv))return {keep:true,ult:p>=FX_TIER.ult,ty,look,p,seed:fxHash(mv)%997};const sig=FX_SIG[mv]||null;let form=null;if(!sig){for(const [re,fm] of FX_KW)if(re.test(mv)){form=fm;break}if(!form){const L=FX_TYPE_FORM[ty]||['combo'];form=L[fxHash(mv)%L.length]}}
+  if(FX_KEEP.has(mv))return {keep:true,ult:p>=FX_TIER.ult,ty,look,p,seed:fxHash(mv)%997};const sig=FX_SIG[mv]||null;let form=null;if(!sig&&fxUniq()[mv]){form=fxUniq()[mv]}else if(!sig){for(const [re,fm] of FX_KW)if(re.test(mv)){form=fm;break}if(!form){const L=FX_TYPE_FORM[ty]||['combo'];form=L[fxHash(mv)%L.length]}}
   return {form,sig,ult:p>=FX_TIER.ult,ty,look,p,seed:fxHash(mv)%997}}
 let FXTK='';function fxTxt(L){const k=JSON.stringify(L);if(k===FXTK)return;FXTK=k;const box=$('fxtxt');if(!box)return;box.replaceChildren();for(const [x,y,t,col,sz,tr] of L){const e=document.createElement('span');e.textContent=t;e.style.left=`calc(var(--u)*${x})`;e.style.top=`calc(var(--u)*${y})`;e.style.color=col;e.style.fontSize=`calc(var(--u)*${sz})`;if(tr)e.style.transform='translate(-50%,-50%) '+tr;box.append(e)}}
 async function playFx(mv,side){const P=B&&fxPlan(mv);if(!P)return playFx1(mv,side);const who=side==='p'?B.me:B.enemy;P.sp=who?who.sp:0;
@@ -4620,6 +4626,47 @@ const FX_FORMDRAW={
   H.impact(T.x,T.y,u,lk,f.ult);if(u<.6)H.quake(f.ult?2.8:2)}};
 /* ---- 專屬招式 ---- */
 const FX_SIGDRAW={
+ totem(t,S,T,f,H){const c=H.c,P=[[T.x-26,T.g+2],[T.x,T.g-6],[T.x+26,T.g+2]];const rise=i=>H.eo((t-i*.06)/.28);
+  H.flash(.25*Math.min(1,t*3)*(t>.9?(1-t)/.1:1),'#141020');
+  P.forEach(([x,g],i)=>{const u=rise(i);if(u<=0)return;const h=34*u,top=g-h;H.poly([[x-5,g],[x-4,top+8],[x,top],[x+4,top+8],[x+5,g]],'#3a3a46','#101018',1.2);H.poly([[x-2,g],[x-2,top+9],[x,top+4],[x+1,top+9]],'#6a6a7a');
+   for(let k=0;k<3;k++){const y=g-8-k*8;if(y>top+8){c.fillStyle=t>.3?'#ffe040':'#a08020';c.fillRect(x-1,y,3,2)}}if(t>.3)H.glow(x,top,10,'#ffe040',.7)});
+  if(t>.3&&t<.92){for(let i=0;i<3;i++){const a=P[i],b=P[(i+1)%3],ax=a[0],ay=a[1]-34,bx=b[0],by=b[1]-34;if(((H.now/70|0)+i)%4===0)continue;const z=[[ax,ay]];for(let k=1;k<6;k++)z.push([H.lerp(ax,bx,k/6)+(H.R(k+i*9+(H.now/60|0))-.5)*8,H.lerp(ay,by,k/6)+(H.R(k*3+i+(H.now/60|0))-.5)*8]);z.push([bx,by]);
+    for(const [w,col] of [[4,'#302810'],[2,'#ffe040'],[.8,'#ffffff']]){c.strokeStyle=col;c.lineWidth=w;c.beginPath();z.forEach((q,j)=>j?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.stroke()}}}
+  if(t>.55&&t<.8){const z=[[T.x,-6]];for(let i=1;i<=7;i++)z.push([T.x+(H.R(i+(H.now/40|0))-.5)*16,-6+i*(T.y+4)/7]);for(const [w,col] of [[8,'#302810'],[4.5,'#ffe040'],[1.6,'#ffffff']]){c.strokeStyle=col;c.lineWidth=w;c.beginPath();z.forEach((q,j)=>j?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.stroke()}if(t<.6)H.flash(.85,'#fff8d0')}
+  if(t>.56){const u=(t-.56)/.44;H.impact(T.x,T.y,u,FX_LOOK['電'],true);if(u<.5)H.quake(3)}},
+ seedfire(t,S,T,f,H){const c=H.c;
+  if(t<.38){const u=H.eio(t/.38),x=H.lerp(S.x+f.dir*8,T.x,u),y=H.lerp(S.y-6,T.y,u)-Math.sin(u*Math.PI)*46;for(let i=6;i>0;i--){const v=Math.max(0,u-i*.04);H.dot(H.lerp(S.x+f.dir*8,T.x,v),H.lerp(S.y-6,T.y,v)-Math.sin(v*Math.PI)*46,3-i*.35,i<3?'#ffb030':'#c03010')}H.glow(x,y,16,'#ffd060',.9);H.dot(x,y,3.4,'#fff4c0');H.dot(x,y,2,'#ffffff')}
+  if(t>=.36){const u=H.cl((t-.36)/.5),fade=t>.88?(1-t)/.12:1;H.flash(.3*fade,'#401000');
+   c.strokeStyle=fxA('#ff8020',.9*fade);c.lineWidth=3;c.beginPath();c.ellipse(T.x,T.g+2,6+u*52,(6+u*52)*.3,0,0,7);c.stroke();
+   for(let i=0;i<10;i++){const a=i/10*Math.PI*2,r=8+u*44,x=T.x+Math.cos(a)*r,g=T.g+2+Math.sin(a)*r*.3,h=(14+H.R(i)*16)*Math.sin(Math.min(1,u*1.6)*Math.PI)*fade;if(h<1)continue;H.poly([[x-4,g],[x+(H.R(i+5)-.5)*4,g-h],[x+4,g]],fxA('#f86828',.9),'#701808',.6);H.poly([[x-2,g],[x,g-h*.6],[x+2,g]],'#ffe070')}
+   H.glow(T.x,T.y,30*(1-u*.4),'#ff6010',.7*fade);for(let i=0;i<14;i++){const v=(u*1.3+H.R(i))%1;H.dot(T.x+(H.R(i+2)-.5)*70,T.g-v*70,1.4*(1-v)+.4,v<.5?'#ffe070':'#f86828')}
+   H.impact(T.x,T.y,u,FX_LOOK['火'],true);if(u<.5)H.quake(3)}},
+ jadering(t,S,T,f,H){const c=H.c,lk=FX_LOOK['冰'];const u=H.eo(t/.45),cy=H.lerp(-30,T.y-4,u),sp=H.now/180,sy=.35+.25*Math.abs(Math.sin(sp));
+  if(t<.62){H.glow(T.x,cy,34,'#a8f0d0',.45);c.save();c.translate(T.x,cy);c.scale(1,sy);c.lineWidth=11;c.strokeStyle='#3aa878';c.beginPath();c.arc(0,0,22,0,7);c.stroke();c.lineWidth=5;c.strokeStyle='#8ae8c0';c.beginPath();c.arc(0,0,22,0,7);c.stroke();
+   c.strokeStyle='#1a5a40';c.lineWidth=1;for(let i=0;i<8;i++){const a=sp+i*Math.PI/4;c.beginPath();c.moveTo(Math.cos(a)*17,Math.sin(a)*17);c.lineTo(Math.cos(a)*27,Math.sin(a)*27);c.stroke()}c.restore();
+   for(let i=0;i<8;i++){const a=H.R(i)*7+sp;H.star(T.x+Math.cos(a)*30,cy+Math.sin(a)*12,1.6,'#e8faff',a)}}
+  if(t>.42){const v=H.cl((t-.42)/.5),fade=t>.9?(1-t)/.1:1;if(v<.12)H.flash(.8*(1-v/.12),'#e8fff8');H.glow(T.x,T.y,34,'#c8f4ff',.6*fade);
+   for(let i=0;i<9;i++){const a=-Math.PI*(.1+.8*i/8),r=10+v*30;c.save();c.translate(T.x+Math.cos(a)*r*.9,T.g+4+Math.sin(a)*r*.6);c.rotate(a+Math.PI/2);H.poly([[-3,0],[0,-14*(1-v*.3)],[3,0]],fxA('#bfeeff',.95*fade),'#2a5878',.8);c.restore()}
+   if(v>.55){const w=(v-.55)/.45;for(let i=0;i<12;i++){const a=H.R(i+20)*7;H.drop('ice',T.x+Math.cos(a)*w*46,T.y+Math.sin(a)*w*28+w*w*24,2.4*(1-w)+.6,a+w*5,lk)}}
+   H.impact(T.x,T.y,v,lk,true);if(v<.45)H.quake(2.8)}},
+ ninefog(t,S,T,f,H){const c=H.c,fade=t>.88?(1-t)/.12:1;H.flash(.45*Math.min(1,t*4)*fade,'#120818');
+  for(let i=0;i<9;i++){const st=i*.035,u=H.eio((t-st)/.5);if(u<=0)continue;const side=i%2?1:-1,y0=12+i*11,x0=T.x+side*110,cx1=T.x+side*40,cy1=y0-30+H.R(i)*20;
+   const pt=v=>{const a=1-v;return [a*a*x0+2*a*v*cx1+v*v*T.x,a*a*y0+2*a*v*cy1+v*v*T.y]};
+   for(let k=10;k>=0;k--){const v=Math.max(0,u-k*.04),[x,y]=pt(v);H.dot(x,y,(11-k)*.9*fade,fxA(k<3?'#c8b8e0':'#5a4a70',(.75-k*.05)*fade))}
+   const [x,y]=pt(u);H.glow(x,y,8,'#b060ff',.8*fade);H.dot(x,y,2,'#f0d0ff')}
+  if(t>.55){const u=(t-.55)/.45;for(let i=0;i<9;i++){const a=i/9*Math.PI*2+H.now/300;H.dot(T.x+Math.cos(a)*(18+u*20),T.y+Math.sin(a)*(10+u*12),2.4*(1-u)+.6,'#b060ff');H.glow(T.x+Math.cos(a)*(18+u*20),T.y+Math.sin(a)*(10+u*12),6,'#b060ff',.6*(1-u))}
+   H.impact(T.x,T.y,u,FX_LOOK['暗'],true);if(u<.5)H.quake(2.6)}},
+ mandala(t,S,T,f,H){const c=H.c,cx=T.x,cy=T.y-34,rot=H.now/900,fade=t>.88?(1-t)/.12:1,a=H.cl(t/.3)*fade;
+  H.glow(cx,cy,56,'#ffe8a0',.5*a);c.save();c.globalAlpha=a;
+  for(const [r,n,col] of [[34,16,'#ffd860'],[24,12,'#fff0b0'],[14,8,'#ffffff']]){c.strokeStyle=col;c.lineWidth=1.4;c.beginPath();c.ellipse(cx,cy,r,r*.42,0,0,7);c.stroke();
+   for(let i=0;i<n;i++){const q=rot*(r>20?1:-1.5)+i/n*Math.PI*2,x=cx+Math.cos(q)*r,y=cy+Math.sin(q)*r*.42;H.poly([[x,y-3],[x+2,y],[x,y+3],[x-2,y]],col)}}c.restore();
+  if(t>.2){for(let i=0;i<22;i++){const v=((t-.2)*1.6+H.R(i))%1,x=T.x+(H.R(i+7)-.5)*90,y=H.lerp(cy,T.g,v);H.dot(x,y,1.3,fxA('#ffe070',fade));H.glow(x,y,4,'#ffe070',.5*fade)}}
+  if(t>.55){const u=(t-.55)/.45,w=12*(1-u*.6);c.fillStyle=fxA('#fff4c0',.8*fade);c.fillRect(T.x-w,cy,w*2,T.g-cy+6);c.fillStyle=fxA('#ffffff',fade);c.fillRect(T.x-w*.4,cy,w*.8,T.g-cy+6);if(u<.12)H.flash(.7,'#fff8e0');H.impact(T.x,T.y,u,FX_LOOK['佛']||FX_LOOK['光'],true);if(u<.5)H.quake(2.6)}},
+ bamboo(t,S,T,f,H){const c=H.c,lk=FX_LOOK['草'],n=7;
+  for(let i=0;i<n;i++){const v=i/(n-1),x=H.lerp(S.x+f.dir*16,T.x,v),g=H.lerp(S.g,T.g,v)+2,u=(t-.05-i*.05)/.22;if(u<=0||u>1.6)continue;const h=(u<1?H.eo(u):Math.max(0,1-(u-1)/.6))*(10+i*3);
+   H.poly([[x-3,g],[x,g-h],[x+3,g]],'#58c040','#1a4a10',.8);H.L([x,g],[x,g-h*.85],'#e8ffd0',.8);if(u<1)H.burst(x,g,u,5,'#a8e070',10)}
+  if(t>.42){const u=H.cl((t-.42)/.2),y=H.lerp(-40,T.y-2,H.ei(u)),fade=t>.9?(1-t)/.1:1;c.save();c.globalAlpha=fade;c.translate(T.x,y);H.poly([[-4,-30],[4,-30],[5,10],[0,22],[-5,10]],'#e8f8e0','#1a4a10',1.2);H.poly([[-1,-28],[1,-28],[1,16],[0,20],[-1,16]],'#ffffff');c.fillStyle='#3a7a2a';c.fillRect(-10,-34,20,4);c.fillStyle='#8a5a2a';c.fillRect(-2,-46,4,12);c.restore();
+   if(u>=1){const k=(t-.62)/.38;H.impact(T.x,T.y,k,lk,true);for(let i=0;i<10;i++){const a=H.R(i)*7;H.drop('petal',T.x+Math.cos(a)*k*40,T.y+Math.sin(a)*k*26+k*k*20,2.4,a+k*6,lk)}if(k<.12)H.flash(.6,'#f0ffe0');if(k<.5)H.quake(2.8)}}},
  meteor(t,S,T,f,H){const c=H.c,o=fxImg(f);B.fxHide=t<.9?f.side:null;const e=t<.3?t/.3:t>.85?(1-t)/.15:1;H.flash(.38*e,'#3c0800');
   if(t<.22){const u=H.ei(t/.22);fxSprite(o,S.x,S.y-u*120,f.side==='p'?56:52,1)}
   if(t>.2&&t<.7){const u=(t-.2)/.5;c.fillStyle=`rgba(0,0,0,${.4*u})`;c.beginPath();c.ellipse(T.x,T.g,6+u*18,2+u*5,0,0,7);c.fill();H.glow(T.x,T.g,8+u*20,'#ff3010',.5*u)}
