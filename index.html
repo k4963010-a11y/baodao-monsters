@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261116-230229';
+import CONFIG from './firebase-config.js?v=20261117-071355';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -469,7 +469,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261116-230229";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261117-071355";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2067,6 +2067,7 @@ function sanPos(p,def){if(!p||!MAPS[p.map])return {...def};const M=MAPS[p.map];c
   if((WALK.has(M.grid[y0][x0])||'~8'.includes(M.grid[y0][x0]))&&x0===(p.x|0)&&y0===(p.y|0))return {map:p.map,x:x0,y:y0,dir};
   for(let r=1;r<=40;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;if(ok(x0+dx,y0+dy))return {map:p.map,x:x0+dx,y:y0+dy,dir}}
   return {...def}}
+function sanHof(h){if(!h||typeof h!=='object'||!Array.isArray(h.party))return undefined;return {t:+h.t||0,party:h.party.slice(0,6).map(m=>({sp:(m&&m.sp)|0,lv:clamp((m&&m.lv)|0,1,100),moves:(Array.isArray(m&&m.moves)?m.moves:[]).filter(x=>typeof x==='string').slice(0,4)})).filter(m=>m.sp>=1&&m.sp<=N_SP)}}
 function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   const party=(Array.isArray(d.party)?d.party:[]).map(sanMon).filter(Boolean).slice(0,6);
   const ids=a=>[...new Set((Array.isArray(a)?a:[]).map(x=>x|0).filter(x=>x>=1&&x<=N_SP))];
@@ -2074,7 +2075,7 @@ function sanG(d){if(!d||typeof d!=='object'||d.ver!==2)return null;
   if(flags.starter&&!party.length)return null;
   const g={ver:2,look:clamp(d.look|0,0,CHARS.length-1),name:(typeof d.name==='string'&&d.name.trim()?d.name.trim():'訓練家').slice(0,8),money:clamp(d.money|0,0,999999),
    items:{ball:clamp(d.items?.ball|0,0,99),ball2:clamp(d.items?.ball2|0,0,99),ball3:clamp(d.items?.ball3|0,0,99),ball4:clamp(d.items?.ball4|0,0,99),potion:clamp(d.items?.potion|0,0,99),soy:clamp(d.items?.soy|0,0,99),rice:clamp(d.items?.rice|0,0,99),youtiao:clamp(d.items?.youtiao|0,0,99),douhua:clamp(d.items?.douhua|0,0,99),ppfill:clamp(d.items?.ppfill|0,0,99),ppup:clamp(d.items?.ppup|0,0,99),full:clamp(d.items?.full|0,0,99),cure:clamp(d.items?.cure|0,0,99),boba:clamp(d.items?.boba|0,0,99)},party,box:(Array.isArray(d.box)?d.box:[]).map(sanMon).filter(Boolean).slice(0,200),
-   seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0,tx:sanTx(d.tx)};
+   seen:ids(d.seen),caught:ids(d.caught),badges:clamp(d.badges|0,0,8),flags,pos:sanPos(d.pos,sanPos(d.lastHeal,NEW_POS)),lastHeal:sanPos(d.lastHeal,HOME_HEAL),steps:d.steps|0,tx:sanTx(d.tx),hof:sanHof(d.hof)};
   g.caught.forEach(i=>{if(!g.seen.includes(i))g.seen.push(i)});return g}
 function sanTx(t){const o={};if(!t||typeof t!=='object')return o;const now=Date.now();
   for(const k of Object.keys(t).slice(-40)){if(!/^[a-z0-9]{4,12}$/.test(k))continue;const v=t[k];if(!v||typeof v!=='object')continue;const st=['esc','done','got','back'].includes(v.st)?v.st:null;if(!st)continue;
@@ -2179,7 +2180,7 @@ async function k85Boss(){
   const team=BOSS_TEAM.map(([sp,lv,mv])=>{const m=makeMon(sp,lv,'灰霧王');m.moves=mv.filter(x=>MOVES[x]);return m});
   const res=await battle(team,{name:'灰霧幫首領 灰霧王',reward:30000,boss:true,noLose:true,win:['灰霧王：…………','……原來如此。','你的寶貝，不是聽你的話——','是相信你。']});
   if(res!=='win'){await k85Lose('boss');return}
-  G.flags.k85boss=true;G.flags.ch9=true;refreshEnts();scheduleSave(200);await chapterEnd9()}
+  if(!G.hof)G.hof={t:Date.now(),party:G.party.map(m=>({sp:m.sp,lv:m.lv,moves:[...m.moves]}))};G.flags.k85boss=true;G.flags.ch9=true;refreshEnts();scheduleSave(200);await chapterEnd9()}
 let HARB=null;
 async function harborScene(){await fade(1);hideText();HARB={t0:performance.now()};mode='harbor';await fade(0);music('evofan');await wait(4800)}
 function drawHarbor(now){const c=ctx;if(!HARB)return;const t=(now-HARB.t0)/1000,p=Math.min(1,t/4.2);const R=(x,y,w,h,k)=>{c.fillStyle=k;c.fillRect(Math.round(x),Math.round(y),w,h)};
