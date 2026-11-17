@@ -42,7 +42,7 @@
 import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
-import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded} from './vendor/fb10122/firebase-database.js';
+import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
 import CONFIG from './firebase-config.js';
 window.__fbLoaded=1;
 
@@ -81,7 +81,7 @@ function makeRoom(uid){let mine={},all={},off=0;const cbs=[];const rdb=getDataba
   const push=()=>rupdate(me,{...mine,uid,t:serverTimestamp()}).catch(e=>console.warn('pos',e));  // update：不蓋掉賽車頁寫的 mq/rc/rh
   setInterval(()=>{if(mine.name)push()},30000);
   addEventListener('pagehide',()=>{remove(me).catch(()=>{})});
-  onValue(ref(rdb,'pos'),s=>{all=s.val()||{};cbs.forEach(f=>f())},()=>{});
+  {const pr=ref(rdb,'pos');let pt=0;const fire=()=>{if(pt)return;pt=setTimeout(()=>{pt=0;cbs.forEach(f=>f())},400)};const put=s=>{const v=s.val();if(v&&typeof v==='object')all[s.key]=v;else delete all[s.key];fire()};onChildAdded(pr,put,()=>{});onChildChanged(pr,put,()=>{});onChildRemoved(pr,s=>{delete all[s.key];fire()},()=>{})}  // 只收變動的那個人，不每次整包重算
   setInterval(()=>cbs.forEach(f=>f()),20000);
   const dcb=[];const inbox=ref(rdb,'inbox/'+uid);remove(inbox).catch(()=>{});
   onChildAdded(inbox,s=>{const v=s.val();remove(s.ref).catch(()=>{});if(v&&typeof v==='object')dcb.forEach(f=>{try{f(v)}catch(e){console.error(e)}})},()=>{});
