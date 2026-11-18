@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261118-141930';
+import CONFIG from './firebase-config.js?v=20261118-142403';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -450,6 +450,9 @@ if(auth){
       <p class="sub" id="cheatSub">檢查所有玩家存檔裡「正常玩不可能出現」的東西。</p>
       <button type="button" id="cheatScan" class="scanbtn">開始掃描</button>
       <ul id="cheatList"></ul>
+      <div class="gmpass"><h2 style="margin-top:14px">🎫 補過關</h2><p class="sub" id="gmPassMsg">玩家打贏了卻因為 bug 沒存到，可以幫他補上。</p>
+        <select id="gmPassWhat"></select> <input id="gmPassName" maxlength="8" placeholder="玩家名字"> <button type="button" id="gmPassBtn" class="scanbtn">補過關</button>
+        <div id="gmPassList"></div></div>
     </section>
     <section class="card" id="bugCard" hidden>
       <h2>Bug 回報（只有 GM 看得到）</h2>
@@ -469,7 +472,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261118-141930";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261118-142403";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2387,7 +2390,7 @@ let saveTimer=0,saving=false,again=false,cloudRev=0,staleStop=false;const SAVE_S
 function snapshotPos(){if(G&&M)G.pos={map:M.id,x:player.x,y:player.y,dir:player.dir}}
 function scheduleSave(ms=1200){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,ms)}
 async function saveNow(){if(!G||G.dream)return;if(mode==='map')snapshotPos();saveLocal();if(!db)return;if(saving){again=true;return}saving=true;
-  try{if(staleStop)throw 0;const ref=db.doc('players/'+uid);const cur=await ref.get();const cr=cur.exists?((cur.data()||{}).rev|0):0;if(cr>cloudRev){const cd=cur.data()||{};const mine=cd.sid===SAVE_SID,gm=(+cd.gmFix||0)>(+G.gmFix||0),ahead=(G.steps|0)>(cd.steps|0)&&(cd.name===G.name);if(mine||(ahead&&!gm)){console.warn('save conflict resolved',mine?'own':'ahead',cr,cloudRev);cloudRev=cr}else{staleStop=true;saving=false;await staleReload();return}}const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();doc.sid=SAVE_SID;doc.rev=cloudRev+1;await ref.set(doc);cloudRev=doc.rev}catch(e){if(e!==0)console.warn('save failed',e)}
+  try{if(staleStop)throw 0;const ref=db.doc('players/'+uid);const cur=await ref.get();const cr=cur.exists?((cur.data()||{}).rev|0):0;if(cr>cloudRev){const cd=cur.data()||{};const mine=cd.sid===SAVE_SID,gm=(+cd.gmFix||0)>(+G.gmFix||0),ahead=(G.steps|0)>(cd.steps|0)&&(cd.name===G.name);if(!gm&&(mine||ahead)){console.warn('save conflict resolved',mine?'own':'ahead',cr,cloudRev);cloudRev=cr}else{staleStop=true;saving=false;await staleReload();return}}const doc=JSON.parse(JSON.stringify(G));doc.updatedAt=Date.now();doc.sid=SAVE_SID;doc.rev=cloudRev+1;await ref.set(doc);cloudRev=doc.rev}catch(e){if(e!==0)console.warn('save failed',e)}
   saving=false;if(again){again=false;saveNow()}}
 let rosterDocs=[],swapSlots={},INVMAP={};
 /* ---- 回報 bug ---- */
@@ -2511,11 +2514,34 @@ function cheatFix(id,d0,li){if($('bugDlg'))return;const c=cheatCheck(d0,CHEAT_GI
       d.party=(d.party||[]).filter((_,i)=>!del.party.has(i));d.box=(d.box||[]).filter((_,i)=>!del.box.has(i));
       if(!d.party.length){if(d.box.length)d.party.push(d.box.shift());else d.party.push(makeMon(1,5,String(d.name||'').slice(0,12)))}
       d.money=clamp(+d.money||0,0,999999);d.badges=clamp(d.badges|0,0,OPEN_CH);if(d.items)for(const k in d.items)d.items[k]=clamp(+d.items[k]||0,0,99);
-      d.rev=(d.rev|0)+1;d.updatedAt=Date.now();d.gmFix=Date.now();await ref.set(d);
+      d.rev=(d.rev|0)+1;d.updatedAt=Date.now();d.gmFix=Date.now();delete d.sid;await ref.set(d);
       const body=ta.value.trim();if(body){const t=Date.now();await db.doc('mail/mail_'+id.slice(0,40)+'_'+t).set({to:id,from:GM_OT,title:'GM 巡查通知',body:body.slice(0,400),t})}
       w.querySelector('.in').innerHTML='<h3>修正完成！</h3><p>玩家如果在線上，下次存檔時會自動載入修正後的進度。</p><div class="row"><button class="go" type="button">好</button></div>';w.querySelector('.go').onclick=close;
       li.querySelectorAll('.fixbtn').forEach(b=>b.remove());const ok=document.createElement('div');ok.className='fixed';ok.textContent=`✔ 已修正（處理 ${n} 隻）`;li.append(ok)}
     catch(e){msg.textContent='修正失敗：'+(e&&e.message||e)}}}
+
+/* ================= GM 補過關 ================= */
+const GM_PASS={k85boss:{n:'灰霧王（終章 85 樓）',flags:['k85boss','ch9'],money:30000,hof:true}};
+function gmPassInit(){const sel=$('gmPassWhat');if(!sel||sel.options.length)return;for(const k in GM_PASS){const o=document.createElement('option');o.value=k;o.textContent=GM_PASS[k].n;sel.append(o)}
+  const inp=$('gmPassName');['keydown','keyup'].forEach(t=>inp.addEventListener(t,e=>{e.stopPropagation();if(t==='keydown'&&e.key==='Enter')gmPassFind()}))}
+async function gmPassFind(){if(!GM_UIDS.has(uid)||!db)return;const msg=$('gmPassMsg'),box=$('gmPassList'),name=$('gmPassName').value.trim(),k=$('gmPassWhat').value,P=GM_PASS[k];box.replaceChildren();
+  if(!name||!P){msg.textContent='請輸入玩家名字。';return}msg.textContent='尋找中……';
+  try{const r=await db.query('players',{where:[['name','==',name]]}).get();const list=r.docs.filter(x=>{const d=x.data();return d&&d.ver===2});
+    if(!list.length){msg.textContent=`找不到叫「${name}」的玩家（名字要完全一樣）。`;return}msg.textContent=`找到 ${list.length} 位，按「補上」：`;
+    for(const x of list){const d=x.data();const row=document.createElement('div');row.className='gmprow';const done=P.flags.every(f=>d.flags&&d.flags[f]);
+      row.textContent=`${String(d.name).slice(0,8)}・ID ${x.id.slice(0,6).toUpperCase()}・徽章${bdgTxt(d)}・${d.steps|0}步　`;
+      const bt=document.createElement('button');bt.type='button';bt.className='scanbtn';bt.textContent=done?'已經過關了':'補上';bt.disabled=done;bt.onclick=()=>gmPassDo(x.id,k,row,bt);row.append(bt);box.append(row)}}
+  catch(e){console.warn('gmPass',e);msg.textContent='尋找失敗：'+(e&&e.message||e)}}
+async function gmPassDo(id,k,row,bt){const P=GM_PASS[k];bt.disabled=true;bt.textContent='處理中……';
+  try{const ref=db.doc('players/'+id);const cur=await ref.get();if(!cur.exists)throw new Error('找不到存檔');const d=JSON.parse(JSON.stringify(cur.data()));d.flags=d.flags||{};
+    if(P.flags.every(f=>d.flags[f])){bt.textContent='已經過關了';return}
+    P.flags.forEach(f=>d.flags[f]=true);if(P.money)d.money=clamp((+d.money||0)+P.money,0,999999);
+    if(P.hof&&!d.hof)d.hof={t:Date.now(),party:(d.party||[]).map(m=>({sp:m.sp|0,lv:m.lv|0,moves:[...(m.moves||[])]}))};
+    d.rev=(d.rev|0)+1;d.updatedAt=Date.now();d.gmFix=Date.now();delete d.sid;await ref.set(d);
+    const t=Date.now();await db.doc('mail/mail_'+id.slice(0,40)+'_'+t).set({to:id,from:GM_OT,title:'GM 補過關通知',body:`你打贏了${P.n}，但因為存檔出問題沒有記錄到，GM 已經幫你補上了！${P.money?`（獎金 ${P.money} 元也補給你了）`:''}重新整理遊戲就會看到。`,t});
+    bt.textContent='✔ 已補上，並寄信通知'}
+  catch(e){bt.disabled=false;bt.textContent='補上';$('gmPassMsg').textContent='補過關失敗：'+(e&&e.message||e)}}
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='gmPassBtn')gmPassFind()});
 let MYMAIL=[];
 function mailsFromLocks(docs){if(!uid)return;MYMAIL=docs.filter(d=>/^mail_/.test(d.id)).map(d=>({id:d.id,...d.data()})).filter(m=>m.to===uid&&typeof m.body==='string'&&typeof m.t==='number').sort((a,b)=>b.t-a.t).slice(0,30)}
 function bugReport(){if($('bugDlg'))return;const w=document.createElement('div');w.id='bugDlg';w.innerHTML='<div class="in" role="dialog" aria-label="回報bug及遊戲建議"><h3>回報 bug 及遊戲建議</h3><p>遇到怪怪的地方，或有好玩的點子嗎？寫下來告訴我們，會盡快處理！</p><textarea maxlength="500" placeholder="例如：在雪山隧道中段，跟護理師說話後畫面卡住不能動"></textarea><div class="row"><span></span><button class="no" type="button">取消</button><button class="go" type="button">送出</button></div></div>';
@@ -2714,7 +2740,7 @@ async function gmMigrateLocks(){try{const s=await db.collection('locks').get();l
     try{await db.doc(r[1]+'/'+d.id).set(v);await db.doc('locks/'+d.id).delete();n++}catch(e){console.warn('migrate',d.id,e)}}
   if(n){const t=document.createElement('div');t.className='toastmsg';t.textContent=`GM：已把 ${n} 筆舊資料搬到新位置`;document.body.append(t);setTimeout(()=>t.remove(),5000)}}catch(e){console.warn('migrate',e)}}
 function subscribeCloud(){
-  $('myPid').textContent=pid(uid);$('gmBcBtn').hidden=!GM_UIDS.has(uid);$('gmDropBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);
+  $('myPid').textContent=pid(uid);$('gmBcBtn').hidden=!GM_UIDS.has(uid);$('gmDropBtn').hidden=!GM_UIDS.has(uid);$('cheatCard').hidden=!GM_UIDS.has(uid);if(GM_UIDS.has(uid))gmPassInit();
   let got=false;const tm=setTimeout(()=>{if(!got)$('cloudStatus').textContent='暫時連不上雲端，名冊可能不是最新的。'},10000);
   const C_=db.collection('players');if(C_.get){const loadR=()=>C_.get().then(s=>{got=true;clearTimeout(tm);rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()}).catch(()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});loadR();setInterval(()=>{if(!document.hidden)loadR()},10*60*1000)}else C_.onSnapshot(s=>{if(!s.metadata.fromCache){got=true;clearTimeout(tm)}rosterDocs=s.docs.map(d=>({id:d.id,d:d.data()}));renderRoster()},()=>{clearTimeout(tm);$('cloudStatus').textContent='名冊暫時讀不到。'});
   if(room){let rt=0;try{let RSIG='';room.onPeers(()=>{if(rt)return;rt=setTimeout(()=>{rt=0;const k=JSON.stringify(onlineMap());if(k===RSIG)return;RSIG=k;renderRoster()},1500)},()=>{})}catch(e){}}
