@@ -300,7 +300,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261118-232008';
+import CONFIG from './firebase-config.js?v=20261119-001713';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -472,7 +472,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261118-232008";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261119-001713";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -4259,7 +4259,7 @@ async function gmTools(){showText('GM 工具');const c=await choose(['拿全部�
   G.badges=BADGES.length;for(let i=1;i<=BADGES.length;i++)G.flags['badge'+i]=true;G.flags.cut=true;G.flags.swim=true;G.flags.climb=true;sfx('badge');await say(`GM：拿到全部 ${BADGES.length} 個徽章了！
 （砍樹、游泳、攀岩也都開了）`);await saveNow()}
 async function partyMenu(){for(;;){const items=G.party.map(monLabel);showText('要看哪一隻？');const i=await choose(items,{pos:'list'});if(i<0)return;
-  const m=G.party[i];showText(`${nm(m)} 要做什麼？`);const a=await choose(['查看','設定技能','設為帶頭','放生','返回'],{pos:'list'});if(a===3){if(G.party.length<=1){await say('身上至少要留一隻怪獸，不能放生喔！');continue}if(await releaseMon(m)){G.party.splice(G.party.indexOf(m),1);scheduleSave()}continue}
+  const m=G.party[i];showText(`${nm(m)} 要做什麼？`);const a=await choose(['查看','設定技能','設為帶頭','返回'],{pos:'list'});/* 11/19 背包拿掉放生，避免按錯；放生只留在電腦怪獸箱 */
   if(a===0)await monSheet(m);else if(a===1)await moveOrder(m);else if(a===2){G.party.splice(i,1);G.party.unshift(m);await say(`${nm(m)} 現在跟在你身後了！`);scheduleSave()}}}
 const BOX_N=30,BOX_SORT=['抓到順序','圖鑑編號','等級高→低'];
 function boxFix(){const cnt={};for(const m of G.box)if(Number.isFinite(m.bx))cnt[m.bx]=(cnt[m.bx]|0)+1;for(const m of G.box)if(!Number.isFinite(m.bx)){let b=0;while((cnt[b]|0)>=BOX_N)b++;m.bx=b;cnt[b]=(cnt[b]|0)+1}}
