@@ -363,7 +363,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261119-204912';
+import CONFIG from './firebase-config.js?v=20261119-220256';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -535,7 +535,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261119-204912";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261119-220256";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -611,7 +611,7 @@ const SP=[null,
  {n:'松靈鼠',t:'草',b:[52,55,50,78],c:190,x:58,l:[[1,'亂抓'],[1,'齜牙'],[8,'松果砲'],[15,'芒花飛舞'],[27,'茶葉鏢'],[36,'飛撲'],[44,'麻痺花粉'],[53,'藤鞭甩'],[62,'猛力壓'],[71,'葉刃斬'],[79,'安眠花粉'],[88,'森林之怒'],[99,'神木衝擊']],d:'松鼠和松樹精靈結合的怪獸。尾巴是會發光的松針，捧著的金色松果據說能讓森林長得更茂密。'},
  {n:'霓虹喵',t:'電',b:[50,58,45,80],c:90,x:66,evo:[24,34],l:[[1,'衝撞'],[1,'靜電彈'],[10,'雷爪'],[18,'霓虹閃'],[32,'電光石火'],[43,'電磁波'],[54,'暗影爪'],[64,'頭槌'],[75,'神速突擊'],[86,'十萬伏雷'],[99,'全力衝撞']],d:'台北夜晚的霓虹燈變成的貓。晚上會偷偷跑到招牌上睡覺，所以招牌常常一閃一閃。'},
  {n:'霓虹貓王',t:'電',b:[72,90,65,108],c:45,x:160,l:[[1,'靜電彈'],[1,'雷爪'],[1,'霓虹閃'],[1,'猛力壓'],[32,'電光石火'],[43,'電磁波'],[54,'暗影爪'],[64,'頭槌'],[75,'神速突擊'],[86,'十萬伏雷'],[99,'全力衝撞']],d:'霓虹喵進化的貓王。全身的霓虹燈一亮，整條街都會跟著亮起來。'},
- {n:'玉山蒼龍',t:'龍',b:[106,130,100,110],c:3,x:300,l:[[1,'衝撞'],[1,'俯衝'],[1,'雷爪'],[1,'蒼龍吐息'],[23,'龍之怒'],[38,'旋風翅'],[52,'神速突擊'],[67,'暴風'],[82,'全力衝撞'],[99,'神龍天降']],d:'傳說中守護玉山的神龍。據說只有在雲海最深的那一天，才會在山頂現身。'},
+ {n:'玉山蒼龍',t:'龍',b:[106,130,100,110],c:5,x:300,l:[[1,'衝撞'],[1,'俯衝'],[1,'雷爪'],[1,'蒼龍吐息'],[23,'龍之怒'],[38,'旋風翅'],[52,'神速突擊'],[67,'暴風'],[82,'全力衝撞'],[99,'神龍天降']],d:'傳說中守護玉山的神龍。據說只有在雲海最深的那一天，才會在山頂現身。'},
  {n:'竹節忍',t:'蟲',b:[55,60,70,40],c:180,x:62,l:[[1,'衝撞'],[1,'變硬'],[12,'蟲咬'],[27,'刺針'],[38,'麻痺針'],[50,'藤鞭甩'],[62,'催眠鱗粉'],[74,'葉刃斬'],[85,'神速突擊'],[99,'百蟲大軍']],d:'象山竹林裡的竹節蟲怪獸。一動也不動的時候，連鳥都找不到牠。'},
  {n:'寬尾鳳靈',t:'蟲',b:[50,58,48,78],c:150,x:68,l:[[1,'衝撞'],[1,'鱗粉舞'],[10,'羽毛刺'],[16,'蟲咬'],[30,'刺針'],[41,'麻痺針'],[52,'吸血咬'],[64,'俯衝'],[75,'暗夜翼擊'],[86,'催眠鱗粉'],[99,'百蟲大軍']],d:'翅膀會閃出金綠色珠光的鳳蝶怪獸。飛過的地方會留下亮晶晶的鱗粉。'},
  {n:'夜影貓',t:'暗',b:[55,72,48,85],c:120,x:72,l:[[1,'亂抓'],[1,'齜牙'],[14,'暗影爪'],[27,'飛撲'],[37,'詭異舞步'],[47,'猛力壓'],[57,'黑夜催眠'],[67,'暗黑波'],[77,'神速突擊'],[87,'全力衝撞'],[99,'午夜惡夢']],d:'信義區夜晚巷子裡的黑貓怪獸。只看得到金色的眼睛在黑暗中發光。'},
@@ -5309,7 +5309,7 @@ async function pvpBattle(isHost,oppUid,oppName,oppTeam,id){PVP_MISS=0;
 
 /* ================= 玉山傳說章：上古三聖獸＋山頂三人合力打玉山蒼龍 ================= */
 const YS_G=[{k:1,sp:165,map:'ys1'},{k:2,sp:166,map:'ys2'},{k:3,sp:167,map:'ys3'}];
-const YS_LV=65,YS_DLV=80,YS_HPX=2,YS_K=.0068,YS_CD=10*60000,YS_TURN=10000,YS_PLAT=[[5,8],[10,6],[15,8]];
+const YS_LV=65,YS_DLV=80,YS_HPX=2,YS_K=5/255,YS_CD=10*60000,YS_TURN=10000,YS_PLAT=[[5,8],[10,6],[15,8]];
 let YS_GONE={},YS_ON=null,YS=null;
 const ysHas3=()=>!!G&&[165,166,167].every(s=>G.caught.includes(s));
 const ysHelper=()=>!!G&&!!G.flags.ysDragon;
@@ -5469,7 +5469,7 @@ async function ysRaid(G0){const party=G0.party;const me=party.findIndex(p=>p.uid
   if(result.r==='caught'){music('victory');if(caughtByMe){const dm=makeMon(SPN('玉山蒼龍'),YS_DLV,G.name);dm.hp=maxhp(dm);G.flags.ysDragon=1;const w=addMon(dm);await sayAll([`抓到了 玉山蒼龍！！`,w==='box'?'身上滿了，玉山蒼龍送進怪獸箱了。':'玉山蒼龍成為你的夥伴了！']);try{await db.doc('chat/chat_'+Date.now()+'_'+String(uid).slice(0,40)).set({uid,name:G.name||'訓練家',text:`🎉 恭喜 ${G.name} 抓到了傳說中的玉山蒼龍！`,t:Date.now()})}catch(e){}}
     else{await say(`${party[result.i].name} 抓到了玉山蒼龍！`);if(!S.h[me]){G.flags.ysScale=(G.flags.ysScale|0)+1;G.money=Math.min(999999,G.money+5000);await sayAll(['蒼龍飛走前，留下了一片發光的鱗片……','得到了「蒼龍之鱗」！還有 5000 元獎金！'])}else{G.money=Math.min(999999,G.money+5000);await say('幫忙打贏了！得到 5000 元獎金！')}}}
   else if(result.r==='flee'){await sayAll(['玉山蒼龍 倒下了……','蒼龍化成一道光，飛回了雲海。']);if(!S.h[me]){G.flags.ysScale=(G.flags.ysScale|0)+1;G.money=Math.min(999999,G.money+3000);await say('地上留下了「蒼龍之鱗」！還有 3000 元獎金。')}else{G.money=Math.min(999999,G.money+3000);await say('得到 3000 元獎金！')}}
-  else if(result.r==='lose'){await say('大家的寶貝都倒下了……蒼龍飛回了雲海。');if(G.flags.ysLoss){const lost=Math.floor(G.money/4);G.money-=lost;await say(`路上掉了 ${lost} 元……`)}else{G.flags.ysLoss=1;await say('（第一次挑戰失敗不扣錢）')}}
+  else if(result.r==='lose'){await say('大家的寶貝都倒下了……蒼龍飛回了雲海。');await say('（挑戰蒼龍失敗不會扣錢，再接再厲！）')}
   real.hp=Math.max(0,Math.min(maxhp(real),my.hp));
   hideText();eInfo.hidden=pInfo.hidden=true;ysBox().hidden=true;await transition();B=null;PV=null;YS=null;mode='map';
   if(result.r==='lose'||result.r==='flee'||result.r==='drop'){if(result.r==='lose')G.party.forEach(m=>m.hp=Math.max(m.hp,0));loadMap('ys_paiyun');placePlayer({x:4,y:6,dir:'up'});if(result.r==='lose'){healAll();await say('山屋管理員把你們扶回了排雲山莊……\n寶貝們休息好了。')}}
