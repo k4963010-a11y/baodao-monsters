@@ -27,6 +27,7 @@ jobs:
           cp -r trn _site/trn
           cp -r legend _site/legend  # 玉山蒼龍動畫
           cp -r vendor _site/vendor
+          cp -r gfx _site/gfx  # 地圖精緻化新版畫面
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
