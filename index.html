@@ -363,7 +363,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261119-135053';
+import CONFIG from './firebase-config.js?v=20261119-204912';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -535,7 +535,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261119-135053";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261119-204912";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -4077,7 +4077,7 @@ async function chapterEnd(){await wait(300);await sayAll(['鈴鈴鈴——鈴鈴
 跟朋友交換怪獸。`));s.append(d)})}
 
 /* ================= menus ================= */
-async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');if(flyGM())opts.splice(opts.length-1,0,'GM工具');opts.splice(opts.length-1,0,gfxOn()?'經典畫面':'新版畫面');moneyOn();const MI={'GM工具':'🛠️','信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌','新版畫面':'🖼️','經典畫面':'🖼️'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();if(o==='新版畫面'||o==='經典畫面'){const on=o==='新版畫面';gfxSet(on);await say(on?'已切換成「新版畫面」！\n（全部地圖（含室內）都換成新畫面了，戰鬥照舊）':'已切換回「經典畫面」。');return}
+async function startMenu(){for(;;){const opts=G.party.length?['表情','信箱','訓練家','圖鑑','怪獸','背包',G.name,'關閉']:['表情','信箱','訓練家','背包',G.name,'關閉'];if(G.flags.townmap)opts.splice(opts.indexOf('背包')+1,0,'地圖');if(QUESTS.some(q=>qst(q)))opts.splice(opts.indexOf('背包')+1,0,'任務');if(G.flags.scooter)opts.splice(opts.length-2,0,G.flags.ride?'下滑板車':'滑板車');if(flyer()&&flyOk())opts.splice(opts.length-2,0,'飛天');if(flyGM())opts.splice(opts.length-1,0,'GM工具');opts.splice(opts.length-1,0,gfxOn()?'經典畫面':'新版畫面');if(gfxOn()&&LAND)opts.splice(opts.length-1,0,'畫面大小');moneyOn();const MI={'GM工具':'🛠️','信箱':'📮','表情':'😄','圖鑑':'📖','怪獸':'🐾','背包':'🎒','地圖':'🗺️','任務':'📜','滑板車':'🛴','下滑板車':'🛴','飛天':'🪽','訓練家':'👥','關閉':'❌','新版畫面':'🖼️','經典畫面':'🖼️','畫面大小':'🔍'};const i=await choose(opts.map(o=>(MI[o]||'🧑')+' '+o+(o==='信箱'&&mailUnread()?' ❗':'')+(o==='訓練家'&&frUnread()?' ❗':'')),{pos:'right',vis:99});const o=opts[i];moneyOff();if(o==='畫面大小'){const Z=['L','M','S'],cur=Z.indexOf(landZoom());const k=await choose(['大（看得比較近）','中','小（看得比較遠）'],{start:cur<0?1:cur});if(k>=0&&k<3){landSetZoom(Z[k]);await say('畫面大小改成「'+['大','中','小'][k]+'」了！')}return}if(o==='新版畫面'||o==='經典畫面'){const on=o==='新版畫面';gfxSet(on);await say(on?'已切換成「新版畫面」！\n（全部地圖（含室內）都換成新畫面了，戰鬥照舊）':'已切換回「經典畫面」。');return}
   if(o==='GM工具'){await gmTools();return}
   if(o==='訓練家'){const r=await friendPanel();if(r&&r.fly){await flyToFriend(r.fly)}return}
   if(o==='圖鑑')await dex();else if(o==='怪獸')await partyMenu();else if(o==='背包')await bag(false);
@@ -5765,7 +5765,11 @@ function landWH(){return LAND?LAND_H:160}
 function landS(){return LAND?LAND_SC:4}/* 電腦寬畫面用 4（偶數，理由同上） */
 /* 實體像素整數倍：每個遊戲像素＝剛好 S 個手機實體像素（不讓瀏覽器再縮放，邊緣才會銳利） */
 function landVW(){const v=window.visualViewport;return v&&!document.body.classList.contains('ltyping')?[v.width,v.height]:[innerWidth,innerHeight]}/* 實際看得到的範圍（Safari 網址列不算） */
-function landGrid(){const dpr=window.devicePixelRatio||1,[iw,ih]=landVW(),pw=Math.round(iw*dpr),ph=Math.round(ih*dpr),S=Math.max(2,2*Math.round(ph/LAND_GH/2))/* 偶數：人物/怪獸是 2 倍密度，半格也要剛好整數個實體像素才銳利 */;return {S,W:Math.min(480,Math.floor(pw/S)),H:Math.floor(ph/S),dpr}}
+/* 11/19 畫面大小（選單可改，存 localStorage bd_zoom）：大＝一個畫面約 12 格寬、中＝18 格、小＝22 格。每個遊戲像素＝整數個手機實體像素（不糊） */
+const LAND_ZOOMS={L:12,M:18,S:22},LAND_ZOOM_DEF='S';
+function landZoom(){try{const z=localStorage.getItem('bd_zoom');return LAND_ZOOMS[z]?z:LAND_ZOOM_DEF}catch(e){return LAND_ZOOM_DEF}}
+function landSetZoom(z){try{localStorage.setItem('bd_zoom',z)}catch(e){}if(WIDE){WIDE=false;setWide(true)}landFit()}
+function landGrid(){const dpr=window.devicePixelRatio||1,[iw,ih]=landVW(),pw=Math.round(iw*dpr),ph=Math.round(ih*dpr),S=Math.max(2,Math.round(pw/(LAND_ZOOMS[landZoom()]*16)));return {S,W:Math.min(640,Math.floor(pw/S)),H:Math.floor(ph/S),dpr}}
 /* 新版：鋪滿整個螢幕；經典 160x144：撐滿高度置中 */
 function landFit(){const B=document.body;
   if(!LAND){screenEl.style.width=screenEl.style.height='';B.style.removeProperty('--lside');return}
