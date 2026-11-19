@@ -93,5 +93,7 @@ $('#tb').addEventListener('click',e=>{if(e.target.tagName==='IMG'&&e.target.clos
 $('#zoom').addEventListener('click',()=>$('#zoom').style.display='none');
 draw();
 </script>
+<a id="backGame" href="./" style="position:fixed;left:10px;top:10px;z-index:9999;background:#2a9d8f;color:#fff;font:bold 15px sans-serif;padding:8px 14px;border-radius:10px;text-decoration:none;box-shadow:0 2px 6px #0005">← 返回遊戲</a>
+<script>/* 在遊戲裡開（embed）時上面已經有「返回遊戲」，這顆藏起來 */if(new URLSearchParams(location.search).get("embed")||window.parent!==window)document.getElementById("backGame").hidden=true;</script>
 </body>
 </html>

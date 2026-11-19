@@ -314,6 +314,39 @@ body.land #a2hs{display:block;position:fixed;left:50%;top:8px;transform:translat
 body.land #a2hs button{position:absolute;right:6px;top:6px;border:0;background:#3a4160;color:#fff;border-radius:6px;width:26px;height:26px;cursor:pointer}
 body.land.lgmenu #lmMenu,body.land.lgmenu #lmBtn{display:none}
 
+/* 11/19 左下角聊天視窗 */
+#lchat{display:none}
+body.land #lchat{display:block;position:fixed;left:calc(8px + env(safe-area-inset-left,0px));bottom:8px;z-index:44;font-size:13px;color:#fff}
+body.land #lchat .lcpill{display:inline-flex;align-items:center;gap:6px;background:rgba(40,44,56,.55);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:5px 12px;color:#fff;font:inherit;cursor:pointer}
+body.land #lchat .lcpill b{background:#e02020;border-radius:9px;padding:0 6px;font-size:11px}
+body.land #lchat .lcwin{display:none}
+body.land.lcopen #lchat .lcpill{display:none}
+body.land.lcopen #lchat .lcwin{display:flex;flex-direction:column;width:min(320px,42vw);height:min(220px,62vh);background:rgba(40,44,56,.6);border:1px solid rgba(255,255,255,.28);border-radius:12px;overflow:hidden}
+body.land #lchat .lchd{display:flex;align-items:center;gap:6px;padding:4px 8px;background:rgba(0,0,0,.28);font-weight:bold}
+body.land #lchat .lcmin{margin-left:auto;background:transparent;border:0;color:#fff;font:inherit;opacity:.85;cursor:pointer}
+body.land #lchat .lcbody{flex:1;min-height:0;overflow:hidden;display:flex}
+body.land #lchat #chatCard{flex:1;min-height:0;display:flex;flex-direction:column;margin:0;padding:4px 6px;background:transparent!important;border:0;box-shadow:none;color:#fff;font-size:13px}
+body.land #lchat #chatCard .chattabs{display:flex;gap:4px}body.land #lchat #chatCard .chattabs button{font-size:12px;padding:2px 8px}
+body.land #lchat #chatCard #chatList,body.land #lchat #chatCard #frBox{flex:1;min-height:0;overflow-y:auto;background:transparent;max-height:none}
+body.land #lchat #chatCard .frdm{max-height:none}
+body.land #lchat #chatCard li,body.land #lchat #chatCard b,body.land #lchat #chatCard span{color:#fff}
+body.land #lchat #chatCard input{background:rgba(255,255,255,.88);color:#222}
+.backhint{display:block;font-size:12px;opacity:.75;margin:-4px 0 6px 4px}
+body.land.lcopen #lchat .lcwin{height:min(200px,60vh)}
+body.land #lchat #chatCard #frBox:not([hidden]){display:flex;flex-direction:column;overflow:hidden}
+body.land #lchat #chatCard .frhd{flex:none;font-size:12px;padding:2px 0}body.land #lchat #chatCard .frhd i{display:none}
+body.land #lchat #chatCard .frdm{flex:1;min-height:0;overflow-y:auto;margin:2px 0;padding:0}
+body.land #lchat #chatCard .frdm li{padding:1px 0;font-size:13px}body.land #lchat #chatCard .frdm li i{font-size:10px;opacity:.6;margin:0 4px}
+body.land #lchat #chatCard .chatrow{flex:none}body.land #lchat #chatCard #chatMsg{flex:none;font-size:11px;min-height:0}
+body.land.lcopen #lchat .lcwin{height:min(230px,70vh)}
+body.land #lchat #chatCard .frdm li{display:block;white-space:normal;line-height:1.35}
+body.land #lchat #chatCard .frdm li i{display:none}
+body.land #lchat #chatCard .frdm li b{display:inline;color:#ffe08a}body.land #lchat #chatCard .frdm li.me b{color:#9fe0ff}
+body.land #lchat #chatCard .frdm li b:after{content:'：'}
+body.land #lchat #chatCard .frdm li span{display:inline}
+body.land #lchat #chatCard .chattabs button{padding:1px 8px;min-height:0}
+body.land #lchat .lcblk{margin-left:auto;background:rgba(255,255,255,.15);border:0;border-radius:6px;color:#ffd0d0;font:inherit;font-size:11px;padding:1px 6px;cursor:pointer}body.land #lchat .lcblk+.lcmin{margin-left:4px}
+
 </style>
 
 </head>
@@ -363,7 +396,7 @@ import {initializeApp} from './vendor/fb10122/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from './vendor/fb10122/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,onSnapshot,runTransaction,getDocs,query,where,orderBy,limit} from './vendor/fb10122/firebase-firestore.js';
 import {getDatabase,ref,set,update as rupdate,onValue,onDisconnect,remove,serverTimestamp,push as rpush,onChildAdded,onChildChanged,onChildRemoved} from './vendor/fb10122/firebase-database.js';
-import CONFIG from './firebase-config.js?v=20261119-220256';
+import CONFIG from './firebase-config.js?v=20261119-220929';
 window.__fbLoaded=1;
 
 const $=id=>document.getElementById(id);
@@ -535,7 +568,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261119-220256";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261119-220929";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2191,7 +2224,7 @@ function miniOpen(url,onMsg){return new Promise(res=>{const ov=document.createEl
   f.setAttribute('allowtransparency','true');const FULL=ov.style.cssText,FF=f.style.cssText;
   const h=e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.src==='race'){if(d.ui==='card'){ov.style.cssText='position:fixed;left:0;right:0;bottom:0;height:150px;z-index:99999;background:transparent;display:flex;flex-direction:column';bar.hidden=true;f.style.cssText='flex:1;border:0;width:100%;background:transparent'}else if(d.ui==='full'){ov.style.cssText=FULL;bar.hidden=false;f.style.cssText=FF}
     if(d.state){RACE_ST=d.state==='queue'||d.state==='racing'?d.state:'';try{updatePresence()}catch(er){}}}try{onMsg&&onMsg(d,send)}catch(er){console.error(er)}};window.addEventListener('message',h);
-  x.onclick=()=>{window.removeEventListener('message',h);ov.remove();if(RACE_ST){RACE_ST='';try{updatePresence()}catch(er){}}res()};f.onload=()=>{try{if(!/(race|bingo)[.]html$/.test(f.contentWindow.location.pathname))x.onclick()}catch(e){}}})}
+  x.onclick=()=>{window.removeEventListener('message',h);ov.remove();if(RACE_ST){RACE_ST='';try{updatePresence()}catch(er){}}res()};f.onload=()=>{try{if(!/(race|bingo|dex)[.]html$/.test(f.contentWindow.location.pathname))x.onclick()}catch(e){}}})}
 /* ===== 終章：首領灰霧王的 AI（像真人玩家）=====
    ①你換寶貝他也換，挑剋你的（不設上限，換的時候有台詞）②看你快倒了就收尾 ③血剩 1/3：回血，沒有回血招就換下保命（每隻一次）
    ④開場先對你最強的寶貝下睡眠/麻痺/混亂，身上已經有狀態就不重複 ⑤先強化/降你攻擊 ⑥再用效果絕佳的大招 */
@@ -2655,7 +2688,7 @@ async function letterBox(){for(;;){const LS_=allLetters();showText('信箱');con
     const w=addMon(gm);G.flags['mg_'+L.id]=true;sfx('badge');await say(`收到了 GM 送的 ${SP[gm.sp].n} Lv${gm.lv}！${w==='box'?`\n身上滿了，已經送到電腦的怪獸箱（箱${(gm.bx|0)+1}）。`:''}`);await saveNow()}}}
 /* ================= 遊戲內「訓練家」：好友清單、用 ID 加好友、私訊 ================= */
 const pid=id=>String(id||'').slice(0,6).toUpperCase();
-const frUnread=()=>FR.reqs.length+FR.list.reduce((s,f)=>s+unreadOf(f),0);
+const frUnread=()=>{try{return dmUnread()}catch(e){return FR.reqs.length+FR.list.reduce((s,f)=>s+unreadOf(f),0)}};
 let FRP=null;
 function frpMark(f){FR.seen[f.pair]=Date.now();try{localStorage.setItem('baodao_dmseen',JSON.stringify(FR.seen))}catch(e){}}
 function frpFind(q){q=q.trim();if(!q)return [];const Q=q.toUpperCase(),ql=q.toLowerCase();
@@ -2783,8 +2816,8 @@ function friendsFromLocks(docs){if(!uid)return;const L=[],R=[],D={};
   for(const d of docs){const v=d.data?d.data():d;const id=d.id;if(!v||typeof v!=='object')continue;
     if(/^fr_/.test(id)&&(v.a===uid||v.b===uid)){const o=v.a===uid?v.b:v.a;if(typeof o==='string')L.push({id:o,name:String((v.a===uid?v.bn:v.an)||'訓練家').slice(0,8),pair:pairKey(uid,o)})}
     else if(/^freq_/.test(id)&&v.to===uid&&typeof v.from==='string'&&v.from!==uid)R.push({id:v.from,name:String(v.fromName||'訓練家').slice(0,8),doc:id});
-    else if(/^dm_/.test(id)&&typeof v.pair==='string'&&v.pair.split('_').includes(uid)&&typeof v.text==='string'&&typeof v.t==='number'){(D[v.pair]=D[v.pair]||[]).push({id,from:v.from,name:String(v.name||'').slice(0,8),text:v.text.slice(0,120),t:v.t})}}
-  FR.ready=true;const seen=new Set();FR.list=L.filter(f=>!seen.has(f.id)&&seen.add(f.id));FR.reqs=R.filter(r=>!isFriend(r.id));for(const k in D)D[k].sort((a,b)=>a.t-b.t);FR.dms=D;renderFriends()}
+    else if(/^dm_/.test(id)&&typeof v.pair==='string'&&v.pair.split('_').includes(uid)&&typeof v.text==='string'&&typeof v.t==='number'&&!LBLOCK.has(v.from)){(D[v.pair]=D[v.pair]||[]).push({id,from:v.from,name:String(v.name||'').slice(0,8),text:v.text.slice(0,120),t:v.t})}}
+  FR.ready=true;const seen=new Set();FR.list=L.filter(f=>!seen.has(f.id)&&seen.add(f.id));FR.reqs=R.filter(r=>!isFriend(r.id));for(const k in D)D[k].sort((a,b)=>a.t-b.t);FR.dms=D;renderFriends();try{lchatOnDms()}catch(e){}}
 function friendName(id){const r=rosterDocs.find(x=>x.id===id);return (r&&r.d&&typeof r.d.name==='string'&&r.d.name.slice(0,8))||(FR.list.find(f=>f.id===id)||{}).name||'訓練家'}
 function friendWhere(id){const on=onlineMap();if(on[id]!==undefined)return {on:true,at:on[id]||'冒險中'};const r=rosterDocs.find(x=>x.id===id);const mp=r&&r.d&&r.d.pos&&r.d.pos.map;return {on:false,at:(MAPS[mp]&&MAPS[mp].name)||'不明'}}
 const unreadOf=f=>(FR.dms[f.pair]||[]).filter(m=>m.from!==uid&&m.t>(FR.seen[f.pair]||0)).length;
@@ -2797,7 +2830,7 @@ async function declineFriend(r){try{await db.doc('freq/'+r.doc).delete()}catch(e
 function alertMsg(t){$('chatMsg').textContent=t;return Promise.resolve()}
 function setChatView(v,w){FR.view=v;FR.with=w||null;if(v==='dm'&&w){FR.seen[w.pair]=Date.now();try{localStorage.setItem('baodao_dmseen',JSON.stringify(FR.seen))}catch(e){}}
   $('chatTabLobby').classList.toggle('on',v==='lobby');$('chatTabFr').classList.toggle('on',v!=='lobby');$('chatList').hidden=v!=='lobby';$('frBox').hidden=v==='lobby';
-  $('chatRow').hidden=v==='friends';$('chatIn').placeholder=v==='dm'?`私訊給 ${w.name}……`:'說點什麼……';$('chatMsg').textContent='';renderFriends()}
+  $('chatRow').hidden=v==='friends';$('chatIn').placeholder=v==='dm'?`私訊給 ${w.name}……`:'說點什麼……';$('chatMsg').textContent='';renderFriends();try{lchatBadge()}catch(e){}}
 function renderFriends(){frpRender();const box=$('frBox');if(!box)return;const tab=$('chatTabFr');const unread=FR.list.reduce((s,f)=>s+unreadOf(f),0)+FR.reqs.length;tab.dataset.n=unread?String(unread):'';
   if(FR.view==='lobby')return;if(FR.view==='friends'&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.frsearch'))return;box.replaceChildren();const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
   if(FR.view==='dm'&&FR.with){const f=FR.with;const hd=mk('div','frhd');const bk=mk('button','frbk','← 好友');bk.onclick=()=>setChatView('friends');const w=friendWhere(f.id);const hn=mk('b',null,f.name);if(GM_UIDS.has(f.id))hn.append(gmTag());hd.append(bk,hn,mk('i',null,(w.on?'● 線上・':'離線・最後在 ')+w.at));box.append(hd);
@@ -2809,9 +2842,9 @@ function renderFriends(){frpRender();const box=$('frBox');if(!box)return;const t
   friendSearch(box,mk);
   for(const r of FR.reqs){const row=mk('div','frrow req');row.append(mk('b',null,r.name),mk('i',null,'想加你為好友'));const ok=mk('button','go','接受'),no=mk('button','no','拒絕');ok.onclick=()=>acceptFriend(r);no.onclick=()=>declineFriend(r);row.append(ok,no);box.append(row)}
   if(!FR.list.length)box.append(mk('p','frempty','還沒有好友。\n在右邊的「訓練家名冊」按「＋好友」，或在遊戲裡走到朋友旁邊按 A →「加好友」。'));
-  for(const f of [...FR.list].sort((a,b)=>(friendWhere(b.id).on?1:0)-(friendWhere(a.id).on?1:0))){const w=friendWhere(f.id);const row=mk('div','frrow');const nm=mk('b',null,friendName(f.id));if(GM_UIDS.has(f.id))nm.append(gmTag());const u=unreadOf(f);const at=mk('i',w.on?'on':'',(w.on?'● ':'○ ')+w.at);const bt=mk('button','go','私訊'+(u?`（${u}）`:''));bt.onclick=()=>setChatView('dm',{...f,name:friendName(f.id)});row.append(nm,at,bt);box.append(row)}}
-async function dmPost(f,text){if(!db||!uid||!G)return '要先登入、開始冒險才能私訊喔！';const now=Date.now();if(now-chatLast<1500)return '講太快了，休息一下再說～';chatLast=now;
-  try{await db.doc('dm/dm_'+f.pair+'_'+now+'_'+uid.slice(0,8)).set({pair:f.pair,m:f.pair.split('_'),from:uid,name:G.name,text:text.slice(0,120),t:now});
+  for(const f of [...dmPeers()].sort((a,b)=>(friendWhere(b.id).on?1:0)-(friendWhere(a.id).on?1:0))){const w=friendWhere(f.id);const row=mk('div','frrow');const nm=mk('b',null,friendName(f.id));if(GM_UIDS.has(f.id))nm.append(gmTag());const u=unreadOf(f);const at=mk('i',w.on?'on':'',(w.on?'● ':'○ ')+w.at);const bt=mk('button','go','私訊'+(u?`（${u}）`:''));bt.onclick=()=>setChatView('dm',{...f,name:friendName(f.id)});row.append(nm,at,bt);box.append(row)}}
+async function dmPost(f,text){if(!db||!uid||!G)return '要先登入、開始冒險才能私訊喔！';const now=Date.now();if(now-chatLast<2000)return '講太快了，休息一下再說～';chatLast=now;
+  try{await db.doc('dm/dm_'+f.pair+'_'+now+'_'+uid.slice(0,8)).set({pair:f.pair,m:f.pair.split('_'),from:uid,name:G.name,text:text.slice(0,100),t:now});
     const old=(FR.dms[f.pair]||[]).filter((m,i,a)=>i<a.length-80||now-m.t>30*864e5).slice(0,10);for(const m of old){try{db.doc('dm/'+m.id).delete()}catch(e){}}return ''}
   catch(e){return '送出失敗，請稍後再試。'}}
 async function dmSend(){const inp=$('chatIn'),f=FR.with;const text=inp.value.replace(/\s+/g,' ').trim();if(!text||!f)return;
@@ -5064,8 +5097,8 @@ const teamOf=arr=>(Array.isArray(arr)?arr:[]).slice(0,6).map(sanMon).filter(Bool
 async function peerTalk(pe){
   if(!DUEL()){await say(`${pe.name}：嗨！（真人對戰請到網站版玩喔）`);return}
   if(pe.fight){await say(`${pe.name} 正在對戰中，等一下再來吧！`);return}
-  showText(`要跟 ${pe.name} 做什麼？`);const c=await choose(['對戰','交換寶貝','給予寶貝','給予道具','展示寶貝',isFriend(pe.id)?'私訊':'加好友','算了'],{pos:'list'});hideText();
-  if(c===5){if(isFriend(pe.id)){setChatView('dm',{id:pe.id,name:pe.name,pair:pairKey(uid,pe.id)});(LAND?landOpen(true):$('chatCard').scrollIntoView({behavior:'smooth',block:'center'}))}else{await addFriend(pe.id,pe.name);await say($('chatMsg').textContent||'已送出好友邀請！')}return}
+  showText(`要跟 ${pe.name} 做什麼？`);const FRD=isFriend(pe.id);let c=await choose(FRD?['對話','對戰','交換寶貝','給予寶貝','給予道具','展示寶貝','算了']:['對話','對戰','交換寶貝','給予寶貝','給予道具','展示寶貝','加好友','算了'],{pos:'list'});hideText();if(c===0){lchatTalk(pe);return}c=c>=1&&c<=(FRD?5:6)?c-1:6
+  if(c===5){if(isFriend(pe.id)){setChatView('dm',{id:pe.id,name:pe.name,pair:pairKey(uid,pe.id)});(LAND?lchatOpen(true):$('chatCard').scrollIntoView({behavior:'smooth',block:'center'}))}else{await addFriend(pe.id,pe.name);await say($('chatMsg').textContent||'已送出好友邀請！')}return}
   if(c===4){await showOffer(pe);return}
   if(c===1){await tradeOffer(pe);return}if(c===2){await giftOffer(pe);return}if(c===3){await itemOffer(pe);return}if(c!==0)return;
   if(!G.party.some(m=>m.hp>0)){await say('你的怪獸都沒有力氣了，先去休息吧！');return}
@@ -5469,7 +5502,7 @@ async function ysRaid(G0){const party=G0.party;const me=party.findIndex(p=>p.uid
   if(result.r==='caught'){music('victory');if(caughtByMe){const dm=makeMon(SPN('玉山蒼龍'),YS_DLV,G.name);dm.hp=maxhp(dm);G.flags.ysDragon=1;const w=addMon(dm);await sayAll([`抓到了 玉山蒼龍！！`,w==='box'?'身上滿了，玉山蒼龍送進怪獸箱了。':'玉山蒼龍成為你的夥伴了！']);try{await db.doc('chat/chat_'+Date.now()+'_'+String(uid).slice(0,40)).set({uid,name:G.name||'訓練家',text:`🎉 恭喜 ${G.name} 抓到了傳說中的玉山蒼龍！`,t:Date.now()})}catch(e){}}
     else{await say(`${party[result.i].name} 抓到了玉山蒼龍！`);if(!S.h[me]){G.flags.ysScale=(G.flags.ysScale|0)+1;G.money=Math.min(999999,G.money+5000);await sayAll(['蒼龍飛走前，留下了一片發光的鱗片……','得到了「蒼龍之鱗」！還有 5000 元獎金！'])}else{G.money=Math.min(999999,G.money+5000);await say('幫忙打贏了！得到 5000 元獎金！')}}}
   else if(result.r==='flee'){await sayAll(['玉山蒼龍 倒下了……','蒼龍化成一道光，飛回了雲海。']);if(!S.h[me]){G.flags.ysScale=(G.flags.ysScale|0)+1;G.money=Math.min(999999,G.money+3000);await say('地上留下了「蒼龍之鱗」！還有 3000 元獎金。')}else{G.money=Math.min(999999,G.money+3000);await say('得到 3000 元獎金！')}}
-  else if(result.r==='lose'){await say('大家的寶貝都倒下了……蒼龍飛回了雲海。');await say('（挑戰蒼龍失敗不會扣錢，再接再厲！）')}
+  else if(result.r==='lose'){await say('大家的寶貝都倒下了……蒼龍飛回了雲海。');await say('（輸給蒼龍不會扣錢，再來挑戰吧！）')}
   real.hp=Math.max(0,Math.min(maxhp(real),my.hp));
   hideText();eInfo.hidden=pInfo.hidden=true;ysBox().hidden=true;await transition();B=null;PV=null;YS=null;mode='map';
   if(result.r==='lose'||result.r==='flee'||result.r==='drop'){if(result.r==='lose')G.party.forEach(m=>m.hp=Math.max(m.hp,0));loadMap('ys_paiyun');placePlayer({x:4,y:6,dir:'up'});if(result.r==='lose'){healAll();await say('山屋管理員把你們扶回了排雲山莊……\n寶貝們休息好了。')}}
@@ -5757,6 +5790,7 @@ function gfxChunk(cx,cy,now,fn){if(!fn)return;for(let oy=0;oy<GH;oy+=144)for(let
 
 /* ===== 手機橫拿版面（全螢幕）：地圖鋪滿整個螢幕、畫面放大；左半邊滑動搖桿、A/B 半透明疊在右下；頁面上的東西收進右上角「≡」 =====
    只在 (橫拿 且 高度≤560px) 套用 body.land；直拿/電腦完全不變。（舊的 Switch 式左右按鍵版：land_runtime_switch版.js） */
+let LCHAT=null,LCHAT_T=0;let LBLOCK=new Set();try{LBLOCK=new Set(JSON.parse(localStorage.getItem('bd_block')||'[]'))}catch(e){}/* 私訊「不接收這個人」 *//* 左下角聊天視窗（下面 lchatBuild） */
 const LAND_MQ=matchMedia('(orientation:landscape) and (max-height:560px)');let LAND=false,LAND_KB=false,LAND_WW=352,LAND_FULLH=0;const LAND_PH=[];
 const LAND_GH=112;/* 橫拿新版畫面一次看幾格高（112＝7 格；越小人物越大） */
 function landWW(){return LAND?LAND_WW:352}
@@ -5784,14 +5818,14 @@ function landFit(){const B=document.body;
 /* 滑動搖桿：手指按在畫面左半邊任何地方就出現，往哪滑就往哪走 */
 (()=>{let pid=null,ox=0,oy=0,cur=null,rep=0;const J=document.createElement('div');J.id='joy';J.innerHTML='<i></i>';J.hidden=true;document.body.append(J);const K=J.firstChild;
   const set=d=>{if(d===cur)return;if(cur)held[cur]=0;clearInterval(rep);cur=d;if(d){held[d]=1;press(d);rep=setInterval(()=>{if(uiStack.length)press(d)},180)}};
-  const skip=t=>t.closest('button,a,input,textarea,select,#lPanel,#lmBtn,#lmMenu,#a2hs,.ab,.ss,#bugDlg,#saveWarn,#menu,#sheet,#nameForm');
+  const skip=t=>t.closest('button,a,input,textarea,select,#lPanel,#lmBtn,#lmMenu,#a2hs,#lchat,.ab,.ss,#bugDlg,#saveWarn,#menu,#sheet,#nameForm');
   addEventListener('pointerdown',e=>{if(!LAND||pid!==null||e.clientX>innerWidth*.5||skip(e.target))return;if(document.body.classList.contains('lmopen'))return;
     pid=e.pointerId;ox=e.clientX;oy=e.clientY;J.style.left=ox+'px';J.style.top=oy+'px';K.style.transform='translate(-50%,-50%)';J.hidden=false;e.preventDefault()},{passive:false});
   addEventListener('pointermove',e=>{if(e.pointerId!==pid)return;let dx=e.clientX-ox,dy=e.clientY-oy;const r=Math.hypot(dx,dy),R=40;if(r>R){dx=dx/r*R;dy=dy/r*R}
     K.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;set(r<14?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))});
   const end=e=>{if(e.pointerId!==pid)return;pid=null;set(null);J.hidden=true};['pointerup','pointercancel'].forEach(t=>addEventListener(t,end))})();
 function landOpen(on){document.body.classList.toggle('lmopen',on);const b=$('lmBtn');if(b)b.setAttribute('aria-expanded',on?'true':'false')}
-function landBuild(){if($('lPanel'))return;
+function landBuild(){lchatBuild();if($('lPanel'))return;
   const btn=document.createElement('button');btn.type='button';btn.id='lmBtn';btn.setAttribute('aria-label','選單：公告、聊天、名冊');btn.innerHTML='≡<i hidden></i>';
   btn.addEventListener('click',e=>{e.stopPropagation();landOpen(!document.body.classList.contains('lmopen'))});
   const p=document.createElement('aside');p.id='lPanel';p.innerHTML='<div class="lphead"><b>飽島怪獸</b><button type="button" class="lpx">✕ 回到遊戲</button></div><div class="lpbody"></div><div class="lprow" id="lpBug"></div>';
@@ -5809,7 +5843,7 @@ function landBuild(){if($('lPanel'))return;
   p.addEventListener('click',e=>{if(e.target.closest('#bugBtn,#gmBcBtn,#gmDropBtn,.ss [data-k],#resetBtn'))landOpen(false)})}
 /* 把頁面上的東西搬進 ≡ 面板（離開橫拿時原封不動搬回去，事件都還在） */
 function landMove(on){const p=$('lPanel'),body=p.querySelector('.lpbody'),bug=$('lpBug');
-  if(on){const list=[['news',body],['thBanner',body],['lineBanner',body],['shareBtn',body],['dexLink',body],['bugBtn',bug],['gmBcBtn',bug],['gmDropBtn',bug],['chatCard',body]];
+  if(on){const list=[['news',body],['thBanner',body],['lineBanner',body],['shareBtn',body],['dexLink',body],['bugBtn',bug],['gmBcBtn',bug],['gmDropBtn',bug],['chatCard',LCHAT.querySelector('.lcbody')]];
     for(const [id,to] of list){const n=$(id);if(n)LAND_PH.push([n,to])}const side=document.querySelector('.wrap > .side');if(side)LAND_PH.push([side,body]);const ss=document.querySelector('.device .ss');if(ss)LAND_PH.push([ss,bug]);
     for(const r of LAND_PH){const n=r[0],ph=document.createComment('land');n.parentNode.insertBefore(ph,n);r.push(ph);r[1].append(n)}
     body.before(bug)}
@@ -5835,6 +5869,32 @@ function landA2HS(){try{const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||
   const t=document.createElement('div');t.id='a2hs';t.innerHTML='📱 想要全螢幕玩？點 Safari 的「分享」<b>⬆︎</b> →「加入主畫面」，從主畫面打開就沒有網址列了<button type="button" aria-label="關閉">✕</button>';
   const close=()=>{t.remove();try{localStorage.setItem(k,d)}catch(e){}};t.querySelector('button').onclick=close;setTimeout(close,12000);document.body.append(t)}catch(e){}}
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(LAND&&!document.body.classList.contains('ltyping'))landFit()});
+
+/* ===== 11/19 左下角聊天視窗（灰色半透明）：平常縮成「💬 聊天」＋未讀紅點；收到好友私訊自動展開；點一下展開、「－」縮小。沿用原本的聊天卡（大廳／好友／私訊）和未讀計數 ===== */
+function lchatBuild(){if(LCHAT)return;const w=document.createElement('div');w.id='lchat';
+  w.innerHTML='<button type="button" class="lcpill">💬 聊天<b hidden></b></button><div class="lcwin"><div class="lchd"><span class="lcti">聊天</span><button type="button" class="lcblk" hidden>不接收這個人</button><button type="button" class="lcmin">－ 縮小</button></div><div class="lcbody"></div></div>';
+  document.body.append(w);LCHAT=w;w.querySelector('.lcpill').onclick=()=>lchatOpen(true);w.querySelector('.lcmin').onclick=()=>lchatOpen(false);w.querySelector('.lcblk').onclick=lchatBlock}
+function lchatOpen(on){lchatBuild();document.body.classList.toggle('lcopen',!!on);if(on){const c=$('chatCard');if(c)c.hidden=false}lchatBadge()}
+function dmPeers(){const out=[],seen=new Set();for(const f of FR.list){seen.add(f.id);out.push(f)}
+  for(const k in FR.dms){const ids=k.split('_'),o=ids[0]===uid?ids[1]:ids[0];if(!o||o===uid||seen.has(o)||LBLOCK.has(o))continue;seen.add(o);const last=[...FR.dms[k]].reverse().find(m=>m.from===o);out.push({id:o,name:(last&&last.name)||friendName(o),pair:k})}
+  return out.filter(f=>!LBLOCK.has(f.id))}
+function dmUnread(){let n=FR.reqs.length;for(const f of dmPeers())n+=unreadOf(f);return n}
+function lchatBlock(){const f=FR.with;if(!f)return;if(LBLOCK.has(f.id))LBLOCK.delete(f.id);else{if(!confirm(`不再接收 ${f.name} 的私訊？（之後可以再按一次取消）`))return;LBLOCK.add(f.id)}
+  try{localStorage.setItem('bd_block',JSON.stringify([...LBLOCK]))}catch(e){}lchatBadge()}
+function lchatBadge(){if(!LCHAT)return;let n=0;try{n=dmUnread()}catch(e){}const b=LCHAT.querySelector('.lcpill b');b.hidden=!n;b.textContent=n>9?'9+':String(n);
+  LCHAT.querySelector('.lcti').textContent=FR.view==='dm'&&FR.with?'［'+FR.with.name+'］私訊':FR.view==='friends'?'好友':'聊天';
+  const bl=LCHAT.querySelector('.lcblk');bl.hidden=!(FR.view==='dm'&&FR.with);if(FR.with)bl.textContent=LBLOCK.has(FR.with.id)?'取消封鎖':'不接收這個人'}
+/* 好友私訊資料更新時呼叫：有新的別人傳來的私訊 → 自動展開到那個人 */
+function lchatOnDms(){let mx=0,who=null;for(const f of dmPeers())for(const m of (FR.dms[f.pair]||[]))if(m.from!==uid&&m.t>mx){mx=m.t;who=f}
+  if(!LCHAT_T){LCHAT_T=mx||1;lchatBadge();return}
+  if(mx>LCHAT_T){LCHAT_T=mx;if(LAND&&who&&unreadOf(who)>0){setChatView('dm',{...who});lchatOpen(true)}}lchatBadge()}
+/* 點好友 →「對話」：自己頭上 💬（同步給大家看），打開跟他的私訊 */
+function lchatTalk(pe){myEmo={e:'💬',t:Date.now()};try{updatePresence()}catch(e){}if(LBLOCK.has(pe.id)){LBLOCK.delete(pe.id);try{localStorage.setItem('bd_block',JSON.stringify([...LBLOCK]))}catch(e){}}setChatView('dm',{id:pe.id,name:pe.name||friendName(pe.id),pair:pairKey(uid,pe.id)});
+  if(LAND){lchatOpen(true);setTimeout(()=>{const i=$('chatIn');if(i)i.focus()},50)}else $('chatCard').scrollIntoView({behavior:'smooth',block:'center'})}
+/* 圖鑑：在遊戲裡開一層視窗，上面「← 返回遊戲」，關掉回到原本的地方 */
+function dexOpen(e){if(e)e.preventDefault();landOpen(false);window.__miniHold=true;const p=miniOpen('dex.html?embed=1');setTimeout(()=>{const ov=$('miniov');if(!ov)return;const bar=ov.firstChild,b=bar&&bar.querySelector('button');if(b){b.textContent='← 返回遊戲';bar.style.justifyContent='flex-start'}},0);p.finally(()=>{window.__miniHold=false})}
+(()=>{const d=$('dexLink');if(d&&/^https?:/.test(location.protocol))d.addEventListener('click',dexOpen);
+  for(const id of ['thBanner','lineBanner']){const a=$(id);if(a&&!a.nextElementSibling?.classList?.contains('backhint')){const s=document.createElement('small');s.className='backhint';s.textContent='看完切回這個分頁就能繼續玩';a.after(s)}}})();
 
 boot();
 })();
