@@ -22,6 +22,9 @@ ICONS = ('<link rel="apple-touch-icon" href="apple-touch-icon.png">'
          '<link rel="icon" type="image/png" href="favicon.png">'
          '<link rel="manifest" href="manifest.webmanifest">'
          '<meta name="apple-mobile-web-app-title" content="飽島怪獸">'
+         '<meta name="apple-mobile-web-app-capable" content="yes">'   # 11/19 加入主畫面後全螢幕開（沒有網址列）
+         '<meta name="mobile-web-app-capable" content="yes">'
+         '<meta name="apple-mobile-web-app-status-bar-style" content="black">'
          '<meta name="theme-color" content="#141a2a">')
 head, body = src.split('<div class="wrap">', 1)
 auth_html = open(os.path.join(here, 'auth.html'), encoding='utf-8').read()
