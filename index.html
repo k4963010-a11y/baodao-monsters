@@ -579,7 +579,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261120-095141";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261120-095958";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2789,6 +2789,11 @@ $('gmShrBtn').addEventListener('click',()=>gmCtStart('shrimp'));$('gmBugBtn').ad
 for(const w of MAPS.bali.warps)if(w[2]==='bforest'){w[6]=()=>GM_UIDS.has(uid)||(CT_BUG_OPEN&&!ctBugBanned());w[7]=()=>!CT_BUG_OPEN?'森林管理員：超級大森林正在整理中，\n暫時不開放，敬請期待！':'森林管理員：你已經抓到補網蛛婆了！\n這場比賽讓別人也有機會吧～'}
 /*fix1120d*/const CT_SHRIMP_OPEN=false;  /* 11/20 超大釣蝦場先關門，志凱自己測試；要開放改成 true */
 for(const w of MAPS.bali.warps)if(w[2]==='shrimp'){w[6]=()=>CT_SHRIMP_OPEN||GM_UIDS.has(uid);w[7]='釣蝦場老闆：超大釣蝦場正在整理中，\n暫時不開放，敬請期待！'}
+/*upd1120*/function updTopShow(){let b=$('updTop');if(!b){b=document.createElement('button');b.type='button';b.id='updTop';b.textContent='🔄 有更新';b.setAttribute('aria-label','有新版本，按這裡更新');
+    b.addEventListener('pointerdown',e=>{e.stopPropagation()});b.addEventListener('click',e=>{e.stopPropagation();$('resetBtn').click()});document.body.append(b);
+    const st=document.createElement('style');st.textContent='#updTop{position:fixed;top:8px;right:calc(10px + env(safe-area-inset-right,0px));z-index:47;height:42px;padding:0 14px;border-radius:10px;border:0;background:#e02828;color:#fff;font:inherit;font-size:17px;font-weight:bold;box-shadow:0 3px 0 #7a0c0c;cursor:pointer;animation:updPulse 1s ease-in-out infinite}@keyframes updPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}body.lgmenu #updTop{display:none}';document.head.append(st);
+    const pos=()=>{const m=$('lmMenu');const r=m?m.getBoundingClientRect():null;b.style.right=r&&r.width?Math.round(innerWidth-r.left+8)+'px':''};pos();addEventListener('resize',()=>setTimeout(pos,300));setInterval(pos,2000)}
+  b.hidden=false}
 /* ================= GM 防作弊巡查 ================= */
 let CHEAT_GIFTS={};
 async function cheatScan(){if(!GM_UIDS.has(uid)||!db)return;const sub=$('cheatSub'),ul=$('cheatList');sub.textContent='掃描中……';ul.replaceChildren();
@@ -5740,7 +5745,7 @@ $('sndBtn').addEventListener('click',()=>{auInit();setSound(!AU.on);screenEl.foc
 let updReady=false;
 $('resetBtn').addEventListener('click',async()=>{auInit();if(mode==='battle'||B){const t=document.createElement('div');t.className='toastmsg';t.textContent='對戰中不能更新，打完再按一次喔！';document.body.append(t);setTimeout(()=>t.remove(),2200);return}if(updReady){try{if(G){for(let i=0;i<40&&saving;i++)await new Promise(r=>setTimeout(r,100));await saveNow()}else saveLocal()}catch(e){}location.replace(location.pathname+'?v='+encodeURIComponent(updReady));return}softReset();screenEl.focus()});
 if(window.BD_BUILD){const chk=async()=>{if(updReady)return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();
-  if(j&&j.build&&j.build!==window.BD_BUILD){updReady=j.build;if(mode==='title'&&!G){location.replace(location.pathname+'?v='+encodeURIComponent(j.build));return}$('resetWrap').classList.add('upd');$('resetLbl').textContent='有更新！';$('resetBtn').setAttribute('aria-label','有新版本，按這裡更新')}}catch(e){}};
+  if(j&&j.build&&j.build!==window.BD_BUILD){updReady=j.build;if(mode==='title'&&!G){location.replace(location.pathname+'?v='+encodeURIComponent(j.build));return}$('resetWrap').classList.add('upd');updTopShow();$('resetLbl').textContent='有更新！';$('resetBtn').setAttribute('aria-label','有新版本，按這裡更新')}}catch(e){}};
   setTimeout(chk,1500);setInterval(chk,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}
 async function softReset(){if(mode==='title'&&!G)return;try{if(G&&mode!=='battle'){for(let i=0;i<40&&saving;i++)await new Promise(r=>setTimeout(r,100));await saveNow()}else saveLocal()}catch(e){}
   EPOCH++;clearTimeout(saveTimer);uiStack.length=0;busy=false;B=null;M=null;G=null;ents=[];temps=[];mode='title';player.scripted=null;player.moving=false;fadeA=0;flash=false;
