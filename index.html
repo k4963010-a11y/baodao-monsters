@@ -568,7 +568,7 @@ if(auth){
   </div>
 </div>
 
-<script>window.BD_BUILD="20261120-093357";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
+<script>window.BD_BUILD="20261120-094621";window.BD_CLOUD=new Promise(r=>{window.__resolveCloud=r});</script>
 <script>
 (()=>{
 'use strict';
@@ -2776,6 +2776,8 @@ $('gmShrBtn').addEventListener('click',()=>gmCtStart('shrimp'));$('gmBugBtn').ad
 
 /*fix1120c*/const CT_BUG_OPEN=false;  /* 11/20 超級大森林先關門，志凱自己測試；要開放改成 true */
 for(const w of MAPS.bali.warps)if(w[2]==='bforest'){w[6]=()=>GM_UIDS.has(uid)||(CT_BUG_OPEN&&!ctBugBanned());w[7]=()=>!CT_BUG_OPEN?'森林管理員：超級大森林正在整理中，\n暫時不開放，敬請期待！':'森林管理員：你已經抓到補網蛛婆了！\n這場比賽讓別人也有機會吧～'}
+/*fix1120d*/const CT_SHRIMP_OPEN=false;  /* 11/20 超大釣蝦場先關門，志凱自己測試；要開放改成 true */
+for(const w of MAPS.bali.warps)if(w[2]==='shrimp'){w[6]=()=>CT_SHRIMP_OPEN||GM_UIDS.has(uid);w[7]='釣蝦場老闆：超大釣蝦場正在整理中，\n暫時不開放，敬請期待！'}
 /* ================= GM 防作弊巡查 ================= */
 let CHEAT_GIFTS={};
 async function cheatScan(){if(!GM_UIDS.has(uid)||!db)return;const sub=$('cheatSub'),ul=$('cheatList');sub.textContent='掃描中……';ul.replaceChildren();
